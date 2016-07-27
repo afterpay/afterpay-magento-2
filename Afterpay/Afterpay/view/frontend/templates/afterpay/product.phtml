@@ -1,0 +1,15 @@
+<?php
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ */
+?>
+<?php if ($block->canShow()) : ?>
+<div style="position: relative; font-style: italic; line-height: 1.4;" class="afterpay-installments afterpay-installments-amount"><?php echo __('or 4 interest-free payments of') ?> <?php echo $block->getInstallmentsAmount(); ?>
+    <br>
+    <img src="http://dev.paylatermagento-dev.touchcorp.net/skin/frontend/base/default/afterpay/images/ap-logo-152x31.png" style=" width: 76px; vertical-align: middle; display: inline;">
+    <a href="javascript:void(0)" class="afterpay-modal-popup-trigger"><?php echo __('Learn more') ?></a>
+</div>
+<?php endif; ?>

@@ -1,0 +1,22 @@
+{
+    "name": "afterpay/module-afterpay",
+    "license": "OSL-3.0",
+    "type": "magento2-module",
+    "description": "Add your description here",
+    "require": {
+    },
+    "authors":[
+        {
+            "name":"Afterpay",
+            "email":"steven.gunarso@touchcorp.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Afterpay\\Afterpay\\": ""
+        }
+    }
+}

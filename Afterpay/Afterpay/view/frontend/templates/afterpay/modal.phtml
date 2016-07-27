@@ -1,0 +1,39 @@
+<?php
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ */
+?>
+<div id="afterpay-modal-popup">
+    <a href="https://www.afterpay.com.au/terms/" target="_blank">
+        <img class="afterpay-modal-image" src="https://static.secure-afterpay.com.au/banner-large.png" alt="Afterpay"/>
+        <img class="afterpay-modal-image-mobile" src="https://static.secure-afterpay.com.au/modal-mobile.png" alt="Afterpay"/>
+    </a>
+</div>
+<script>
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal'
+        ],
+        function(
+            $,
+            modal
+        ) {
+            var options = {
+                responsive: false,
+                innerScroll: false,
+                modalClass: 'afterpay-learn-more'
+            };
+            // register poup
+            var popup = modal(options, $('#afterpay-modal-popup'));
+
+            // register the click to be popup
+            $( ".afterpay-modal-popup-trigger" ).on( "click", function() {
+                $('#afterpay-modal-popup').modal('openModal');
+            });
+        }
+    );
+</script>

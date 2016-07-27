@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Afterpay_Afterpay::css/afterpay.css"/>
+    </head>
+    <body>
+        <referenceContainer name="checkout.cart.methods">
+            <block class="Afterpay\Afterpay\Block\Cart\Button" name="afterpay.cart.buynow" after="checkout.cart.shortcut.buttons" template="Afterpay_Afterpay::afterpay/cart.phtml" />
+        </referenceContainer>
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template" name="afterpay.modal.popup" after="-" template="Afterpay_Afterpay::afterpay/modal.phtml" />
+        </referenceContainer>
+    </body>
+</page>

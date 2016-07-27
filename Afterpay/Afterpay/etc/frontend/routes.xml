@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="afterpay" frontName="afterpay">
+            <module name="Afterpay_Afterpay" />
+        </route>
+    </router>
+</config>

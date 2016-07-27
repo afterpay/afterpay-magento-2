@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Afterpay\Afterpay\Model\Adapter\ApiMode">
+        <arguments>
+            <argument name="environments" xsi:type="array">
+                <item name="development" xsi:type="array">
+                    <item name="label" xsi:type="string">Development</item>
+                    <item name="api_url" xsi:type="string">https://api-dev.secure-afterpay.com.au/</item>
+                    <item name="web_url" xsi:type="string">https://www-dev.secure-afterpay.com.au/</item>
+                </item>
+                <item name="qa" xsi:type="array">
+                    <item name="label" xsi:type="string">QA</item>
+                    <item name="api_url" xsi:type="string">https://api-qa.secure-afterpay.com.au/</item>
+                    <item name="web_url" xsi:type="string">https://www-qa.secure-afterpay.com.au/</item>
+                </item>
+                <item name="stage" xsi:type="array">
+                    <item name="label" xsi:type="string">Stage</item>
+                    <item name="api_url" xsi:type="string">https://api-stg.secure-afterpay.com.au/</item>
+                    <item name="web_url" xsi:type="string">https://www-stg.secure-afterpay.com.au/</item>
+                </item>
+                <item name="sandbox" xsi:type="array">
+                    <item name="label" xsi:type="string">Sandbox</item>
+                    <item name="api_url" xsi:type="string">https://api-sandbox.secure-afterpay.com.au/</item>
+                    <item name="web_url" xsi:type="string">https://www-sandbox.secure-afterpay.com.au/</item>
+                </item>
+                <item name="production" xsi:type="array">
+                    <item name="label" xsi:type="string">Production</item>
+                    <item name="api_url" xsi:type="string">https://api.secure-afterpay.com.au/</item>
+                    <item name="web_url" xsi:type="string">https://www.secure-afterpay.com.au/</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Checkout\Model\PaymentInformationManagement">
+        <plugin name="addAfterpayTokenToResponse" type="Afterpay\Afterpay\Model\PaymentInformationManagement\Plugin" />
+    </type>
+    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
+        <plugin name="addAfterpayTokenToResponse" type="Afterpay\Afterpay\Model\GuestPaymentInformationManagement\Plugin" />
+    </type>
+    <type name="Afterpay\Afterpay\Model\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Model\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">afterpay</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="debug" xsi:type="object">Afterpay\Afterpay\Model\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

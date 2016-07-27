@@ -1,0 +1,84 @@
+<!--
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ */
+-->
+<div class="payment-method" id="afterpaypayovertime-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
+        <label data-bind="attr: {'for': getCode()}" class="label">
+            <!-- Afterpay Logo -->
+            <img data-bind="attr: {src: getAfterpayPayovertimeLogoSrc(), alt: getTitle()}"
+                 class="payment-icon"/>
+            <!-- Afterpay Logo -->
+            <span>
+                <!-- ko i18n: 'Interest-free payments.' --><!-- /ko -->
+            </span>
+        </label>
+    </div>
+    <div class="payment-method-content" id="afterpaypayovertime">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <div class="payment-method-billing-address" style="display: none">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="payment-method-note afterpay-checkout-note">
+            <h3>
+                <!-- ko i18n: 'Four interest-free payments totalling' --><!-- /ko -->
+                <strong><span data-bind="text: getGrandTotal()"></span></strong>
+            </h3>
+            <ul class="cost">
+                <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
+                <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
+                <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
+                <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
+            </ul>
+            <ul class="icon">
+                <li>
+                    <img src="http://dev.paylatermagento-dev.touchcorp.net/skin/frontend/base/default/afterpay/images/checkout/circle_1@2x.png" alt="">
+                </li>
+                <li>
+                    <img src="http://dev.paylatermagento-dev.touchcorp.net/skin/frontend/base/default/afterpay/images/checkout/circle_2@2x.png" alt="">
+                </li>
+                <li>
+                    <img src="http://dev.paylatermagento-dev.touchcorp.net/skin/frontend/base/default/afterpay/images/checkout/circle_3@2x.png" alt="">
+                </li>
+                <li>
+                    <img src="http://dev.paylatermagento-dev.touchcorp.net/skin/frontend/base/default/afterpay/images/checkout/circle_4@2x.png" alt="">
+                </li>
+            </ul>
+            <ul class="instalment">
+                <li><!-- ko i18n: 'First instalment' --><!-- /ko --></li>
+                <li><!-- ko i18n: '2 weeks later' --><!-- /ko --></li>
+                <li><!-- ko i18n: '4 weeks later' --><!-- /ko --></li>
+                <li><!-- ko i18n: '6 weeks later' --><!-- /ko --></li>
+            </ul>
+        </div>
+        <div class="payment-method-content afterpay-checkout-redirect">
+            <div class="instalment-footer">
+                <!-- ko i18n: 'You will be redirected to the Afterpay website when you proceed to checkout. ' --><!-- /ko -->
+                    <a href="http://www.afterpay.com.au/terms/" target="_blank"><!-- ko i18n: 'Terms & Conditions' --><!-- /ko --></a>
+            </div>
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button class="action primary checkout"
+                            type="submit"
+                            data-bind="click: continueAfterpayPayment, enable: (getCode() == isChecked())"
+                            disabled>
+                        <span data-bind="i18n: 'Continue to Afterpay'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="clear: both">&nbsp;</div>
+</div>

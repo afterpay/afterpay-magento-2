@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <afterpaypayovertime>
+                <active>0</active>
+                <title>Afterpay Pay Overtime</title>
+                <api_mode>sandbox</api_mode>
+                <model>Afterpay\Afterpay\Model\Payovertime</model>
+                <payment_action>authorize_capture</payment_action>
+                <merchant_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <allowspecific>1</allowspecific>
+                <specificcountry>AU</specificcountry>
+            </afterpaypayovertime>
+        </payment>
+    </default>
+</config>

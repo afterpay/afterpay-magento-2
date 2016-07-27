@@ -1,0 +1,125 @@
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ */
+
+/** afterpay.css */
+.checkout-payment-method .payment-method #afterpaypayovertime.payment-method-content {
+    padding-right: 22px;
+}
+
+.checkout-payment-method .payment-method._active #afterpaypayovertime.payment-method-content {
+    overflow:hidden
+}
+
+#afterpaypayovertime-method .payment-method-note {
+    font-size: 1.2rem;
+    color: #a0a0a0;
+    text-align: center;
+}
+
+#afterpaypayovertime-method .payment-method-note h3 {
+    color: #00a4e4;
+    text-align: left;
+}
+
+#afterpaypayovertime-method .payment-method-note ul {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+#afterpaypayovertime-method .payment-method-note ul li {
+    width: 24%;
+    display: inline-block;
+}
+
+#afterpaypayovertime-method .payment-method-note ul.cost li {
+    font-size: 1.8rem;
+    color: #153F72;
+}
+
+#afterpaypayovertime-method .afterpay-checkout-redirect {
+    margin-top: 1rem;
+    text-align: left;
+    background-color: #f6f7f9;
+    display: inline-block;
+    padding: 15px;
+}
+
+#afterpaypayovertime-method .afterpay-checkout-redirect .instalment-footer {
+    width: 100%;
+    float: left;
+}
+
+@media only screen and (min-width : 992px) {
+    #afterpaypayovertime-method .afterpay-checkout-redirect .instalment-footer {
+        width: 57%;
+    }
+}
+
+@media only screen and (min-width : 1200px) {
+    #afterpaypayovertime-method .afterpay-checkout-redirect .instalment-footer {
+        width: 65%;
+    }
+}
+
+#afterpaypayovertime-method .actions-toolbar {
+    float: right;
+    margin-top: 1.5rem;
+    line-height: 1.1;
+    width: 100%;
+    text-align: center;
+}
+
+@media only screen and (min-width : 992px) {
+    #afterpaypayovertime-method .actions-toolbar {
+        width: auto;
+        margin-top: 0px;
+    }
+}
+
+@media only screen and (min-width : 768px) {
+    #afterpaypayovertime-method .actions-toolbar .primary {
+        width: 100%;
+    }
+}
+
+.modal-popup.afterpay-learn-more .modal-inner-wrap {
+    width: 360px !important
+}
+
+@media only screen and (min-width : 992px) {
+    .modal-popup.afterpay-learn-more .modal-inner-wrap {
+        width: 659px !important
+    }
+}
+
+.modal-popup.afterpay-learn-more .modal-inner-wrap .afterpay-modal-image {
+    display: none;
+}
+
+@media only screen and (min-width : 992px) {
+    .modal-popup.afterpay-learn-more .modal-inner-wrap .afterpay-modal-image {
+        display: block;
+    }
+}
+
+.modal-popup.afterpay-learn-more .modal-inner-wrap .afterpay-modal-image-mobile {
+    display: block;
+}
+
+@media only screen and (min-width : 992px) {
+    .modal-popup.afterpay-learn-more .modal-inner-wrap .afterpay-modal-image-mobile {
+        display: none;
+    }
+}
+
+.modal-popup.afterpay-learn-more .modal-inner-wrap .modal-footer button{
+    display: none;
+}
+
+.modal-popup.afterpay-learn-more .action-close {
+    padding: 1.75rem !important;
+}
