@@ -7,30 +7,27 @@
 <li> The Afterpay Magento plugin will be provided to you as a zip file or tar file </li>
 <li> Unzip the file and follow the instructions to copy across the files Code Directory </li>
 <li> Copy folder and all files in /Afterpay folder from the unzipped plugin into [MAGENTO]/app/code </li>
+<li>
+	<p>There are 2 ways to install Afterpay Plugin</p>
+	<p> <strong>Alternative 1</strong> (currently unstable due to various Magento 2 bugs): </p>
+	<ul>
+		<li> Afterpay Plugin can be copy-pasted directly on the "app/Code" folder by creating the following structure "app/Code/Afterpay/Afterpay"</li>
+		<li> Then, go to the Admin and go to "System - Web Setup Wizard - Component Manager"</li>
+		<li> You will see Afterpay still disabled, you can enable it by clicking the option on the right hand side</li>
+		<li> If the Readiness Check fails and it says CRON not running, go to the Magento CLI.
+		 Then, run the 3 CRON operations described above (without using the time declaration, e.g "./bin/magento cron:run". Then try again.
+		</li>
+	</ul>
+
+	<p><strong>Alternative 2 </strong> (more stable): </p>
+	<ul>
+		<li> Go to the Magento CLI and use "./bin/magento module:enable Afterpay_Afterpay" </li>
+		<li> The system will most likely require us to setup upgrade afterwards: "./bin/magento setup:upgrade" </li>
+	</ul>
+</li>
 <li> Login to Magento admin and go to System > Cache Management </li>
 <li> Flush the Magento cache by selecting “Flush Magento Cache” </li>
 <li> Check that the correct Afterpay version has been installed and then complete the Configuration steps outlined in this document </li>
-</ol>
-
-<hr/>
-
-<h3> Installing Afterpay Plugin </h3>
-<strong>Alternative 1</strong>(currently unstable due to various Magento 2 bugs):
-<ol>
-<li> Afterpay Plugin can be copy-pasted directly on the "app/Code" folder by creating the following structure "app/Code/Afterpay/Afterpay"</li>
-<li> Then, go to the Admin and go to "System - Web Setup Wizard - Component Manager"</li>
-<li> You will see Afterpay still disabled, you can enable it by clicking the option on the right hand side</li>
-<li> If the Readiness Check fails and it says CRON not running, go to the Magento CLI.
- Then, run the 3 CRON operations described above (without using the time declaration, e.g "./bin/magento cron:run". Then try again.
-</li>
-</ol>
-
-<br/>
-
-<strong>Alternative 2 (more stable)</strong>:
-<ol>
-<li> Go to the Magento CLI and use "./bin/magento module:enable Afterpay_Afterpay" </li>
-<li> The system will most likely require us to setup upgrade afterwards: "./bin/magento setup:upgrade" </li>
 </ol>
 
 <hr/>
