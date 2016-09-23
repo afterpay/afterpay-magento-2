@@ -11,22 +11,7 @@
     <type name="Afterpay\Afterpay\Model\Adapter\ApiMode">
         <arguments>
             <argument name="environments" xsi:type="array">
-                <item name="development" xsi:type="array">
-                    <item name="label" xsi:type="string">Development</item>
-                    <item name="api_url" xsi:type="string">https://api-dev.secure-afterpay.com.au/</item>
-                    <item name="web_url" xsi:type="string">https://www-dev.secure-afterpay.com.au/</item>
-                </item>
-                <item name="qa" xsi:type="array">
-                    <item name="label" xsi:type="string">QA</item>
-                    <item name="api_url" xsi:type="string">https://api-qa.secure-afterpay.com.au/</item>
-                    <item name="web_url" xsi:type="string">https://www-qa.secure-afterpay.com.au/</item>
-                </item>
-                <item name="stage" xsi:type="array">
-                    <item name="label" xsi:type="string">Stage</item>
-                    <item name="api_url" xsi:type="string">https://api-stg.secure-afterpay.com.au/</item>
-                    <item name="web_url" xsi:type="string">https://www-stg.secure-afterpay.com.au/</item>
-                </item>
-                <item name="sandbox" xsi:type="array">
+               <item name="sandbox" xsi:type="array">
                     <item name="label" xsi:type="string">Sandbox</item>
                     <item name="api_url" xsi:type="string">https://api-sandbox.secure-afterpay.com.au/</item>
                     <item name="web_url" xsi:type="string">https://www-sandbox.secure-afterpay.com.au/</item>

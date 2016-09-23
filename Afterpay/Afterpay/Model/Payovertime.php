@@ -23,7 +23,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
     const AFTERPAY_PAYMENT_TYPE_CODE = 'PBI';
 
-    const MINUTE_DELAYED_ORDER = 30;
+    const MINUTE_DELAYED_ORDER = 75;
 
     /**
      * @var string

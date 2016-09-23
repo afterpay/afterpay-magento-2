@@ -9,16 +9,16 @@
 <?php if ($block->canShow()) : ?>
     <div class="payment-method-note afterpay-checkout-note" style="text-align: left; margin-bottom: 1.5rem; font-size: 13px;">
         <h3 style="font-size: 1.5rem">
-            <span style="color: #00a4e4;"><?php echo __('Check out with Afterpay and pay over time.') ?></span>
+            <span style="color: #00a4e4;"><?php echo __('Check out with Afterpay and pay by instalment.') ?></span>
         </h3>
-        <span><?php echo __('Simply pay 4 fortnightly interest-free payments of') ?></span>
+        <span><?php echo __('Simply pay 4 fornightly payments of ') ?></span>
         <span><?php echo $block->getInstallmentsTotalHtml() ?></span>
         <br>
-        <span><?php echo __('Use your debit or credit card, instant approval.') ?>  <a href="javascript:void(0)" class="afterpay-modal-popup-trigger"><?php echo __('Learn more') ?></a></span>
+        <span><?php echo __('Use your payment card, instant approval.') ?>  <a href="javascript:void(0)" class="afterpay-modal-popup-trigger"><?php echo __('Learn more') ?></a></span>
     </div>
 
     <!--    Button buy now-->
-    <button type="button" data-role="proceed-to-checkout" onclick="window.location.href='<?php echo $block->getUrl('checkout', ['_secure' => true]);?>'" title="<?php echo __('Buy now, pay later') ?>" class="action primary checkout">
-        <span style="text-transform: uppercase;"><?php echo __('Buy now, pay later') ?></span>
+    <button type="button" data-role="proceed-to-checkout" onclick="window.location.href='<?php echo $block->getUrl('checkout', ['_secure' => true]);?>'" title="<?php echo __('Buy now, pay later') ?>" class="action primary btn-afterpay-checkout">
+        <img src="<?php echo $block->getViewFileUrl('Afterpay_Afterpay::images/afterpay_logo_white.png'); ?>" alt="<?php echo __('Buy now, pay later'); ?>" />
     </button>
 <?php endif; ?>

@@ -123,3 +123,38 @@
 .modal-popup.afterpay-learn-more .action-close {
     padding: 1.75rem !important;
 }
+
+.afterpay_instalments_logo {
+    background-image: url("../images/afterpay_logo.png");
+    background-size: 76px 15px;
+    vertical-align: middle; 
+    display: inline-block;
+    height: 15px;
+    width: 76px;
+}
+
+.afterpay_checkout_steps {
+    background-size: 12px 12px;
+    vertical-align: middle; 
+    display: inline-block;
+    height: 12px;
+    width: 12px;
+}
+
+.afterpay_checkout_steps_1 {
+    background-image: url("../images/circle_1@2x.png");
+}
+.afterpay_checkout_steps_2 {
+    background-image: url("../images/circle_2@2x.png");
+}
+.afterpay_checkout_steps_3 {
+    background-image: url("../images/circle_3@2x.png");
+}
+.afterpay_checkout_steps_4 {
+    background-image: url("../images/circle_4@2x.png");
+}
+
+.checkout-methods-items button.btn-afterpay-checkout {
+    padding: 13px 15px 10px 10px;
+    width: 100%;
+}

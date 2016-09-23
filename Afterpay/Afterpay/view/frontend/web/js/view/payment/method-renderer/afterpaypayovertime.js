@@ -84,26 +84,34 @@ define(
              *
              * @param response
              */
-            afterPlaceOrder: function(response) {
-                var data = $.parseJSON(response);
+            afterPlaceOrder: function() {
+                
+                $.ajax({
+                    url: "/afterpay/payment/process",
+                    method:'post',
+                    success: function(response) {
 
-                AfterPay.init({
-                    relativeCallbackURL: window.checkoutConfig.payment.afterpay.afterpayReturnUrl
+                        var data = $.parseJSON(response);
+
+                        AfterPay.init({
+                            relativeCallbackURL: window.checkoutConfig.payment.afterpay.afterpayReturnUrl
+                        });
+
+                        switch (window.Afterpay.checkoutMode) {
+                            case 'lightbox':
+                                AfterPay.display({
+                                    token: data['token']
+                                });
+                                break;
+
+                            case 'redirect':
+                                AfterPay.redirect({
+                                    token: data['token']
+                                });
+                                break;
+                        }
+                    }
                 });
-
-                switch (window.Afterpay.checkoutMode) {
-                    case 'lightbox':
-                        AfterPay.display({
-                            token: data['token']
-                        });
-                        break;
-
-                    case 'redirect':
-                        AfterPay.redirect({
-                            token: data['token']
-                        });
-                        break;
-                }
             }
         });
     }

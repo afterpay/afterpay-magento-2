@@ -67,7 +67,7 @@ class Button extends Template
      */
     public function getInstallmentsTotalHtml()
     {
-        return $this->getCurrency()->getCurrencySymbol() . $this->getInstallmentsTotal();
+        return $this->getCurrency()->getCurrencySymbol() . number_format( $this->getInstallmentsTotal(), 2 );
     }
 
     /**

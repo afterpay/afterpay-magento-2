@@ -65,7 +65,7 @@ class Installments extends Template
 
         // set if final price is exist
         if ($price = $product->getFinalPrice()) {
-            return $this->currency->getCurrencySymbol() . $price / 4;
+            return $this->currency->getCurrencySymbol() . number_format($price / 4, 2);
         }
     }
 
@@ -84,7 +84,7 @@ class Installments extends Template
 
         // check if price is above max or min limit
         if ($product->getFinalPrice() > $this->afterpayConfig->getMaxOrderLimit() // greater than max order limit
-            || $product->getFinalPrice() < $this->afterpayConfig->getMinOrderLimit()) { // lower than min order limit
+                || $product->getFinalPrice() < $this->afterpayConfig->getMinOrderLimit()) { // lower than min order limit
             return false;
         }
 
