@@ -342,7 +342,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         $orderScopeDate = $this->date->gmtDate(null, $orderScopeDateArray['date']);
 
         // check if order still in 30 mins mark
-        //if ($orderScopeDate < $requestDate) {
+        if ($orderScopeDate < $requestDate) {
             // set token and get payment data from API
             $token = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN);
             $response = $this->afterpayPayment->getPaymentByToken($token);
@@ -376,9 +376,9 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->addTransactionCommentsToOrder(false, __('Customer abandoned the payment process'));
                 $payment->setIsTransactionDenied(true);
             }
-        // } else {
-        //     $this->helper->debug('The requested order still in 30 minutes from current date time.');
-        // }
+        } else {
+            $this->helper->debug('The requested order still in 30 minutes from current date time.');
+        }
 
         // Debug mode
         $this->helper->debug('Finished \Afterpay\Afterpay\Model\Payovertime::fetchTransactionInfo()');
