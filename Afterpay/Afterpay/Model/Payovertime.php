@@ -336,12 +336,12 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
         $order = $payment->getOrder();
 
-        // adding current magento scope datetime with 30 mins calculations
+        // adding current magento scope datetime with 75 mins calculations
         $requestDate = $this->date->gmtDate(null, $this->timezone->scopeTimeStamp() - (self::MINUTE_DELAYED_ORDER * 60));
         $orderScopeDateArray = get_object_vars($this->timezone->date($order->getCreatedAt()));
         $orderScopeDate = $this->date->gmtDate(null, $orderScopeDateArray['date']);
 
-        // check if order still in 30 mins mark
+        // check if order still in 75 mins mark
         if ($orderScopeDate < $requestDate) {
             // set token and get payment data from API
             $token = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN);

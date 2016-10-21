@@ -97,6 +97,15 @@ class Order
          * Looping the order and processing each one
          */
         foreach ($orderCollection as $order) {
+
+            //double check the order cooldown timing
+            $orderScopeDateArray = get_object_vars($this->timezone->date($order->getCreatedAt()));
+            $orderScopeDate = $this->date->gmtDate(null, $orderScopeDateArray['date']);
+
+            if ($orderScopeDate >= $requestDate) {
+                continue;
+            }
+
             // load payment
             $payment = $order->getPayment();
 
