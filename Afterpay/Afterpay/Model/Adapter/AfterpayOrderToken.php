@@ -65,7 +65,11 @@ class AfterpayOrderToken
         $billing_postcode = $requestData['orderDetail']['billingAddress']['postcode'];
         $shipping_postcode = $requestData['orderDetail']['shippingAddress']['postcode'];
 
-        //handle possibility of Postal Code not being mandatory
+        //handle possibility of Postal Code not being mandatory 
+	//e.g. Gift Cards
+        if( empty($shipping_postcode) || strlen( trim($shipping_postcode) ) < 3  ) {
+            $requestData['orderDetail']['shippingAddress']['postcode'] = $billing_postcode;
+        }
         if( empty($billing_postcode) || strlen( trim($billing_postcode) ) < 3  ) {
             $requestData['orderDetail']['billingAddress']['postcode'] = $shipping_postcode;
         }
@@ -107,6 +111,13 @@ class AfterpayOrderToken
         $data = $object->getData();
         $billingAddress  = $object->getBillingAddress();
         $shippingAddress = $object->getShippingAddress();
+
+        //check if shipping address is missing - e.g. Gift Cards
+	$shipping_address_line1 = $shippingAddress->getStreetLine(1);
+        if( empty($shipping_address_line1) || strlen($shipping_address_line1) == 0 ) {
+            $shippingAddress = $object->getBillingAddress();
+        }
+
         $params['consumer'] = array(
             'email'      => (string)$object->getCustomerEmail(),
             'givenNames' => $object->getCustomerFirstname() ? (string)$object->getCustomerFirstname() : $billingAddress->getFirstname(),
