@@ -113,8 +113,7 @@ class AfterpayOrderToken
         $shippingAddress = $object->getShippingAddress();
 
         //check if shipping address is missing - e.g. Gift Cards
-	$shipping_address_line1 = $shippingAddress->getStreetLine(1);
-        if( empty($shipping_address_line1) || strlen($shipping_address_line1) == 0 ) {
+        if( empty($shippingAddress) ) {
             $shippingAddress = $object->getBillingAddress();
         }
 
