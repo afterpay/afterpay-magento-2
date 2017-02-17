@@ -25,6 +25,10 @@ class PaymentAction implements \Magento\Framework\Option\ArrayInterface
             [
                 'value' => AbstractMethod::ACTION_ORDER,
                 'label' => __('Order'),
+            ],
+            [
+                'value' => AbstractMethod::ACTION_AUTHORIZE_CAPTURE,
+                'label' => __('Authorise and Capture'),
             ]
         ];
     }

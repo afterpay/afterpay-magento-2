@@ -20,8 +20,10 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
     const ADDITIONAL_INFORMATION_KEY_TOKEN = 'afterpay_token';
     const ADDITIONAL_INFORMATION_KEY_ORDERID = 'afterpay_order_id';
+    const ADDITIONAL_INFORMATION_KEY_TOKENGENERATED = 'afterpay_token_generated';
 
     const AFTERPAY_PAYMENT_TYPE_CODE = 'PBI';
+    const AFTERPAY_PAYMENT_TYPE_CODE_V1 = 'PAY_BY_INSTALLMENT';
 
     const MINUTE_DELAYED_ORDER = 75;
 
@@ -54,6 +56,8 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     protected $exception;
 
     protected $afterpayOrderToken;
+    protected $afterpayOrderTokenV1;
+
     protected $afterpayPayment;
     protected $afterpayResponse;
     protected $helper;
@@ -76,7 +80,8 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
      * @param \Magento\Payment\Model\Method\Logger $logger
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Framework\Exception\LocalizedExceptionFactory $exception
-     * @param Adapter\AfterpayOrderToken $afterpayOrderToken
+     * @param Adapter\AfterpayOrderTokenV0 $afterpayOrderTokenV0
+     * @param Adapter\AfterpayOrderTokenV1 $afterpayOrderTokenV1
      * @param Adapter\AfterpayPayment $afterpayPayment
      * @param Response $afterpayResponse
      * @param Helper $afterpayHelper
@@ -100,7 +105,8 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Framework\Exception\LocalizedExceptionFactory $exception,
-        \Afterpay\Afterpay\Model\Adapter\AfterpayOrderToken $afterpayOrderToken,
+        \Afterpay\Afterpay\Model\Adapter\V0\AfterpayOrderTokenV0 $afterpayOrderTokenV0,
+        \Afterpay\Afterpay\Model\Adapter\V1\AfterpayOrderTokenV1 $afterpayOrderTokenV1,
         \Afterpay\Afterpay\Model\Adapter\AfterpayPayment $afterpayPayment,
         \Afterpay\Afterpay\Model\Response $afterpayResponse,
         Helper $afterpayHelper,
@@ -129,8 +135,6 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         );
         $this->checkoutSession = $checkoutSession;
         $this->exception = $exception;
-
-        $this->afterpayOrderToken = $afterpayOrderToken;
         $this->afterpayPayment = $afterpayPayment;
         $this->afterpayResponse = $afterpayResponse;
         $this->helper = $afterpayHelper;
@@ -141,6 +145,10 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         $this->transactionBuilder = $transactionBuilder;
         $this->jsonHelper = $jsonHelper;
         $this->messageManager = $messageManager;
+
+        $this->afterpayOrderToken = $afterpayOrderTokenV0;
+        $this->afterpayOrderTokenV1 = $afterpayOrderTokenV1;
+
     }
 
     /**
@@ -149,8 +157,11 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     public function isInitializeNeeded()
     {
         if ($this->getConfigData('payment_action') == self::ACTION_AUTHORIZE_CAPTURE) {
+            $this->afterPayPaymentTypeCode = self::AFTERPAY_PAYMENT_TYPE_CODE_V1;            
             return false;
         }
+        
+        // $this->afterpayOrderToken = $this->afterpayOrderTokenV0;
         return $this->_isInitializeNeeded;
     }
 
@@ -163,12 +174,13 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function initialize($paymentAction, $stateObject)
     {
-        // debug mode
+        // Order mode
         $this->helper->debug('Start \Afterpay\Afterpay\Model\Payovertime::initialize()');
 
         try {
             $payment = $this->getInfoInstance();
-            $this->_getAfterPayOrderToken($payment);
+            $order = $payment->getOrder();
+            $this->_getAfterPayOrderToken($this->afterpayOrderToken, $payment, $order);
 
             $stateObject->setState(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
             $stateObject->setStatus('payment_review');
@@ -199,21 +211,26 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
      * @return bool
      * @throws LocalizedException
      */
-    protected function _getAfterPayOrderToken($payment)
+    protected function _getAfterPayOrderToken($afterpayOrderToken, $payment, $targetObject)
     {
-        $order = $payment->getOrder();
-        $result = $this->afterpayOrderToken->generate($order, $this->afterPayPaymentTypeCode);
+        $result = $afterpayOrderToken->generate($targetObject, $this->afterPayPaymentTypeCode);
+        $result_ori = $result;
 
         $result = $this->jsonHelper->jsonDecode($result->getBody(), true);
-        $orderToken = array_key_exists('orderToken', $result) ? $result['orderToken'] : false;
+        $orderToken = array_key_exists('token', $result) ? $result['token'] : false;
+        
+        if( !array_key_exists('token', $result) ) {
+            $orderToken = array_key_exists('orderToken', $result) ? $result['orderToken'] : false;
+        }
 
         if ($orderToken) {
             $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN, $orderToken);
+            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKENGENERATED, true);
         } else {
             $this->helper->debug('No Token response from API');
             throw new \Magento\Framework\Exception\LocalizedException(__('There is an issue processing your order.'));
         }
-        return $orderToken;
+        return $payment;
     }
 
     /**
@@ -225,8 +242,25 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount)
     {
-        return $this->order($payment, $amount);
+        if ($this->getConfigData('payment_action') != self::ACTION_AUTHORIZE_CAPTURE) {
+            return $this->order($payment, $amount);
+        }
+        else {
+
+            $quote = $this->checkoutSession->getQuote();
+            $payment = $quote->getPayment();
+            $token_generated = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKENGENERATED);
+
+            
+            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKENGENERATED, false);
+            // $quote->setPayment($payment);
+            // $quote->save();
+            $payment->save();
+            return $this;
+        
+        }
     }
+
 
     /**
      * @param InfoInterface $payment
@@ -249,10 +283,10 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         $response = $this->jsonHelper->jsonDecode($response->getBody());
         $apiAmount = $response['orderDetail']['orderAmount']['amount'];
 
-        // check the amount is the same
-        if ((int)$apiAmount != (int)$amount) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('Detected fraud.'));
-        }
+        // check the amount is the same - deprecated due to possible rounding differences on Magento 2
+        // if ((int)$apiAmount != (int)$amount) {
+        //     throw new \Magento\Framework\Exception\LocalizedException(__('Detected fraud.'));
+        // }
 
         return $this;
 

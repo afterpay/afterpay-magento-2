@@ -76,6 +76,57 @@ define(
                     if (afterpay.paymentAction == 'order') {
                         this.placeOrder();
                     }
+                    else {
+                        // Making sure it using API V1
+                        var url = "/afterpay/payment/process";
+
+                        //handle guest and registered customer emails
+                        if(!window.checkoutConfig.quoteData.customer_id){
+                            var email = document.getElementById("customer-email").value;
+                        }
+                        else {
+                            var email = window.checkoutConfig.customerData.email;
+                        }
+
+                        var data = {
+                            "email" : email
+                        };
+                        
+                        $.ajax({
+                            url: url,
+                            method:'post',
+                            showLoader: true,
+                            data: data,
+                            success: function(response) {
+
+                                var data = $.parseJSON(response);
+
+                                if( data['success'] && (typeof data['token'] !== 'undefined' && data['token'] !== null && data['token'].length) ) {
+                                    AfterPay.init();
+
+                                    switch (window.Afterpay.checkoutMode) {
+                                        case 'lightbox':
+                                            AfterPay.display({
+                                                token: data['token']
+                                            });
+                                            break;
+
+                                        case 'redirect':
+                                            AfterPay.redirect({
+                                                token: data['token']
+                                            });
+                                            break;
+                                    }
+                                }
+                                else if( typeof data['token'] === 'undefined' || data['token'] === null || !data['token'].length ) {
+                                    alert("Transaction generation error.")
+                                }
+                                else {
+                                    alert(data.message);
+                                }
+                            }
+                        });
+                    }
                 }
             },
 
@@ -86,8 +137,14 @@ define(
              */
             afterPlaceOrder: function() {
                 
+                // start afterpay payment is here
+                var afterpay = window.checkoutConfig.payment.afterpay;
+
+                // Making sure it using current flow
+                var url = "/afterpay/payment/process";
+                
                 $.ajax({
-                    url: "/afterpay/payment/process",
+                    url: url,
                     method:'post',
                     success: function(response) {
 

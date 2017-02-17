@@ -74,7 +74,7 @@ class Call
         $client->setConfig(
             [
                 'maxredirects' => 0,
-                'useragent'    => 'AfterpayMagento2Plugin'
+                'useragent'    => 'Afterpay Magento 2 Plugin ' . $this->helper->getModuleVersion()
             ]
         );
 
@@ -104,6 +104,8 @@ class Call
             $responseBody = $response->getBody();
             $debugData['response'] = $responseBody;
         } catch (\Exception $e) {
+            $this->helper->debug($e->getMessage());
+
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Gateway error: %1', $e->getMessage())
             );

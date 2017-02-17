@@ -5,18 +5,20 @@
  * @author Afterpay <steven.gunarso@touchcorp.com>
  * @copyright 2016 Afterpay https://www.afterpay.com.au/
  */
-namespace Afterpay\Afterpay\Model\Adapter;
+namespace Afterpay\Afterpay\Model\Adapter\V1;
 
 use \Afterpay\Afterpay\Model\Adapter\Afterpay\Call;
 use \Afterpay\Afterpay\Model\Config\Payovertime as PayovertimeConfig;
 use \Magento\Framework\ObjectManagerInterface as ObjectManagerInterface;
+use \Magento\Store\Model\StoreManagerInterface as StoreManagerInterface;
 use \Magento\Framework\Json\Helper\Data as JsonHelper;
+use \Afterpay\Afterpay\Helper\Data as Helper;
 
 /**
- * Class AfterpayClientToken
- * @package Afterpay\Afterpay\Model\Adapter
+ * Class AfterpayClientTokenV1
+ * @package Afterpay\Afterpay\Model\Adapter\V1
  */
-class AfterpayOrderToken
+class AfterpayOrderTokenV1
 {
     /**
      * Constant data
@@ -30,7 +32,9 @@ class AfterpayOrderToken
     protected $afterpayApiCall;
     protected $afterpayConfig;
     protected $objectManagerInterface;
+    protected $storeManagerInterface;
     protected $jsonHelper;
+    protected $helper;
 
     /**
      * AfterpayOrderToken constructor.
@@ -43,12 +47,16 @@ class AfterpayOrderToken
         Call $afterpayApiCall,
         PayovertimeConfig $afterpayConfig,
         ObjectManagerInterface $objectManagerInterface,
-        JsonHelper $jsonHelper
+        StoreManagerInterface $storeManagerInterface,
+        JsonHelper $jsonHelper,
+        Helper $afterpayHelper
     ) {
         $this->afterpayApiCall = $afterpayApiCall;
         $this->afterpayConfig = $afterpayConfig;
         $this->objectManagerInterface = $objectManagerInterface;
+        $this->storeManagerInterface = $storeManagerInterface;
         $this->jsonHelper = $jsonHelper;
+        $this->helper = $afterpayHelper;
     }
 
     /**
@@ -62,28 +70,31 @@ class AfterpayOrderToken
     {
         $requestData = $this->_buildOrderTokenRequest($object, $code, $override);
 	
-        $billing_postcode = $requestData['orderDetail']['billingAddress']['postcode'];
-        $shipping_postcode = $requestData['orderDetail']['shippingAddress']['postcode'];
+        $billing_postcode = $requestData['billing']['postcode'];
+        $shipping_postcode = $requestData['shipping']['postcode'];
 
         //handle possibility of Postal Code not being mandatory 
-	//e.g. Gift Cards
+	    //e.g. Gift Cards
         if( empty($shipping_postcode) || strlen( trim($shipping_postcode) ) < 3  ) {
-            $requestData['orderDetail']['shippingAddress']['postcode'] = $billing_postcode;
+            $requestData['shipping']['postcode'] = $billing_postcode;
         }
         if( empty($billing_postcode) || strlen( trim($billing_postcode) ) < 3  ) {
-            $requestData['orderDetail']['billingAddress']['postcode'] = $shipping_postcode;
+            $requestData['billing']['postcode'] = $shipping_postcode;
         }
         if( empty($shipping_postcode) || strlen( trim($shipping_postcode) ) < 3  ) {
             throw new \Magento\Framework\Exception\LocalizedException(__('Zip/Postal code cannot be empty'));
-        }
+        };
 
         try {
             $response = $this->afterpayApiCall->send(
-                $this->afterpayConfig->getApiUrl('merchants/orders/'),
+                $this->afterpayConfig->getApiUrl('v1/orders/'),
                 $requestData,
                 \Magento\Framework\HTTP\ZendClient::POST
             );
         } catch (\Exception $e) {
+
+            $this->helper->debug($e->getMessage());
+            
             $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
             $response->setBody($this->jsonHelper->jsonEncode(array(
                 'error' => 1,
@@ -112,26 +123,36 @@ class AfterpayOrderToken
         $billingAddress  = $object->getBillingAddress();
         $shippingAddress = $object->getShippingAddress();
 
+
         //check if shipping address is missing - e.g. Gift Cards
-        if( empty($shippingAddress) ) {
+        if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1)) ) {
             $shippingAddress = $object->getBillingAddress();
         }
+        else if( empty($billingAddress) || empty($billingAddress->getStreetLine(1)) ) {
+            $billingAddress = $object->getShippingAddress();
+        }
+
+
+        $email = $object->getCustomerEmail();
+        // $email = "steven.gunarso@touchcorp.com";
 
         $params['consumer'] = array(
-            'email'      => (string)$object->getCustomerEmail(),
+            'email'      => (string)$email,
             'givenNames' => $object->getCustomerFirstname() ? (string)$object->getCustomerFirstname() : $billingAddress->getFirstname(),
             'surname'    => $object->getCustomerLastname() ? (string)$object->getCustomerLastname() : $billingAddress->getLastname(),
             'mobile'     => (string)$billingAddress->getTelephone()
         );
-        $params['orderDetail'] = array(
-            'merchantOrderDate' => strtotime($object->getCreatedAt()) * 1000,
-            'merchantOrderId'   => array_key_exists('merchantOrderId', $override) ? $override['merchantOrderId'] : $object->getIncrementId(),
-            'shippingPriority'  => 'STANDARD',
-            'items'             => array()
+        
+        $params['merchantReference'] = array_key_exists('merchantOrderId', $override) ? $override['merchantOrderId'] : $object->getIncrementId();
+
+        $params['merchant'] = array(
+            'redirectConfirmUrl'    => $this->storeManagerInterface->getStore()->getBaseUrl() . 'afterpay/payment/response', 
+            'redirectCancelUrl'     => $this->storeManagerInterface->getStore()->getBaseUrl() . 'afterpay/payment/response'
         );
+
         foreach ($object->getAllVisibleItems() as $item) {
             if (!$item->getParentItem()) {
-                $params['orderDetail']['items'][] = array(
+                $params['items'][] = array(
                     'name'     => (string)$item->getName(),
                     'sku'      => (string)$item->getSku(),
                     'quantity' => (int)$item->getQty(),
@@ -143,44 +164,48 @@ class AfterpayOrderToken
             }
         }
         if ($object->getShippingInclTax()) {
-            $params['orderDetail']['shippingCost'] = array(
+            $params['shippingAmount'] = array(
                 'amount'   => round((float)$object->getShippingInclTax(), $precision), // with tax
                 'currency' => (string)$data['store_currency_code']
             );
         }
         if (isset($data['discount_amount'])) {
-            $params['orderDetail']['discountType'] = 'Discount';
-            $params['orderDetail']['discount']     = array(
+            $params['discounts']['displayName'] = 'Discount';
+            $params['orderDetail']['amount']     = array(
                 'amount'   => round((float)$data['discount_amount'], $precision),
                 'currency' => (string)$data['store_currency_code']
             );
         }
         $taxAmount = array_key_exists('tax_amount',$data) ? $data['tax_amount'] : $shippingAddress->getTaxAmount();
-        $params['orderDetail']['includedTaxes'] = array(
+        $params['taxAmount'] = array(
             'amount'   => isset($taxAmount) ? round((float)$taxAmount, $precision) : 0,
             'currency' => (string)$data['store_currency_code']
         );
-        $params['orderDetail']['subTotal'] = array(
-            'amount'   => round((float)$data['subtotal'], $precision),
-            'currency' => (string)$data['store_currency_code'],
-        );
         $street = $shippingAddress->getStreet();
-        $params['orderDetail']['shippingAddress'] = array(
-            'name'     => (string)$shippingAddress->getFirstname() . ' ' . $shippingAddress->getLastname(),
-            'address1' => (string)$shippingAddress->getStreetLine(1),
-            'address2' => (string)$shippingAddress->getStreetLine(2),
-            'suburb'   => (string)$shippingAddress->getCity(),
-            'postcode' => (string)$shippingAddress->getPostcode(),
+        $params['shipping'] = array(
+            'name'          => (string)$shippingAddress->getFirstname() . ' ' . $shippingAddress->getLastname(),
+            'line1'         => (string)$shippingAddress->getStreetLine(1),
+            'line2'         => (string)$shippingAddress->getStreetLine(2),
+            'suburb'        => (string)$shippingAddress->getCity(),
+            'postcode'      => (string)$shippingAddress->getPostcode(),
+            'state'         => (string)$shippingAddress->getRegionCode(),
+            'countryCode'   => (string)$shippingAddress->getCountryId(),
+            // 'countryCode'   => 'AU',
+            'phoneNumber'   => (string)$shippingAddress->getTelephone(),
         );
         $street = $billingAddress->getStreet();
-        $params['orderDetail']['billingAddress'] = array(
-            'name'     => (string)$billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),
-            'address1' => (string)$billingAddress->getStreetLine(1),
-            'address2' => (string)$billingAddress->getStreetLine(2),
-            'suburb'   => (string)$billingAddress->getCity(),
-            'postcode' => (string)$billingAddress->getPostcode()
+        $params['billing'] = array(
+            'name'          => (string)$billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),
+            'line1'         => (string)$billingAddress->getStreetLine(1),
+            'line2'         => (string)$billingAddress->getStreetLine(2),
+            'suburb'        => (string)$billingAddress->getCity(),
+            'postcode'      => (string)$billingAddress->getPostcode(),
+            'state'         => (string)$billingAddress->getRegionCode(),
+            'countryCode'   => (string)$billingAddress->getCountryId(),
+            // 'countryCode'   => 'AU',
+            'phoneNumber'   => (string)$billingAddress->getTelephone(),
         );
-        $params['orderDetail']['orderAmount'] = array(
+        $params['totalAmount'] = array(
             'amount'   => round((float)$object->getGrandTotal(), $precision),
             'currency' => (string)$data['store_currency_code'],
         );

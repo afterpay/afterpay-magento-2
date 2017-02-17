@@ -130,7 +130,7 @@ class Payovertime
      */
     public function getMerchantId()
     {
-        return $this->_getConfigData(self::MERCHANT_ID_XML_NODE);
+        return $this->_cleanup_string( $this->_getConfigData(self::MERCHANT_ID_XML_NODE) );
     }
 
     /**
@@ -140,7 +140,7 @@ class Payovertime
      */
     public function getMerchantKey()
     {
-        return $this->_getConfigData(self::MERCHANT_KEY_XML_NODE);
+        return $this->_cleanup_string( $this->_getConfigData(self::MERCHANT_KEY_XML_NODE) );
     }
 
     /**
@@ -181,5 +181,16 @@ class Payovertime
     public function getMinOrderLimit()
     {
         return (int)$this->_getConfigData(self::MIN_TOTAL_LIMIT);
+    }
+
+    /**
+     * Filters the String for screcret keys
+     *
+     * @return string Authorization code 
+     * @since 1.0.1
+     */
+    private function _cleanup_string($string) {
+        $result = preg_replace("/[^a-zA-Z0-9]+/", "", $string);
+        return $result;
     }
 }
