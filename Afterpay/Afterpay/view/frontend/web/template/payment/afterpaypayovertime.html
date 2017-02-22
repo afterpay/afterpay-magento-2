@@ -32,36 +32,38 @@
             <!--/ko-->
         </div>
         <div class="payment-method-note afterpay-checkout-note">
-            <h3>
-                <!-- ko i18n: 'Four interest-free payments totalling' --><!-- /ko -->
-                <strong><span data-bind="text: getGrandTotal()"></span></strong>
-            </h3>
-            <ul class="cost">
-                <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
-                <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
-                <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
-                <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
-            </ul>
-            <ul class="icon">
-                <li>
-                    <span class="afterpay_checkout_steps afterpay_checkout_steps_1"></span>
-                </li>
-                <li>
-                    <span class="afterpay_checkout_steps afterpay_checkout_steps_2"></span>
-                </li>
-                <li>
-                    <span class="afterpay_checkout_steps afterpay_checkout_steps_3"></span>
-                </li>
-                <li>
-                    <span class="afterpay_checkout_steps afterpay_checkout_steps_4"></span>
-                </li>
-            </ul>
-            <ul class="instalment">
-                <li><!-- ko i18n: 'First instalment' --><!-- /ko --></li>
-                <li><!-- ko i18n: '2 weeks later' --><!-- /ko --></li>
-                <li><!-- ko i18n: '4 weeks later' --><!-- /ko --></li>
-                <li><!-- ko i18n: '6 weeks later' --><!-- /ko --></li>
-            </ul>
+            <div style="display:none">
+                <h3>
+                    <!-- ko i18n: 'Four interest-free payments totalling' --><!-- /ko -->
+                    <strong><span data-bind="text: getGrandTotal()"></span></strong>
+                </h3>
+                <ul class="cost">
+                    <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
+                    <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
+                    <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
+                    <li><span data-bind="text: getAfterpayInstallmentFee()"></span></li>
+                </ul>
+                <ul class="icon">
+                    <li>
+                        <span class="afterpay_checkout_steps afterpay_checkout_steps_1"></span>
+                    </li>
+                    <li>
+                        <span class="afterpay_checkout_steps afterpay_checkout_steps_2"></span>
+                    </li>
+                    <li>
+                        <span class="afterpay_checkout_steps afterpay_checkout_steps_3"></span>
+                    </li>
+                    <li>
+                        <span class="afterpay_checkout_steps afterpay_checkout_steps_4"></span>
+                    </li>
+                </ul>
+                <ul class="instalment">
+                    <li><!-- ko i18n: 'First instalment' --><!-- /ko --></li>
+                    <li><!-- ko i18n: '2 weeks later' --><!-- /ko --></li>
+                    <li><!-- ko i18n: '4 weeks later' --><!-- /ko --></li>
+                    <li><!-- ko i18n: '6 weeks later' --><!-- /ko --></li>
+                </ul>
+            </div>
         </div>
         <div class="payment-method-content afterpay-checkout-redirect">
             <div class="instalment-footer">
