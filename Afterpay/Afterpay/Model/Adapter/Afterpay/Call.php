@@ -51,11 +51,12 @@ class Call
      * @param $url
      * @param bool $body
      * @param string $method
+     * @param array $override
      * @return \Zend_Http_Response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Zend_Http_Client_Exception
      */
-    public function send($url, $body = false, $method = \Magento\Framework\HTTP\ZendClient::GET)
+    public function send($url, $body = false, $method = \Magento\Framework\HTTP\ZendClient::GET, $override = array() )
     {
         // set the client http
         $client = $this->httpClientFactory->create();
@@ -66,15 +67,29 @@ class Call
 
         // add auth for API requirements
         $client->setAuth(
-            trim($this->afterpayConfig->getMerchantId()),
-            trim($this->afterpayConfig->getMerchantKey())
+            trim($this->afterpayConfig->getMerchantId($override)),
+            trim($this->afterpayConfig->getMerchantKey($override))
         );
+
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+        $version = $productMetadata->getVersion(); //will return the magento version
+        $description = $productMetadata->getName() . ' ' . $productMetadata->getEdition(); //will return the magento description
+
+
+        if( !empty($override['website_id']) ) {
+            $url = $this->getWebsiteUrl($override['website_id']);
+        }
+        else {
+            $url = $this->getWebsiteUrl();
+        }
 
         // set configurations
         $client->setConfig(
             [
                 'maxredirects' => 0,
-                'useragent'    => 'Afterpay Magento 2 Plugin ' . $this->helper->getModuleVersion()
+                'useragent'    => 'AfterpayMagento2Plugin ' . $this->helper->getModuleVersion() . ' (' . $description . ' ' . $version . ') MerchantID: ' . trim($this->afterpayConfig->getMerchantId($override) . ' URL: ' . $url ) 
             ]
         );
 
@@ -113,5 +128,31 @@ class Call
 
         // return response
         return $response;
+    }
+
+    private function getWebsiteUrl($website_id = NULL) {
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $storeManager = $objectManager->get('Magento\Store\Model\StoreManagerInterface'); 
+        $url = NULL;
+
+        if( !empty($website_id) ) {
+
+            $websites = $storeManager->getWebsites();
+            
+            foreach($websites as $website){
+                foreach($website->getStores() as $store){
+                    if( !empty($website_id) && $website_id == $website->getId()) {
+                        $storeObj = $storeManager->getStore($store);
+                        $url = $storeObj->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+                    }
+                }
+            }
+        }
+        else {
+            $url = $storeManager->getStore()->getBaseUrl();
+        }
+
+        return $url;
     }
 }

@@ -9,6 +9,9 @@ namespace Afterpay\Afterpay\Model\Config;
 
 use Afterpay\Afterpay\Model\Adapter\ApiMode;
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface as StoreManagerInterface;
+use Magento\Framework\App\Request\Http as Request;
+use Magento\Framework\App\State as State;
 
 /**
  * Class Payovertime
@@ -20,6 +23,7 @@ class Payovertime
      * constant data for static
      */
     const ACTIVE                 = 'active';
+    const API_MODE_XML_NODE       = 'api_mode';
     const API_URL_XML_NODE       = 'api_url';
     const WEB_URL_XML_NODE       = 'web_url';
     const CHECKOUT_MODE_XML_NODE = 'payment_display';
@@ -37,8 +41,11 @@ class Payovertime
     protected $afterpayPayovertime;
 
     protected $scopeConfig;
+    protected $storeManager;
+    protected $request;
+    protected $state;
 
-    protected $storeId = null;
+    // protected $storeId = null;
 
     /**
      * Payovertime constructor.
@@ -47,10 +54,16 @@ class Payovertime
      */
     public function __construct(
         ApiMode $apiMode,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+        Request $request,
+        State $state
     ) {
         $this->apiMode = $apiMode;
         $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
+        $this->request = $request;
+        $this->state = $state;
     }
 
     /**
@@ -58,11 +71,12 @@ class Payovertime
      *
      * @param string $path
      * @param array $query
+     * @param array $override
      * @return bool|string
      */
-    public function getApiUrl($path = '', $query = [])
+    public function getApiUrl($path = '', $query = array(), $override = array())
     {
-        return $this->_getRequestedUrl(self::API_URL_XML_NODE, $path, $query);
+        return $this->_getRequestedUrl(self::API_URL_XML_NODE, $path, $query, $override);
     }
 
     /**
@@ -70,11 +84,12 @@ class Payovertime
      *
      * @param string $path
      * @param array $query
+     * @param array $override
      * @return bool|string
      */
-    public function getWebUrl($path = '', $query = [])
+    public function getWebUrl($path = '', $query = array(), $override = array())
     {
-        return $this->_getRequestedUrl(self::WEB_URL_XML_NODE, $path, $query);
+        return $this->_getRequestedUrl(self::WEB_URL_XML_NODE, $path, $query, $override);
     }
 
     /**
@@ -85,9 +100,18 @@ class Payovertime
      * @param $query
      * @return bool|string
      */
-    protected function _getRequestedUrl($type, $path, $query)
+    protected function _getRequestedUrl($type, $path, $query, $override = array() )
     {
-        $currentApi = $this->apiMode->getCurrentMode();
+        if( !empty( $override["website_id"] ) ) {
+            $currentApi = $this->apiMode->getCurrentMode($override);
+        }
+        else if( $this->getWebsiteId() > 1 ) {
+            $currentApi = $this->apiMode->getCurrentMode(array("website_id" => $this->getWebsiteId()));
+        }
+        else {
+            $currentApi = $this->apiMode->getCurrentMode();
+        }
+
         if (array_key_exists($type, $currentApi)) {
             // set the url and path
             $url = $currentApi[$type] . $path;
@@ -102,15 +126,61 @@ class Payovertime
         return false;
     }
 
+    public function getStoreObjectFromRequest() {
+        //get the store source
+        $stores = $this->storeManager->getStores();
+        foreach( $stores as $key => $store ) {
+                
+            $referrer = $_SERVER['HTTP_REFERER'];
+
+            if( strpos($referrer, $store->getBaseUrl() ) > -1 ) {
+                return $store;
+            }  
+        }
+    }
+
+    public function getWebsiteId() {
+
+        $website_id = NULL;
+
+        if( $this->state->getAreaCode() == \Magento\Framework\App\Area::AREA_ADMINHTML ) {
+            $website_id = (int) $this->request->getParam('website', 0);
+        }
+        else if ( $this->request->isXmlHttpRequest() ) {
+            $store = $this->getStoreObjectFromRequest();
+            if( !empty($store) ) {
+                $website_id = $store->getWebsiteId();
+            }
+        }
+        else {
+            $website_id = $this->storeManager->getStore()->getWebsiteId();
+        }
+
+        return $website_id;
+    }
+
     /**
      * Get config data
      *
      * @param $path
+     * @param $override array
      * @return mixed
      */
-    protected function _getConfigData($path)
+    protected function _getConfigData( $path, $override = array() )
     {
-        return $this->scopeConfig->getValue('payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . $path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $website_id = $this->getWebsiteId();
+
+        if( !empty( $override["website_id"] ) ) {
+            $website_id = $override["website_id"];
+        }
+
+        if( !empty($website_id) && $website_id ) {
+            return $this->scopeConfig->getValue('payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . $path, \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES, $website_id);
+        }
+        else { 
+            // var_dump($this->scopeConfig->getValue('payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . $path, 'default'));
+            return $this->scopeConfig->getValue('payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . $path, 'default');
+        }
     }
 
     /**
@@ -124,13 +194,23 @@ class Payovertime
     }
 
     /**
+     * Get config API mode
+     *
+     * @return string (development | qa | sandbox | production)
+     */
+    public function getApiMode()
+    {
+        return $this->_getConfigData(self::API_MODE_XML_NODE);
+    }
+
+    /**
      * Get config for merchant id
      *
      * @return mixed
      */
-    public function getMerchantId()
+    public function getMerchantId($override = array())
     {
-        return $this->_cleanup_string( $this->_getConfigData(self::MERCHANT_ID_XML_NODE) );
+        return $this->_cleanup_string( $this->_getConfigData(self::MERCHANT_ID_XML_NODE, $override) );
     }
 
     /**
@@ -138,9 +218,9 @@ class Payovertime
      *
      * @return mixed
      */
-    public function getMerchantKey()
+    public function getMerchantKey($override = array())
     {
-        return $this->_cleanup_string( $this->_getConfigData(self::MERCHANT_KEY_XML_NODE) );
+        return $this->_cleanup_string( $this->_getConfigData(self::MERCHANT_KEY_XML_NODE, $override) );
     }
 
     /**

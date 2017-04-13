@@ -7,16 +7,26 @@
  */
 namespace Afterpay\Afterpay\Model\Cron;
 
-use Afterpay\Afterpay\Model\Adapter\AfterpayTotalLimit;
+use Afterpay\Afterpay\Model\Adapter\AfterpayTotalLimit as AfterpayTotalLimit;
+use Magento\Store\Model\StoreManagerInterface as StoreManagerInterface;
+use Afterpay\Afterpay\Helper\Data as AfterpayHelper;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\App\Config\Storage\WriterInterface as WriterInterface;
+use Magento\Config\Model\ResourceModel\Config as RequestConfig;
+use Magento\Framework\Message\ManagerInterface as MessageManager;
 
 class Limit
 {
     /**
      * @var AfterpayTotalLimit
      */
-    protected $afterpayTotalLimit;
-    protected $jsonHelper;
-    protected $resourceConfig;
+    protected $_afterpayTotalLimit;
+    protected $_storeManager;
+    protected $_helper;
+    protected $_jsonHelper;
+    protected $_resourceConfig;
+    protected $_writerInterface;
+    protected $_messageManager;
 
     /**
      * Limit constructor.
@@ -26,12 +36,20 @@ class Limit
      */
     public function __construct(
         AfterpayTotalLimit $afterpayTotalLimit,
-        \Magento\Framework\Json\Helper\Data $jsonHelper,
-        \Magento\Config\Model\ResourceModel\Config $resourceConfig
+        StoreManagerInterface $storeManager,
+        AfterpayHelper $helper,
+        JsonHelper $jsonHelper,
+        WriterInterface $writerInterface,
+        RequestConfig $resourceConfig,
+        MessageManager $messageManager
     ) {
-        $this->afterpayTotalLimit = $afterpayTotalLimit;
-        $this->jsonHelper = $jsonHelper;
-        $this->resourceConfig = $resourceConfig;
+        $this->_afterpayTotalLimit = $afterpayTotalLimit;
+        $this->_storeManager = $storeManager;
+        $this->_jsonHelper = $jsonHelper;
+        $this->_resourceConfig = $resourceConfig;
+        $this->_helper = $helper;
+        $this->_writerInterface = $writerInterface;
+        $this->_messageManager = $messageManager;
     }
 
     /**
@@ -39,36 +57,121 @@ class Limit
      */
     public function execute()
     {
-        $response = $this->afterpayTotalLimit->getLimit();
-        $response = $this->jsonHelper->jsonDecode($response->getBody());
+        //run the default update first
+        $this->_updateDefault();
 
-        // default min and max if not provided
-        $minTotal = "0";
-        $maxTotal = "0";
+        $websites = $this->_getWebsites();
+        //$this->_helper->debug("CRON Websites:" . json_encode($websites));
 
-        // understand the response from the API
-        foreach ($response as $result) {
-            if ($result['type'] === \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE) {
-                $minTotal = isset($result['minimumAmount']['amount']) ? $result['minimumAmount']['amount'] : "0";
-                $maxTotal = isset($result['maximumAmount']['amount']) ? $result['maximumAmount']['amount'] : "0";
+        if( $websites && count($websites) > 1 ) {
+
+            foreach( $websites as $key => $website ) {
+                $this->_updateWebsite( $website );
             }
         }
+    }
 
-        $this->resourceConfig->saveConfig(
-            'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MIN_TOTAL_LIMIT,
-            $minTotal,
-            'default',
-            0
-        );
+    /**
+     * @return array
+     */
+    private function _getWebsites() {
+        $websites = $this->_storeManager->getWebsites();
+        return $websites;
+    }
 
-        $this->resourceConfig->saveConfig(
-            'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MAX_TOTAL_LIMIT,
-            $maxTotal,
-            'default',
-            0
-        );
+    /**
+     * @return bool
+     */
+    private function _updateDefault() {
 
-        return true;
+        // $this->_helper->debug("Update Default");
+        $response = $this->_afterpayTotalLimit->getLimit();
+        $response = $this->_jsonHelper->jsonDecode($response->getBody());
 
+        $this->_helper->debug("CRON :" . array_key_exists('errorCode', $response));
+        
+
+        if ( array_key_exists('errorCode', $response) ) {
+            //Unfortunately Message Manager is not working with CRON jobs yet
+            $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key. Default Config');
+            return false;
+        }
+        else {
+
+            // default min and max if not provided
+            $minTotal = "0";
+            $maxTotal = "0";
+
+            // understand the response from the API
+            foreach ($response as $result) {
+                if ($result['type'] === \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE) {
+                    $minTotal = isset($result['minimumAmount']['amount']) ? $result['minimumAmount']['amount'] : "0";
+                    $maxTotal = isset($result['maximumAmount']['amount']) ? $result['maximumAmount']['amount'] : "0";
+                }
+            }
+
+            $this->_resourceConfig->saveConfig(
+                'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MIN_TOTAL_LIMIT,
+                $minTotal,
+                'default',
+                0
+            );
+
+            $this->_resourceConfig->saveConfig(
+                'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MAX_TOTAL_LIMIT,
+                $maxTotal,
+                'default',
+                0
+            );
+
+            return true;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    private function _updateWebsite($website) {
+        
+        $website_id = $website["website_id"];
+
+        $response = $this->_afterpayTotalLimit->getLimit( array( "website_id" => $website_id ) );
+        $response = $this->_jsonHelper->jsonDecode($response->getBody());
+
+        if ( array_key_exists('errorCode', $response) ) {
+            //Unfortunately Message Manager is not working with CRON jobs yet
+            $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.' . $website["name"] );
+            return false;
+        }
+        else {
+
+            // default min and max if not provided
+            $minTotal = "0";
+            $maxTotal = "0";
+
+            // understand the response from the API
+            foreach ($response as $result) {
+                if ($result['type'] === \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE) {
+                    $minTotal = isset($result['minimumAmount']['amount']) ? $result['minimumAmount']['amount'] : "0";
+                    $maxTotal = isset($result['maximumAmount']['amount']) ? $result['maximumAmount']['amount'] : "0";
+                }
+            }
+
+            $result = $this->_writerInterface->save(
+                'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MIN_TOTAL_LIMIT,
+                $minTotal,
+                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES, 
+                $website_id
+            );
+
+            $this->_writerInterface->save(
+                'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MAX_TOTAL_LIMIT,
+                $maxTotal,
+                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES, 
+                $website_id
+            );
+
+            return true;
+        }
     }
 }

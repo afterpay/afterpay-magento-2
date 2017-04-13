@@ -111,8 +111,18 @@ class Order
 
             // check if token is exist
             if ($token = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKEN)) {
-                $response = $this->afterpayPayment->getPaymentByToken($token);
-                $response = $this->jsonHelper->jsonDecode($response->getBody());
+                $response = $this->afterpayPayment->getPaymentByToken( $token, 
+                                array("website_id" => $order->getStore()->getWebsiteId()) );
+                $body = $response->getBody();
+
+                if( empty($body) ) {
+                    // if order is just an abandoned order
+                    $order->addStatusHistoryComment(__('There is something wrong in communicating with Afterpay, skipping the check for now'));
+                    $this->helper->debug('There is something wrong in communicating with Afterpay, skipping the check for now. Token: ' . $token);
+                    continue;
+                }
+
+                $response = $this->jsonHelper->jsonDecode($body);
 
                 // check if order exist usig that token
                 if (isset($response['totalResults']) && $response['totalResults'] > 0) {

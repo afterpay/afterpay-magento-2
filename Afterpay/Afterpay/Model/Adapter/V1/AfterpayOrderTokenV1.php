@@ -69,21 +69,12 @@ class AfterpayOrderTokenV1
     public function generate($object, $code, $override = [])
     {
         $requestData = $this->_buildOrderTokenRequest($object, $code, $override);
-	
-        $billing_postcode = $requestData['billing']['postcode'];
-        $shipping_postcode = $requestData['shipping']['postcode'];
 
         //handle possibility of Postal Code not being mandatory 
 	    //e.g. Gift Cards
-        if( empty($shipping_postcode) || strlen( trim($shipping_postcode) ) < 3  ) {
-            $requestData['shipping']['postcode'] = $billing_postcode;
-        }
-        if( empty($billing_postcode) || strlen( trim($billing_postcode) ) < 3  ) {
-            $requestData['billing']['postcode'] = $shipping_postcode;
-        }
-        if( empty($shipping_postcode) || strlen( trim($shipping_postcode) ) < 3  ) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('Zip/Postal code cannot be empty'));
-        };
+        $requestData = $this->_handlePostcode($requestData);
+        $requestData = $this->_handleState($requestData);
+        $this->_handleValidation($requestData);
 
         try {
             $response = $this->afterpayApiCall->send(
@@ -94,15 +85,78 @@ class AfterpayOrderTokenV1
         } catch (\Exception $e) {
 
             $this->helper->debug($e->getMessage());
-            
-            $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
-            $response->setBody($this->jsonHelper->jsonEncode(array(
-                'error' => 1,
-                'message' => $e->getMessage()
-            )));
+            throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
         }
 
         return $response;
+    }
+
+    private function _handlePostcode($requestData) {
+
+        $billing_postcode = $requestData['billing']['postcode'];
+        $shipping_postcode = $requestData['shipping']['postcode'];
+
+        if( (empty($billing_postcode) || strlen( trim($billing_postcode) ) < 3)
+            && !empty($shipping_postcode) && strlen( trim($shipping_postcode) >= 3 ) ) {
+
+            $requestData['billing']['postcode'] = $shipping_postcode;
+        }
+
+        return $requestData;
+    }
+
+    private function _handleState($requestData) {
+
+        $billing_state = ( !empty($requestData['billing']['state']) ? $requestData['billing']['state'] : NULL);
+        $shipping_state = ( !empty($requestData['shipping']['state']) ? $requestData['shipping']['state'] : NULL);
+
+        if( empty($billing_state) && !empty($shipping_state) ) {
+            $requestData['billing']['state'] = $shipping_state;
+        }
+
+        return $requestData;
+    }
+
+    private function _handleValidation($requestData) {
+
+        $errors = array();
+
+        $billing_state = ( !empty($requestData['billing']['state']) ? $requestData['billing']['state'] : NULL);
+        $billing_postcode = ( !empty($requestData['billing']['postcode']) ? $requestData['billing']['postcode'] : NULL);
+
+        //in case Magento 2 default validation somehow failed
+        $billing_name = ( !empty($requestData['billing']['name']) ? $requestData['billing']['name'] : NULL);
+        $billing_line1 = ( !empty($requestData['billing']['line1']) ? $requestData['billing']['line1'] : NULL);
+        $billing_suburb = ( !empty($requestData['billing']['suburb']) ? $requestData['billing']['suburb'] : NULL);
+        $billing_country = ( !empty($requestData['billing']['countryCode']) ? $requestData['billing']['countryCode'] : NULL);
+        $billing_phone = ( !empty($requestData['billing']['phoneNumber']) ? $requestData['billing']['phoneNumber'] : NULL);
+
+        if( empty($billing_name) ) {
+            $errors[] = 'Name is required';
+        }
+        else if( empty($billing_line1) ) {
+            $errors[] = 'Address is required';
+        }
+        else if( empty($billing_suburb) ) {
+            $errors[] = 'Suburb/City is required';
+        }
+        else if( empty($billing_state) || strlen(trim($billing_state)) < 3 ) {
+            $errors[] = 'State is required';
+        }
+        else if( empty($billing_postcode) || strlen(trim($billing_postcode)) < 3 ) {
+            $errors[] = 'Zip/Postal is required';
+        }
+        else if( empty($billing_country) ) {
+            $errors[] = 'Country is required';
+        }
+        else if( empty($billing_phone) ) {
+            $errors[] = 'Phone is required';
+        }
+
+
+        if( count($errors) ) {
+            throw new \Magento\Framework\Exception\LocalizedException(__( implode($errors, '') ));
+        }
     }
 
     /**
@@ -146,8 +200,8 @@ class AfterpayOrderTokenV1
         $params['merchantReference'] = array_key_exists('merchantOrderId', $override) ? $override['merchantOrderId'] : $object->getIncrementId();
 
         $params['merchant'] = array(
-            'redirectConfirmUrl'    => $this->storeManagerInterface->getStore()->getBaseUrl() . 'afterpay/payment/response', 
-            'redirectCancelUrl'     => $this->storeManagerInterface->getStore()->getBaseUrl() . 'afterpay/payment/response'
+            'redirectConfirmUrl'    => $this->storeManagerInterface->getStore($object->getStore()->getId())->getBaseUrl() . 'afterpay/payment/response', 
+            'redirectCancelUrl'     => $this->storeManagerInterface->getStore($object->getStore()->getId())->getBaseUrl() . 'afterpay/payment/response'
         );
 
         foreach ($object->getAllVisibleItems() as $item) {
@@ -155,7 +209,7 @@ class AfterpayOrderTokenV1
                 $params['items'][] = array(
                     'name'     => (string)$item->getName(),
                     'sku'      => (string)$item->getSku(),
-                    'quantity' => (int)$item->getQty(),
+                    'quantity' => (int)$item->getQtyOrdered(),
                     'price'    => array(
                         'amount'   => round((float)$item->getPriceInclTax(), $precision),
                         'currency' => (string)$data['store_currency_code']
@@ -188,7 +242,7 @@ class AfterpayOrderTokenV1
             'line2'         => (string)$shippingAddress->getStreetLine(2),
             'suburb'        => (string)$shippingAddress->getCity(),
             'postcode'      => (string)$shippingAddress->getPostcode(),
-            'state'         => (string)$shippingAddress->getRegionCode(),
+            'state'         => (string)$shippingAddress->getRegion(),
             'countryCode'   => (string)$shippingAddress->getCountryId(),
             // 'countryCode'   => 'AU',
             'phoneNumber'   => (string)$shippingAddress->getTelephone(),
@@ -200,7 +254,7 @@ class AfterpayOrderTokenV1
             'line2'         => (string)$billingAddress->getStreetLine(2),
             'suburb'        => (string)$billingAddress->getCity(),
             'postcode'      => (string)$billingAddress->getPostcode(),
-            'state'         => (string)$billingAddress->getRegionCode(),
+            'state'         => (string)$billingAddress->getRegion(),
             'countryCode'   => (string)$billingAddress->getCountryId(),
             // 'countryCode'   => 'AU',
             'phoneNumber'   => (string)$billingAddress->getTelephone(),

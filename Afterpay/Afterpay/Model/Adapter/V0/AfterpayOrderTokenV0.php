@@ -134,7 +134,7 @@ class AfterpayOrderTokenV0
                 $params['orderDetail']['items'][] = array(
                     'name'     => (string)$item->getName(),
                     'sku'      => (string)$item->getSku(),
-                    'quantity' => (int)$item->getQty(),
+                    'quantity' => (int)$item->getQtyOrdered(),
                     'price'    => array(
                         'amount'   => round((float)$item->getPriceInclTax(), $precision),
                         'currency' => (string)$data['store_currency_code']

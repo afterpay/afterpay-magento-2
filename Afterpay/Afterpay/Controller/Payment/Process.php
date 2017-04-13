@@ -16,6 +16,7 @@ use \Afterpay\Afterpay\Model\Adapter\V1\AfterpayOrderTokenV1 as AfterpayOrderTok
 use \Magento\Framework\Json\Helper\Data as JsonHelper;
 use \Afterpay\Afterpay\Helper\Data as Helper;
 use \Magento\Checkout\Model\Cart as Cart;
+use \Magento\Store\Model\StoreResolver as StoreResolver;
 
 /**
  * Class Response
@@ -31,6 +32,7 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $_jsonHelper;
     protected $_helper;
     protected $_cart;
+    protected $_storeResolver;
 
     /**
      * Response constructor.
@@ -46,7 +48,8 @@ class Process extends \Magento\Framework\App\Action\Action
         AfterpayOrderTokenV1 $afterpayOrderTokenV1,
         JsonHelper $jsonHelper,
         Helper $helper,
-        Cart $cart
+        Cart $cart,
+        StoreResolver $storeResolver
     ) {
         $this->_checkoutSession = $checkoutSession;
         $this->_orderFactory = $orderFactory;
@@ -56,6 +59,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->_jsonHelper = $jsonHelper;
         $this->_helper = $helper;
         $this->_cart = $cart;
+        $this->_storeResolver = $storeResolver;
 
         parent::__construct($context);
     }
@@ -70,7 +74,16 @@ class Process extends \Magento\Framework\App\Action\Action
     }   
 
     public function _processAuthorizeCapture() {
+        
+        //need to load the correct quote by store
+        $data = $this->_checkoutSession->getData();
+        
         $quote = $this->_checkoutSession->getQuote();
+        $store_id = $this->_afterpayConfig->getStoreObjectFromRequest()->getId();
+
+        if( $store_id > 1 ) {
+            $quote = $this->_quoteFactory->create()->loadByIdWithoutStore($data["quote_id_" . $store_id]);    
+        }
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $customerSession = $objectManager->get('Magento\Customer\Model\Session');
@@ -114,7 +127,14 @@ class Process extends \Magento\Framework\App\Action\Action
         $payment->setMethod(\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE);
 
         $quote->reserveOrderId();
-        $payment = $this->_getAfterPayOrderToken($this->_afterpayOrderTokenV1, $payment, $quote);
+
+
+        try {
+            $payment = $this->_getAfterPayOrderToken($this->_afterpayOrderTokenV1, $payment, $quote);
+        }
+        catch (\Exception $e) {
+            die( json_encode( array('error' => 1, 'message' => $e->getMessage()) ) );
+        }
 
         $quote->setPayment($payment);
         $quote->save();
@@ -157,8 +177,13 @@ class Process extends \Magento\Framework\App\Action\Action
         $order = $this->_orderFactory->create()->load($orderId);
 
         $payment = $order->getPayment();
-        $token = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKEN);
 
-        die( json_encode( array("success" => true, "token" => $token) ) );
+        if( !empty($payment) ) {
+            $token = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKEN);
+            die( json_encode( array("success" => true, "token" => $token) ) );
+        }
+        else {
+            die( json_encode( array("success" => false) ) );
+        }
     }
 }

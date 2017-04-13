@@ -41,8 +41,11 @@ class ApiMode
      *
      * @return array
      */
-    public function getCurrentMode()
+    public function getCurrentMode($override = array())
     {
+        if( !empty( $override["website_id"] ) ) {
+            return $this->environments[$this->scopeConfig->getValue('payment/afterpaypayovertime/api_mode', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES, $override["website_id"])];
+        }
         return $this->environments[$this->scopeConfig->getValue('payment/afterpaypayovertime/api_mode', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)];
     }
 }

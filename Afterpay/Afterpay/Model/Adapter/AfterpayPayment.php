@@ -50,18 +50,18 @@ class AfterpayPayment
      * @param $afterpayOrderId
      * @return mixed|\Zend_Http_Response
      */
-    public function getPayment($afterpayOrderId)
+    public function getPayment($afterpayOrderId, $override = array())
     {
-        return $this->_getPayment($afterpayOrderId);
+        return $this->_getPayment($afterpayOrderId, false, $override);
     }
 
     /**
      * @param $token
      * @return mixed|\Zend_Http_Response
      */
-    public function getPaymentByToken($token)
+    public function getPaymentByToken($token, $override = array())
     {
-        return $this->_getPayment($token, true);
+        return $this->_getPayment($token, true, $override);
     }
 
     /**
@@ -69,18 +69,18 @@ class AfterpayPayment
      * @param bool $useToken
      * @return mixed|\Zend_Http_Response
      */
-    protected function _getPayment($input, $useToken = false)
+    protected function _getPayment($input, $useToken = false, $override = array())
     {
         // set url for ID
-        $url = $this->afterpayConfig->getApiUrl('merchants/orders/' . $input);
+        $url = $this->afterpayConfig->getApiUrl('merchants/orders/' . $input, array(), $override);
 
         // if request using token create url for it
         if ($useToken) {
-            $url = $this->afterpayConfig->getApiUrl('merchants/orders/', array('token' => $input));
+            $url = $this->afterpayConfig->getApiUrl('merchants/orders/', array('token' => $input), $override);
         }
 
         try {
-            $response = $this->afterpayApiCall->send($url);
+            $response = $this->afterpayApiCall->send($url, NULL, NULL, $override);
         } catch (\Exception $e) {
             $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
             $response->setBody($this->jsonHelper->jsonEncode(array(
@@ -98,10 +98,10 @@ class AfterpayPayment
      * @param string $currency
      * @return mixed|\Zend_Http_Response
      */
-    public function refund($amount, $orderId, $currency = 'AUD')
+    public function refund($amount, $orderId, $currency = 'AUD', $override = array())
     {
         // create url to request refunds
-        $url = $this->afterpayConfig->getApiUrl('merchants/orders/' . $orderId . '/refunds');
+        $url = $this->afterpayConfig->getApiUrl('merchants/orders/' . $orderId . '/refunds', array(), $override);
 
         // generate body to be sent to refunds
         $body = array(
@@ -112,12 +112,14 @@ class AfterpayPayment
             'merchantRefundId'  => null
         );
 
+
         // refunding now
         try {
             $response = $this->afterpayApiCall->send(
                 $url,
                 $body,
-                \Magento\Framework\HTTP\ZendClient::POST
+                \Magento\Framework\HTTP\ZendClient::POST,
+                $override
             );
         } catch (\Exception $e) {
             $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');

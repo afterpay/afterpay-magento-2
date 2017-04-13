@@ -11,9 +11,10 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/quote',
-        'Magento_Checkout/js/model/payment/additional-validators'
+        'Magento_Checkout/js/model/payment/additional-validators',
+        'Magento_Ui/js/model/messageList'
     ],
-    function ($, Component, quote, additionalValidators) {
+    function ($, Component, quote, additionalValidators, globalMessageList) {
         'use strict';
 
         return Component.extend({
@@ -79,19 +80,18 @@ define(
                     else {
                         // Making sure it using API V1
                         var url = "/afterpay/payment/process";
+                        var data = $("#co-shipping-form").serialize();
 
-                        //handle guest and registered customer emails
+                        //handle guest and registering customer emails
                         if(!window.checkoutConfig.quoteData.customer_id){
                             var email = document.getElementById("customer-email").value;
                         }
                         else {
                             var email = window.checkoutConfig.customerData.email;
                         }
+                        var data = data + '&email=' + email;
 
-                        var data = {
-                            "email" : email
-                        };
-                        
+
                         $.ajax({
                             url: url,
                             method:'post',
@@ -118,11 +118,22 @@ define(
                                             break;
                                     }
                                 }
+                                else if( typeof data['error'] !== 'undefined' &&  typeof data['message'] !== 'undefined' && 
+                                        data['error'] && data['message'].length ) {
+                                  
+                                    globalMessageList.addErrorMessage({
+                                        'message': data['message']
+                                    });
+                                }
                                 else if( typeof data['token'] === 'undefined' || data['token'] === null || !data['token'].length ) {
-                                    alert("Transaction generation error.")
+                                    globalMessageList.addErrorMessage({
+                                        'message': "Transaction generation error."
+                                    });
                                 }
                                 else {
-                                    alert(data.message);
+                                    globalMessageList.addErrorMessage({
+                                        'message': data.message
+                                    });
                                 }
                             }
                         });

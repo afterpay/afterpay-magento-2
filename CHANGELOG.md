@@ -1,6 +1,38 @@
 # Afterpay magento extension changelog
-Copyright (c) 2016 AfterPay (http://afterpay.com.au/)
+Copyright (c) 2017 AfterPay (http://afterpay.com.au/)
 
+Release version: 2.0.1
+Release date: 13.04.2017
+ 
+Platform: Magento 2
+Supported Editions and Versions:
+-	Magento Community Edition  (CE) version 2.1.1 and later
+-	Magento Enterprise Edition (EE)	version 2.1.1 and later
+ 
+Highlights
+Version 2.0.1 of the Afterpay-Magento 2 plugin delivers:
+-	Magento 2 Multi-Website compatibility
+-	Improved API logging mechanism
+ 
+Community & Enterprise Edition enhancements
+ 
+Multi-Store Compatibility
+-   Introduction of Afterpay configuration saving and retrieval mechanism to utilise Magento 2 Multi-Websites functionality 
+-   Afterpay CRON will perform updates to Afterpay Merchant minimum/maximum limits to all configured Magento Websites.
+-   Afterpay "Update Payment Limits" button in Magento Admin to retrieve the details based on the associated Magento Website's Afterpay Merchant ID and Secret Key configuration
+-   Order refunding functionality to retrieve the associated Magento Website's Afterpay Merchant ID and Secret Key configuration.
+-	Afterpay front-end asset display controlled relative to the associated Magento Website's Afterpay Merchant minimum/maximum limits.
+ 
+Improved API Logging Mechanism
+-   Enhanced User Agent detail logging.
+-   Additional Afterpay logging on the Transaction Integrity Checking, Payment Capture and Order Creation processes
+-   Additional front-end checkout validation related to Billing details required by Afterpay API.
+ 
+Miscellaneous
+-   Enhanced Order Item quantity API call to acquire quantities from Magento Quote for display in Afterpay Merchant Portal.
+-   Additional Magento Admin error reporting related to invalid Merchant ID and Secret Key configuration.
+
+--------------------------------------------------------------------------------------------------------------------------------
 
 Release version: 2.0.0
 Release date: 17.02.2017

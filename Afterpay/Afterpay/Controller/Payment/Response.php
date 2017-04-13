@@ -124,7 +124,6 @@ class Response extends \Magento\Framework\App\Action\Action
 
                     $response_check = $this->_tokenCheck->generate($token);
                     $response_check = $this->_jsonHelper->jsonDecode($response_check->getBody());
-                    
 
                     /**
                      * Validation to check between session and post request
@@ -138,7 +137,7 @@ class Response extends \Magento\Framework\App\Action\Action
                         // Check order id
                         throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment. Invalid Merchant Reference'));
                     }
-                    else if( $quote->getGrandTotal() != $response_check['totalAmount']['amount'] ) {
+                    else if( round($quote->getGrandTotal(), 2) != round($response_check['totalAmount']['amount'], 2) ) {
 
                         // Check the order amount
                         throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment. Invalid Amount'));
@@ -150,6 +149,7 @@ class Response extends \Magento\Framework\App\Action\Action
 
                     if( empty($response['status']) ) {
                         $response['status'] = \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_DECLINED;
+                        $this->_helper->debug("Transaction Exception (Empty Response): " . json_encode($response));
                     }
 
                     switch($response['status']) {
@@ -196,16 +196,15 @@ class Response extends \Magento\Framework\App\Action\Action
                     break;
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this->_helper->debug("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addError(
                 $e->getMessage()
             );
         } catch (\Exception $e) {
+            $this->_helper->debug("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addError(
                 $e->getMessage()
             );
-            // $this->messageManager->addError(
-            //     __('There is a problem with your Afterpay payment. Please select an alternative payment method.')
-            // );
         }
         
         return $redirect;
@@ -281,15 +280,15 @@ class Response extends \Magento\Framework\App\Action\Action
                 break;
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this->_helper->debug("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addError(
                 $e->getMessage()
             );
         } catch (\Exception $e) {
-            // $this->messageManager->addError(
-            //     __('We can\'t initialize Afterpay Payment.')
-            // );
+            
+            $this->_helper->debug("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addError(
-                __($e->getMessage())
+                $e->getMessage()
             );
         }
 

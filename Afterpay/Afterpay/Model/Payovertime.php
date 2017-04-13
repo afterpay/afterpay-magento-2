@@ -185,7 +185,8 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
             $stateObject->setState(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
             $stateObject->setStatus('payment_review');
             $stateObject->setIsNotified(false);
-        } catch (LocalizedException $e) {
+        } 
+        catch (LocalizedException $e) {
             $this->helper->debug($e->getMessage());
             $this->helper->debug(strpos($e->getMessage(), "postal"));
 
@@ -195,7 +196,8 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
             else {     
                 throw new LocalizedException(__('There are problem when processing your request. Please try again later'));
             }
-        } catch (\Exception $e) {
+        } 
+        catch (Exception $e) {
             $this->helper->debug($e->getMessage());
             throw new LocalizedException(__('There are problem when processing your request. Please try again later'));
         }
@@ -275,9 +277,11 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
         // if order ID is not exist
         if (!$orderId) {
-            $response = $this->afterpayPayment->getPaymentByToken($payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN));
+            $response = $this->afterpayPayment->getPaymentByToken( $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN), 
+                array("website_id" => $payment->getOrder()->getStore()->getWebsiteId()) );
         } else {
-            $response = $this->afterpayPayment->getPayment($orderId);
+            $response = $this->afterpayPayment->getPayment($orderId, 
+                array("website_id" => $payment->getOrder()->getStore()->getWebsiteId()) );
         }
 
         $response = $this->jsonHelper->jsonDecode($response->getBody());
@@ -308,7 +312,19 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Check if order is linked to the Afterpay Order
         if ($orderId) {
-            $response = $this->afterpayPayment->refund($amount, $orderId, $payment->getOrder()->getGlobalCurrencyCode());
+
+            if( $payment->getOrder()->getStore()->getWebsiteId() > 1 ) {
+                $response = $this->afterpayPayment->refund(
+                    $amount, 
+                    $orderId, 
+                    $payment->getOrder()->getGlobalCurrencyCode(), 
+                    array("website_id" => $payment->getOrder()->getStore()->getWebsiteId()) //override
+                );
+            }
+            else {
+                $response = $this->afterpayPayment->refund($amount, $orderId, $payment->getOrder()->getGlobalCurrencyCode());
+            }
+
             $response = $this->jsonHelper->jsonDecode($response->getBody());
             if (isset($response['errorId'])) {
                 $message = __('Afterpay API Error: ' . $response['message']);
@@ -379,7 +395,8 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         if ($orderScopeDate < $requestDate) {
             // set token and get payment data from API
             $token = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN);
-            $response = $this->afterpayPayment->getPaymentByToken($token);
+            $response = $this->afterpayPayment->getPaymentByToken($token, 
+                            array("website_id" => $order->getStore()->getWebsiteId()) );
             $response = $this->jsonHelper->jsonDecode($response->getBody());
 
             // check if result found
@@ -411,7 +428,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setIsTransactionDenied(true);
             }
         } else {
-            $this->helper->debug('The requested order still in 30 minutes from current date time.');
+            $this->helper->debug('The requested order still in 75 minutes from current date time.');
         }
 
         // Debug mode
