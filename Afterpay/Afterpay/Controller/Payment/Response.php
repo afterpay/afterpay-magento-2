@@ -32,10 +32,25 @@ class Response extends \Magento\Framework\App\Action\Action
     protected $_transactionBuilder;
 
     /**
+     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender
+     */
+    protected $orderSender;
+
+    /**
      * Response constructor.
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\Controller\Result\ForwardFactory $resultForwardFactory
-     * @param \Afterpay\Afterpay\Model\Response $response
+     *
+     * @param \Magento\Framework\App\Action\Context                           $context
+     * @param \Magento\Framework\Controller\Result\ForwardFactory             $resultForwardFactory
+     * @param \Magento\Checkout\Model\Session                                 $checkoutSession
+     * @param \Afterpay\Afterpay\Model\Response                               $response
+     * @param \Afterpay\Afterpay\Helper\Data                                  $helper
+     * @param \Afterpay\Afterpay\Model\Adapter\V1\AfterpayOrderDirectCapture  $directCapture
+     * @param \Afterpay\Afterpay\Model\Adapter\V1\AfterpayOrderTokenCheck     $tokenCheck
+     * @param \Magento\Framework\Json\Helper\Data                             $jsonHelper
+     * @param \Afterpay\Afterpay\Model\Config\Payovertime                     $afterpayConfig
+     * @param \Magento\Quote\Model\QuoteManagement                            $quoteManagement
+     * @param \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder
+     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender             $orderSender
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -48,7 +63,8 @@ class Response extends \Magento\Framework\App\Action\Action
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Afterpay\Afterpay\Model\Config\Payovertime $afterpayConfig,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder
+        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
     ) {
         $this->_resultForwardFactory = $resultForwardFactory;
         $this->response = $response;
@@ -66,6 +82,8 @@ class Response extends \Magento\Framework\App\Action\Action
         $this->_quoteManagement = $quoteManagement;
 
         $this->_transactionBuilder = $transactionBuilder;
+
+        $this->orderSender = $orderSender;
 
         parent::__construct($context);
     }
@@ -164,7 +182,12 @@ class Response extends \Magento\Framework\App\Action\Action
 
                             // Create Order From Quote
                             $order = $this->_quoteManagement->submit($quote);
-                            $order->setEmailSent(0);
+                            try {
+                                $this->orderSender->send($order);
+                            } catch (\Exception $e) {
+                                $this->_helper->debug(__('Email sender: %1', $e->getMessage()));
+                                $order->setEmailSent(0);
+                            }
                     
 
                             if ($order) {
