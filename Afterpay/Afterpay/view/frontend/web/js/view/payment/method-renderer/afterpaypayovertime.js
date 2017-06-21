@@ -12,7 +12,8 @@ define(
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Ui/js/model/messageList'
+        'Magento_Ui/js/model/messageList',
+        'Magento_Customer/js/customer-data'
     ],
     function ($, Component, quote, additionalValidators, globalMessageList) {
         'use strict';
@@ -81,61 +82,61 @@ define(
                         // Making sure it using API V1
                         var url = "/afterpay/payment/process";
                         var data = $("#co-shipping-form").serialize();
+                        var email = window.checkoutConfig.customerData.email;
 
                         //handle guest and registering customer emails
-                        if(!window.checkoutConfig.quoteData.customer_id){
-                            var email = document.getElementById("customer-email").value;
+                        if (!window.checkoutConfig.quoteData.customer_id) {
+                            email = document.getElementById("customer-email").value;
                         }
-                        else {
-                            var email = window.checkoutConfig.customerData.email;
-                        }
-                        var data = data + '&email=' + email;
 
+                        data = data + '&email=' + email;
 
                         $.ajax({
                             url: url,
-                            method:'post',
-                            showLoader: true,
+                            method: 'post',
                             data: data,
-                            success: function(response) {
-
-                                var data = $.parseJSON(response);
-
-                                if( data['success'] && (typeof data['token'] !== 'undefined' && data['token'] !== null && data['token'].length) ) {
-                                    AfterPay.init();
-
-                                    switch (window.Afterpay.checkoutMode) {
-                                        case 'lightbox':
-                                            AfterPay.display({
-                                                token: data['token']
-                                            });
-                                            break;
-
-                                        case 'redirect':
-                                            AfterPay.redirect({
-                                                token: data['token']
-                                            });
-                                            break;
-                                    }
-                                }
-                                else if( typeof data['error'] !== 'undefined' &&  typeof data['message'] !== 'undefined' && 
-                                        data['error'] && data['message'].length ) {
-                                  
-                                    globalMessageList.addErrorMessage({
-                                        'message': data['message']
-                                    });
-                                }
-                                else if( typeof data['token'] === 'undefined' || data['token'] === null || !data['token'].length ) {
-                                    globalMessageList.addErrorMessage({
-                                        'message': "Transaction generation error."
-                                    });
-                                }
-                                else {
-                                    globalMessageList.addErrorMessage({
-                                        'message': data.message
-                                    });
-                                }
+                            beforeSend: function () {
+                                $('body').trigger('processStart');
                             }
+                        }).done(function (response) {
+                            var data = $.parseJSON(response);
+
+                            if (data['success'] && (typeof data['token'] !== 'undefined' && data['token'] !== null && data['token'].length)) {
+                                AfterPay.init();
+
+                                switch (window.Afterpay.checkoutMode) {
+                                    case 'lightbox':
+                                        AfterPay.display({
+                                            token: data['token']
+                                        });
+                                        break;
+
+                                    case 'redirect':
+                                        AfterPay.redirect({
+                                            token: data['token']
+                                        });
+                                        break;
+                                }
+                            } else if (typeof data['error'] !== 'undefined' && typeof data['message'] !== 'undefined' &&
+                                data['error'] && data['message'].length) {
+
+                                globalMessageList.addErrorMessage({
+                                    'message': data['message']
+                                });
+                            } else if (typeof data['token'] === 'undefined' || data['token'] === null || !data['token'].length) {
+                                globalMessageList.addErrorMessage({
+                                    'message': "Transaction generation error."
+                                });
+                            } else {
+                                globalMessageList.addErrorMessage({
+                                    'message': data.message
+                                });
+                            }
+                        }).fail(function () {
+                            window.location.reload();
+                        }).always(function () {
+                            $('body').trigger('processStop');
+                            customerData.invalidate(['cart']);
                         });
                     }
                 }
