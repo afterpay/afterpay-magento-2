@@ -74,7 +74,7 @@ class Plugin
 
                     // understand the response from the API
                     foreach ($response as $result) {
-                        if (!empty($result['type']) && $result['type'] === \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE) {
+                        if (!empty($result['type']) && $result['type'] === \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE_V1) {
                             $minTotal = isset($result['minimumAmount']['amount']) ? $result['minimumAmount']['amount'] : "0";
                             $maxTotal = isset($result['maximumAmount']['amount']) ? $result['maximumAmount']['amount'] : "0";
                         }

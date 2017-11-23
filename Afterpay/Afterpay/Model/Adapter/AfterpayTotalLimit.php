@@ -51,8 +51,8 @@ class AfterpayTotalLimit
     public function getLimit($override = array())
     {
         /** @var \Afterpay\Afterpay\Model\Config\Payovertime $url */
-        $url = $this->afterpayConfig->getApiUrl('merchants/valid-payment-types'); //V0
-        // $url = $this->afterpayConfig->getApiUrl('v1/configuration'); //V1
+        // $url = $this->afterpayConfig->getApiUrl('merchants/valid-payment-types'); //V0
+        $url = $this->afterpayConfig->getApiUrl('v1/configuration'); //V1
 
         // calling API
         try {

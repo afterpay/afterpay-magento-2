@@ -47,7 +47,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * For dependency injection
      */
-    protected $supportedCurrencyCodes = array('AUD');
+    protected $supportedCurrencyCodes = array('AUD','NZD');
     protected $afterPayPaymentTypeCode = self::AFTERPAY_PAYMENT_TYPE_CODE;
 
     protected $logger;
@@ -315,14 +315,14 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
             if( $payment->getOrder()->getStore()->getWebsiteId() > 1 ) {
                 $response = $this->afterpayPayment->refund(
-                    $amount, 
+                    round($amount, 2), 
                     $orderId, 
-                    $payment->getOrder()->getGlobalCurrencyCode(), 
+                    $payment->getOrder()->getOrderCurrencyCode(), 
                     array("website_id" => $payment->getOrder()->getStore()->getWebsiteId()) //override
                 );
             }
             else {
-                $response = $this->afterpayPayment->refund($amount, $orderId, $payment->getOrder()->getGlobalCurrencyCode());
+                $response = $this->afterpayPayment->refund(round($amount, 2), $orderId, $payment->getOrder()->getOrderCurrencyCode());
             }
 
             $response = $this->jsonHelper->jsonDecode($response->getBody());

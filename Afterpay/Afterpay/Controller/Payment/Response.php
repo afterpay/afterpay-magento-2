@@ -30,6 +30,7 @@ class Response extends \Magento\Framework\App\Action\Action
     protected $_tokenCheck;
     protected $_quoteManagement;
     protected $_transactionBuilder;
+    protected $_orderSender;
 
     /**
      * Response constructor.
@@ -48,7 +49,8 @@ class Response extends \Magento\Framework\App\Action\Action
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Afterpay\Afterpay\Model\Config\Payovertime $afterpayConfig,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder
+        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
     ) {
         $this->_resultForwardFactory = $resultForwardFactory;
         $this->response = $response;
@@ -66,6 +68,8 @@ class Response extends \Magento\Framework\App\Action\Action
         $this->_quoteManagement = $quoteManagement;
 
         $this->_transactionBuilder = $transactionBuilder;
+
+        $this->_orderSender = $orderSender;
 
         parent::__construct($context);
     }
@@ -163,8 +167,9 @@ class Response extends \Magento\Framework\App\Action\Action
                                 ->clearHelperData();
 
                             // Create Order From Quote
+                            $quote->collectTotals();
                             $order = $this->_quoteManagement->submit($quote);
-                            $order->setEmailSent(0);
+                            // $order->setEmailSent(0);
                     
 
                             if ($order) {
@@ -173,6 +178,17 @@ class Response extends \Magento\Framework\App\Action\Action
                                                    ->setLastOrderStatus($order->getStatus());
 
                                 $this->_createTransaction($order, $response);
+
+                                //email sending mechanism
+                                $redirectUrl = $quote->getPayment()->getOrderPlaceRedirectUrl();
+                                if (!$redirectUrl && $order->getCanSendNewEmailFlag()) {
+                                    try {
+                                        $this->_orderSender->send($order);
+                                    } catch (\Exception $e) {
+                                        $this->_helper->debug("Transaction Email Sending Error: " . json_encode($e));
+                                    }
+                                }
+
 
                                 $this->messageManager->addSuccess("Afterpay Transaction Completed");
 

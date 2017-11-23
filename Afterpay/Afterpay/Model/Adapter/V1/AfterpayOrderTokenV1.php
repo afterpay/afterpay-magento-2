@@ -14,6 +14,9 @@ use \Magento\Store\Model\StoreManagerInterface as StoreManagerInterface;
 use \Magento\Framework\Json\Helper\Data as JsonHelper;
 use \Afterpay\Afterpay\Helper\Data as Helper;
 
+use \Magento\Directory\Model\CountryFactory as CountryFactory;
+use \Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
+
 /**
  * Class AfterpayClientTokenV1
  * @package Afterpay\Afterpay\Model\Adapter\V1
@@ -29,12 +32,15 @@ class AfterpayOrderTokenV1
     /**
      * @var Call
      */
-    protected $afterpayApiCall;
-    protected $afterpayConfig;
-    protected $objectManagerInterface;
-    protected $storeManagerInterface;
-    protected $jsonHelper;
-    protected $helper;
+    protected $_afterpayApiCall;
+    protected $_afterpayConfig;
+    protected $_objectManagerInterface;
+    protected $_storeManagerInterface;
+    protected $_jsonHelper;
+    protected $_helper;
+
+    protected $_countryFactory;
+    protected $_scopeConfig;
 
     /**
      * AfterpayOrderToken constructor.
@@ -49,14 +55,18 @@ class AfterpayOrderTokenV1
         ObjectManagerInterface $objectManagerInterface,
         StoreManagerInterface $storeManagerInterface,
         JsonHelper $jsonHelper,
+        CountryFactory $countryFactory,
+        ScopeConfig $scopeConfig,
         Helper $afterpayHelper
     ) {
-        $this->afterpayApiCall = $afterpayApiCall;
-        $this->afterpayConfig = $afterpayConfig;
-        $this->objectManagerInterface = $objectManagerInterface;
-        $this->storeManagerInterface = $storeManagerInterface;
-        $this->jsonHelper = $jsonHelper;
-        $this->helper = $afterpayHelper;
+        $this->_afterpayApiCall = $afterpayApiCall;
+        $this->_afterpayConfig = $afterpayConfig;
+        $this->_objectManagerInterface = $objectManagerInterface;
+        $this->_storeManagerInterface = $storeManagerInterface;
+        $this->_jsonHelper = $jsonHelper;
+        $this->_helper = $afterpayHelper;
+        $this->_countryFactory = $countryFactory;
+        $this->_scopeConfig = $scopeConfig;
     }
 
     /**
@@ -77,14 +87,14 @@ class AfterpayOrderTokenV1
         $this->_handleValidation($requestData);
 
         try {
-            $response = $this->afterpayApiCall->send(
-                $this->afterpayConfig->getApiUrl('v1/orders/'),
+            $response = $this->_afterpayApiCall->send(
+                $this->_afterpayConfig->getApiUrl('v1/orders/'),
                 $requestData,
                 \Magento\Framework\HTTP\ZendClient::POST
             );
         } catch (\Exception $e) {
 
-            $this->helper->debug($e->getMessage());
+            $this->_helper->debug($e->getMessage());
             throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
         }
 
@@ -105,11 +115,33 @@ class AfterpayOrderTokenV1
         return $requestData;
     }
 
+    private function _getStateRequired() {
+        $destinations = (string)$this->_scopeConfig->getValue(
+            'general/region/state_required'
+        );
+
+        $state_required = !empty($destinations) ? explode(',', $destinations) : [];
+
+        return $state_required; 
+    }
+
     private function _handleState($requestData) {
+
+        //get the country to obtain state required data
+        $billing_country = ( !empty($requestData['billing']['countryCode']) ? $requestData['billing']['countryCode'] : NULL);
+        $list_state_required = $this->_getStateRequired();
+
+        //if the country doesn't require state, make Suburb goes to State Field
+        if( !in_array( $billing_country, $list_state_required ) ) {
+            $requestData['billing']['state'] = $requestData['billing']['suburb'];
+            $requestData['shipping']['state'] = $requestData['shipping']['suburb'];
+        }
+
 
         $billing_state = ( !empty($requestData['billing']['state']) ? $requestData['billing']['state'] : NULL);
         $shipping_state = ( !empty($requestData['shipping']['state']) ? $requestData['shipping']['state'] : NULL);
 
+        //if the Billing or Shipping State is empty, enforce a transfer of values
         if( empty($billing_state) && !empty($shipping_state) ) {
             $requestData['billing']['state'] = $shipping_state;
         }
@@ -200,8 +232,8 @@ class AfterpayOrderTokenV1
         $params['merchantReference'] = array_key_exists('merchantOrderId', $override) ? $override['merchantOrderId'] : $object->getIncrementId();
 
         $params['merchant'] = array(
-            'redirectConfirmUrl'    => $this->storeManagerInterface->getStore($object->getStore()->getId())->getBaseUrl() . 'afterpay/payment/response', 
-            'redirectCancelUrl'     => $this->storeManagerInterface->getStore($object->getStore()->getId())->getBaseUrl() . 'afterpay/payment/response'
+            'redirectConfirmUrl'    => $this->_storeManagerInterface->getStore($object->getStore()->getId())->getBaseUrl() . 'afterpay/payment/response', 
+            'redirectCancelUrl'     => $this->_storeManagerInterface->getStore($object->getStore()->getId())->getBaseUrl() . 'afterpay/payment/response'
         );
 
         foreach ($object->getAllVisibleItems() as $item) {
@@ -209,7 +241,7 @@ class AfterpayOrderTokenV1
                 $params['items'][] = array(
                     'name'     => (string)$item->getName(),
                     'sku'      => (string)$item->getSku(),
-                    'quantity' => (int)$item->getQtyOrdered(),
+                    'quantity' => (int)$item->getQty(),
                     'price'    => array(
                         'amount'   => round((float)$item->getPriceInclTax(), $precision),
                         'currency' => (string)$data['store_currency_code']

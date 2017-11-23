@@ -15,7 +15,7 @@ use Magento\Checkout\Model\ConfigProviderInterface;
  */
 class ConfigProvider implements ConfigProviderInterface
 {
-    const TERMS_CONDITION_LINK = "https://www.afterpay.com.au/terms/";
+    const TERMS_CONDITION_LINK = "https://www.afterpay.com/terms/";
     /**
      * @var Config\Payovertime
      */

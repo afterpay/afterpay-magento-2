@@ -129,13 +129,21 @@ class Payovertime
     public function getStoreObjectFromRequest() {
         //get the store source
         $stores = $this->storeManager->getStores();
-        foreach( $stores as $key => $store ) {
-                
-            $referrer = $_SERVER['HTTP_REFERER'];
 
-            if( strpos($referrer, $store->getBaseUrl() ) > -1 ) {
-                return $store;
-            }  
+        if( !empty($_SERVER['HTTP_REFERER']) ) {
+            foreach( $stores as $key => $store ) {
+                    
+                $referrer = $_SERVER['HTTP_REFERER'];
+
+                if( strpos($referrer, $store->getBaseUrl() ) > -1 ) {
+                    return $store;
+                }  
+            }
+        }
+        else {
+            foreach( $stores as $key => $store ) {
+                return $store;  
+            }
         }
     }
 

@@ -11,10 +11,15 @@ define(
         'jquery',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/quote',
+        'Magento_Checkout/js/model/resource-url-manager',
+        'mage/storage',
+        'mage/url',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Ui/js/model/messageList'
+        'Magento_Ui/js/model/messageList',
+        'Magento_Customer/js/customer-data',
+        'Magento_Customer/js/section-config'
     ],
-    function ($, Component, quote, additionalValidators, globalMessageList) {
+    function ($, Component, quote, resourceUrlManager, storage, mageUrl, additionalValidators, globalMessageList, customerData, sectionConfig) {
         'use strict';
 
         return Component.extend({
@@ -43,9 +48,27 @@ define(
              * @returns {*}
              */
             getGrandTotal: function() {
-                var total = window.checkoutConfig.totalsData.grand_total;
-                var format = window.checkoutConfig.priceFormat.pattern;
-                return format.replace(/%s/g, total.toFixed(window.checkoutConfig.priceFormat.precision));
+
+                var total = quote.getCalculatedTotal();
+                var format = window.checkoutConfig.priceFormat.pattern
+
+                storage.get(resourceUrlManager.getUrlForCartTotals(quote), false)
+                .done(
+                    function (response) {
+                        var amount = response.grand_total;
+                        var installmentFee = response.grand_total / 4;
+
+                        $(".afterpay_total_amount").text( format.replace(/%s/g, amount.toFixed(window.checkoutConfig.priceFormat.precision)) );
+                        $(".afterpay_instalments_amount").text( format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)) );
+
+                        return format.replace(/%s/g, amount);
+                    })
+                .fail(
+                   function (response) {
+                       //do your error handling
+
+                    return 'Error';
+                });
             },
 
             /**
@@ -53,10 +76,10 @@ define(
             getAfterpayInstallmentFee: function() {
                 // Checking and making sure checkoutConfig data exist and not total 0 dollar
                 if (typeof window.checkoutConfig !== 'undefined' &&
-                    window.checkoutConfig.totalsData.grand_total > 0) {
+                    quote.getCalculatedTotal() > 0) {
 
                     // Set installment fee from grand total and check format price to be output
-                    var installmentFee = window.checkoutConfig.totalsData.grand_total / 4;
+                    var installmentFee = quote.getCalculatedTotal() / 4;
                     var format = window.checkoutConfig.priceFormat.pattern;
 
                     // return with the currency code ($) and decimal setting (default: 2)
@@ -79,63 +102,68 @@ define(
                     }
                     else {
                         // Making sure it using API V1
-                        var url = "/afterpay/payment/process";
+                        var url = mageUrl.build("afterpay/payment/process");
                         var data = $("#co-shipping-form").serialize();
+                        var email = window.checkoutConfig.customerData.email;
 
                         //handle guest and registering customer emails
-                        if(!window.checkoutConfig.quoteData.customer_id){
-                            var email = document.getElementById("customer-email").value;
+                        if (!window.checkoutConfig.quoteData.customer_id) {
+                            email = document.getElementById("customer-email").value;
                         }
-                        else {
-                            var email = window.checkoutConfig.customerData.email;
-                        }
-                        var data = data + '&email=' + email;
+
+                        data = data + '&email=' + email;
 
 
                         $.ajax({
                             url: url,
-                            method:'post',
-                            showLoader: true,
+                            method: 'post',
                             data: data,
-                            success: function(response) {
+                            beforeSend: function () {
+                                $('body').trigger('processStart');
+                            }
+                        }).done(function (response) {
+                            // var data = $.parseJSON(response);
+                            var data = response;
 
-                                var data = $.parseJSON(response);
+                            if( data.success && (typeof data.token !== 'undefined' && data.token !== null && data.token.length) ) {
+                                    
+                                //Init Afterpay
+                                AfterPay.init();
 
-                                if( data['success'] && (typeof data['token'] !== 'undefined' && data['token'] !== null && data['token'].length) ) {
-                                    AfterPay.init();
-
+                                //Waiting for all AJAX calls to resolve to avoid error messages upon redirection
+                                $("body").ajaxStop(function() {
                                     switch (window.Afterpay.checkoutMode) {
                                         case 'lightbox':
                                             AfterPay.display({
-                                                token: data['token']
+                                                token: data.token
                                             });
                                             break;
 
                                         case 'redirect':
                                             AfterPay.redirect({
-                                                token: data['token']
+                                                token: data.token
                                             });
                                             break;
                                     }
-                                }
-                                else if( typeof data['error'] !== 'undefined' &&  typeof data['message'] !== 'undefined' && 
-                                        data['error'] && data['message'].length ) {
-                                  
-                                    globalMessageList.addErrorMessage({
-                                        'message': data['message']
-                                    });
-                                }
-                                else if( typeof data['token'] === 'undefined' || data['token'] === null || !data['token'].length ) {
-                                    globalMessageList.addErrorMessage({
-                                        'message': "Transaction generation error."
-                                    });
-                                }
-                                else {
-                                    globalMessageList.addErrorMessage({
-                                        'message': data.message
-                                    });
-                                }
+                                });
+
+                            } else if (typeof data.error !== 'undefined' && typeof data.message !== 'undefined' &&
+                                data.error && data.message.length) {
+
+                                globalMessageList.addErrorMessage({
+                                    'message': data.message
+                                });
+                            } 
+                            else {
+                                globalMessageList.addErrorMessage({
+                                    'message': data.message
+                                });
                             }
+                        }).fail(function () {
+                            window.location.reload();
+                        }).always(function () {
+                            customerData.invalidate(['cart']);
+                            $('body').trigger('processStop');
                         });
                     }
                 }
@@ -152,14 +180,15 @@ define(
                 var afterpay = window.checkoutConfig.payment.afterpay;
 
                 // Making sure it using current flow
-                var url = "/afterpay/payment/process";
+                var url = mageUrl.build("afterpay/payment/process");
                 
                 $.ajax({
                     url: url,
                     method:'post',
                     success: function(response) {
 
-                        var data = $.parseJSON(response);
+                        // var data = $.parseJSON(response);
+                        var data = response;
 
                         AfterPay.init({
                             relativeCallbackURL: window.checkoutConfig.payment.afterpay.afterpayReturnUrl
@@ -168,13 +197,13 @@ define(
                         switch (window.Afterpay.checkoutMode) {
                             case 'lightbox':
                                 AfterPay.display({
-                                    token: data['token']
+                                    token: data.token
                                 });
                                 break;
 
                             case 'redirect':
                                 AfterPay.redirect({
-                                    token: data['token']
+                                    token: data.token
                                 });
                                 break;
                         }

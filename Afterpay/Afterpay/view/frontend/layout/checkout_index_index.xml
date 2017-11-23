@@ -35,7 +35,7 @@
                                                                     <item name="component" xsi:type="string">Afterpay_Afterpay/js/view/payment/afterpay-payments</item>
                                                                     <item name="methods" xsi:type="array">
                                                                         <item name="afterpaypayovertime" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                     </item>
                                                                 </item>

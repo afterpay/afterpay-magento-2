@@ -101,12 +101,12 @@ class AfterpayPayment
     public function refund($amount, $orderId, $currency = 'AUD', $override = array())
     {
         // create url to request refunds
-        $url = $this->afterpayConfig->getApiUrl('merchants/orders/' . $orderId . '/refunds', array(), $override);
+        $url = $this->afterpayConfig->getApiUrl('v1/payments/' . $orderId . '/refund', array(), $override);
 
         // generate body to be sent to refunds
         $body = array(
             'amount'    => array(
-                'amount'    => abs($amount) * -1, // Afterpay API requires a negative amount
+                'amount'    => abs( round($amount, 2) ), // Afterpay API V1 requires a positive amount
                 'currency'  => $currency,
             ),
             'merchantRefundId'  => null

@@ -60,10 +60,12 @@ class Call
     {
         // set the client http
         $client = $this->httpClientFactory->create();
+        $client->setUri($url);
 
         // set body and the url
-        $client->setUri($url)
-            ->setRawData($this->jsonHelper->jsonEncode($body), 'application/json');
+        if( $body ) {
+            $client->setRawData($this->jsonHelper->jsonEncode($body), 'application/json');
+        }
 
         // add auth for API requirements
         $client->setAuth(
@@ -71,6 +73,19 @@ class Call
             trim($this->afterpayConfig->getMerchantKey($override))
         );
 
+        //Additional debugging on the merchant ID and Key being sent on Update Payment Limits
+        if( $url == $this->afterpayConfig->getApiUrl('v1/configuration') ||
+            $url == $this->afterpayConfig->getApiUrl('merchants/valid-payment-types') ) {
+
+            $this->helper->debug('Merchant Override: ' . $_SERVER['REQUEST_URI']);
+            $this->helper->debug('Merchant ID:' . $this->afterpayConfig->getMerchantId($override));
+
+            $merchant_key = $this->afterpayConfig->getMerchantKey($override);
+
+            $masked_merchant_key = substr($merchant_key, 0, 4) . '****' . substr($merchant_key, -4);
+            
+            $this->helper->debug('Merchant Key:' . $masked_merchant_key);
+        }
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
@@ -88,8 +103,9 @@ class Call
         // set configurations
         $client->setConfig(
             [
-                'maxredirects' => 0,
-                'useragent'    => 'AfterpayMagento2Plugin ' . $this->helper->getModuleVersion() . ' (' . $description . ' ' . $version . ') MerchantID: ' . trim($this->afterpayConfig->getMerchantId($override) . ' URL: ' . $url ) 
+                'timeout'           => 80,
+                'maxredirects'      => 0,
+                'useragent'         => 'AfterpayMagento2Plugin ' . $this->helper->getModuleVersion() . ' (' . $description . ' ' . $version . ') MerchantID: ' . trim($this->afterpayConfig->getMerchantId($override) . ' URL: ' . $url ) 
             ]
         );
 

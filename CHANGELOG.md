@@ -1,5 +1,61 @@
-# Afterpay magento extension changelog
-Copyright (c) 2017 AfterPay (http://afterpay.com.au/)
+Afterpay Magento 2 extension changelog
+- Release version: 2.0.2
+- Release date: 23 Nov 2017
+- Platform: Magento 2
+ 
+Supported Editions and Versions:
+- Magento Community Edition (CE) version 2.1.1 and later
+- Magento Enterprise Edition (EE) version 2.1.1 and later
+- Afterpay-Magento2 plugin v2.0.2 has been verified against a new instance of Magento CE v2.2.0
+	- http://devdocs.magento.com/guides/v2.2/release-notes/ReleaseNotes2.2.0EE.html
+ 
+Highlights
+Version 2.0.2 of the Afterpay-Magento 2 plugin delivers:
+- Single and Multi-Market Afterpay transaction processing.
+- Extended support for Magento Order Confirmation emails.
+- Implemented Magento default Mini-Cart clearing.
+- Magento timeout value override.
+- Improved Payment Limits API call.
+ 
+Community & Enterprise Edition enhancements
+
+Single and Multi-market Afterpay transaction processing
+- Adapted the API payload to support New Zealand merchants and Afterpay transactions.
+- Utilised Magento "State Required" functionality to validate the API payloads based on country requirements.
+- Implemented Website Base Currency detection to ensure correct currency is sent to Afterpay API.
+- Extends Single-Market use to New Zealand and supports Multi-Market use in Australia and New Zealand.
+ 
+Extended support for Magento Order Confirmation emails.
+- Extended support for triggering the Magento Order Confirmation email following an approved Afterpay transaction.
+	- Previously Magento triggered the sending of a Order Confirmation email upon order creation.
+	- The trigger was altered in Magento 2.1.4 (and subsequent versions).
+	- Plugin version 2.0.2 programmatically trigger the Magento Order Confirmation email.
+
+Implemented Magento default Mini-Cart clearing.
+- Implemented programmatic removal of the Shopping Cart (Mini-Cart) contents when Afterpay transaction is successful.
+	- Previously upon a successful Afterpay transaction, the Mini-Cart presented as retaining the contents of the order despite the Shopping Cart contents being cleared.
+ 
+Magento timeout value override
+- Implemented override function for the Magento 2 default timeout value.
+- The override function is set to 80 seconds to extend Magento’s 10 default second timeout value.
+- This will ensure that Magento processes responses from the Afterpay API up to 80 seconds.
+ 
+Improved Payment Limits API call
+- Updated the Payment Limits API call to target Afterpay API V1 Payment Limits Endpoint.
+	- Previously the Payment Limits API call targeted Afterpay API V0.
+- Added logging on Payment Limits query to monitor incorrect Merchant ID and Key combinations.
+	- Following a Payment Limits API call, an entry is created on the afterpay.log file with the Merchant ID and masked Secret Key.
+	- The log entry includes both the Payment Limits API request and response.
+
+Miscellaneous
+- Implemented Afterpay instalment display on the Magento checkout page.
+- Added Afterpay-Magento2 plugin version display with the Payment Method configuration section with Magento Admin.
+- Implemented a JavaScript activation delay on the checkout page.
+	- Ensures all other checkout page AJAX requests have been completed prior to redirection to Afterpay payment gateway.
+- Updated POST request to the Orders API endpoint to display item quantity and price in Afterpay Portal
+
+
+-------------------------------------------------------------------------------------------------------------------------------
 
 Release version: 2.0.1
 Release date: 13.04.2017

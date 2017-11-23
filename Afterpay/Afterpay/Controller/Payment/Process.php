@@ -17,6 +17,7 @@ use \Magento\Framework\Json\Helper\Data as JsonHelper;
 use \Afterpay\Afterpay\Helper\Data as Helper;
 use \Magento\Checkout\Model\Cart as Cart;
 use \Magento\Store\Model\StoreResolver as StoreResolver;
+use \Magento\Framework\Controller\Result\JsonFactory as JsonResultFactory;
 
 /**
  * Class Response
@@ -33,6 +34,7 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $_helper;
     protected $_cart;
     protected $_storeResolver;
+    protected $_jsonResultFactory;
 
     /**
      * Response constructor.
@@ -49,7 +51,8 @@ class Process extends \Magento\Framework\App\Action\Action
         JsonHelper $jsonHelper,
         Helper $helper,
         Cart $cart,
-        StoreResolver $storeResolver
+        StoreResolver $storeResolver,
+        JsonResultFactory $jsonResultFactory
     ) {
         $this->_checkoutSession = $checkoutSession;
         $this->_orderFactory = $orderFactory;
@@ -60,17 +63,20 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->_helper = $helper;
         $this->_cart = $cart;
         $this->_storeResolver = $storeResolver;
+        $this->_jsonResultFactory = $jsonResultFactory;
 
         parent::__construct($context);
     }
 
     public function execute() {
         if( $this->_afterpayConfig->getPaymentAction() == AbstractMethod::ACTION_AUTHORIZE_CAPTURE ) {
-            $this->_processAuthorizeCapture();
+            $result = $this->_processAuthorizeCapture();
         }
         else {
-            $this->_processOrder();
+            $result = $this->_processOrder();
         } 
+        
+        return $result;
     }   
 
     public function _processAuthorizeCapture() {
@@ -79,10 +85,10 @@ class Process extends \Magento\Framework\App\Action\Action
         $data = $this->_checkoutSession->getData();
         
         $quote = $this->_checkoutSession->getQuote();
-        $store_id = $this->_afterpayConfig->getStoreObjectFromRequest()->getId();
+        $website_id = $this->_afterpayConfig->getStoreObjectFromRequest()->getWebsiteId();
 
-        if( $store_id > 1 ) {
-            $quote = $this->_quoteFactory->create()->loadByIdWithoutStore($data["quote_id_" . $store_id]);    
+        if( $website_id > 1 ) {
+            $quote = $this->_quoteFactory->create()->loadByIdWithoutStore($data["quote_id_" . $website_id]);    
         }
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -100,16 +106,20 @@ class Process extends \Magento\Framework\App\Action\Action
             $shippingAddress = $quote->getShippingAddress();
 
             //check if shipping address is missing - e.g. Gift Cards
-            if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1)) && empty($billingAddress) || empty($billingAddress->getStreetLine(1))  ) {
-                die( json_encode( array("success" => false, "message" => "Please select an Address") ) );
+            if( (empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))  ) {
+                $result = $this->_jsonResultFactory->create()->setData(
+                            array('success' => false, 'message' => 'Please select an Address')
+                        );
+
+                return $result;
             }
-            else if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))  || empty($shippingAddress->getFirstname()) ) {
-                $shippingAddress = $quote->getBillingAddress();
-                $quote->setShippingAddress($object->getBillingAddress());
-            }
+            // else if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))  || empty($shippingAddress->getFirstname()) ) {
+            //     $shippingAddress = $quote->getBillingAddress();
+            //     $quote->setShippingAddress($quote->getBillingAddress());
+            // }
             else if( empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname()) ) {
                 $billingAddress = $quote->getShippingAddress();
-                $quote->setBillingAddress($object->getShippingAddress());
+                $quote->setBillingAddress($quote->getShippingAddress());
             }
         }
         else {
@@ -133,17 +143,25 @@ class Process extends \Magento\Framework\App\Action\Action
             $payment = $this->_getAfterPayOrderToken($this->_afterpayOrderTokenV1, $payment, $quote);
         }
         catch (\Exception $e) {
-            die( json_encode( array('error' => 1, 'message' => $e->getMessage()) ) );
+            $result = $this->_jsonResultFactory->create()->setData(
+                        array('error' => 1, 'message' => $e->getMessage())
+                    );
+
+            return $result;
         }
 
         $quote->setPayment($payment);
         $quote->save();
 
-        $this->_checkoutSession->setQuote($quote);
+        $this->_checkoutSession->replaceQuote($quote);
 
         $token = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKEN);
 
-        die( json_encode( array("success" => true, "token" => $token) ) );
+        $result = $this->_jsonResultFactory->create()->setData(
+                    array('success' => true, 'token' => $token)
+                );
+
+        return $result;
     }
 
     /**
@@ -180,10 +198,18 @@ class Process extends \Magento\Framework\App\Action\Action
 
         if( !empty($payment) ) {
             $token = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKEN);
-            die( json_encode( array("success" => true, "token" => $token) ) );
+            
+            $result = $this->_jsonResultFactory->create()->setData(
+                        array('success' => true, 'token' => $token)
+                    );
         }
         else {
-            die( json_encode( array("success" => false) ) );
+
+            $result = $this->_jsonResultFactory->create()->setData(
+                        array('success' => false)
+                    );
         }
+
+        return $result;
     }
 }

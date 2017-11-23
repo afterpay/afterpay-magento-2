@@ -13,28 +13,28 @@
             <argument name="environments" xsi:type="array">
                 <item name="development" xsi:type="array">
                     <item name="label" xsi:type="string">Development</item>
-                    <item name="api_url" xsi:type="string">https://api-dev.secure-afterpay.com.au/</item>
-                    <item name="web_url" xsi:type="string">https://www-dev.secure-afterpay.com.au/</item>
+                    <item name="api_url" xsi:type="string">https://api-dev.paylater.touchcorp.net/</item>
+                    <item name="web_url" xsi:type="string">https://portal-dev.paylater.touchcorp.net/</item>
                 </item>
                 <item name="qa" xsi:type="array">
                     <item name="label" xsi:type="string">QA</item>
-                    <item name="api_url" xsi:type="string">https://api-qa.secure-afterpay.com.au/</item>
-                    <item name="web_url" xsi:type="string">https://www-qa.secure-afterpay.com.au/</item>
+                    <item name="api_url" xsi:type="string">https://api-qa.paylater.touchcorp.net/</item>
+                    <item name="web_url" xsi:type="string">https://portal-qa.paylater.touchcorp.net/</item>
                 </item>
                 <item name="stage" xsi:type="array">
                     <item name="label" xsi:type="string">Stage</item>
-                    <item name="api_url" xsi:type="string">https://api-stg.secure-afterpay.com.au/</item>
-                    <item name="web_url" xsi:type="string">https://www-stg.secure-afterpay.com.au/</item>
+                    <item name="api_url" xsi:type="string">https://api-stg.afterpay.com/</item>
+                    <item name="web_url" xsi:type="string">https://portal-stg.afterpay.com/</item>
                 </item>
                 <item name="sandbox" xsi:type="array">
                     <item name="label" xsi:type="string">Sandbox</item>
-                    <item name="api_url" xsi:type="string">https://api-sandbox.secure-afterpay.com.au/</item>
-                    <item name="web_url" xsi:type="string">https://www-sandbox.secure-afterpay.com.au/</item>
+                    <item name="api_url" xsi:type="string">https://api-sandbox.afterpay.com/</item>
+                    <item name="web_url" xsi:type="string">https://portal-sandbox.afterpay.com/</item>
                 </item>
                 <item name="production" xsi:type="array">
                     <item name="label" xsi:type="string">Production</item>
-                    <item name="api_url" xsi:type="string">https://api.secure-afterpay.com.au/</item>
-                    <item name="web_url" xsi:type="string">https://www.secure-afterpay.com.au/</item>
+                    <item name="api_url" xsi:type="string">https://api.afterpay.com/</item>
+                    <item name="web_url" xsi:type="string">https://portal.afterpay.com/</item>
                 </item>
             </argument>
         </arguments>
