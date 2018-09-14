@@ -34,7 +34,7 @@ class Button extends Template
         AfterpayConfig $afterpayConfig,
         CheckoutSession $checkoutSession,
         Currency $currency,
-        array $data
+        array $data = []
     ) {
         $this->afterpayConfig = $afterpayConfig;
         $this->checkoutSession = $checkoutSession;
