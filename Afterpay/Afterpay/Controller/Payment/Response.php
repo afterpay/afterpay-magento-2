@@ -2,8 +2,10 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * Updated on 27th March 2018
+ * Removed API V0 functionality
  */
 namespace Afterpay\Afterpay\Controller\Payment;
 
@@ -31,6 +33,9 @@ class Response extends \Magento\Framework\App\Action\Action
     protected $_quoteManagement;
     protected $_transactionBuilder;
     protected $_orderSender;
+    protected $_orderRepository;
+    protected $_paymentRepository;
+    protected $_transactionRepository;
 
     /**
      * Response constructor.
@@ -50,7 +55,10 @@ class Response extends \Magento\Framework\App\Action\Action
         \Afterpay\Afterpay\Model\Config\Payovertime $afterpayConfig,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Magento\Sales\Model\OrderRepository $orderRepository,
+        \Magento\Sales\Model\Order\Payment\Repository $paymentRepository,
+        \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository
     ) {
         $this->_resultForwardFactory = $resultForwardFactory;
         $this->response = $response;
@@ -70,6 +78,12 @@ class Response extends \Magento\Framework\App\Action\Action
         $this->_transactionBuilder = $transactionBuilder;
 
         $this->_orderSender = $orderSender;
+
+        $this->_orderRepository = $orderRepository;
+
+        $this->_paymentRepository = $paymentRepository;
+
+        $this->_transactionRepository = $transactionRepository;
 
         parent::__construct($context);
     }
@@ -92,11 +106,7 @@ class Response extends \Magento\Framework\App\Action\Action
         }
         else if (!$this->response->validCallback($order, $query)) {
             $this->_helper->debug('Request redirect url is not valid.');
-        } else {
-            $this->_helper->debug('Order triggered.');
-            $redirect = $this->_processOrder($query, $order);
         }
-
         // debug mode
         $this->_helper->debug('Finished \Afterpay\Afterpay\Controller\Payment\Response::execute()');
 
@@ -252,62 +262,16 @@ class Response extends \Magento\Framework\App\Action\Action
                 $message
             );
             $payment->setParentTransactionId(null);
-            $payment->save();
-            $order->save();
+            $this->_paymentRepository->save($payment);
+            $this->_orderRepository->save($order);
+            $transaction = $this->_transactionRepository->save($transaction);
  
-            return  $transaction->save()->getTransactionId();
+            return  $transaction->getTransactionId();
+ 
+            
         } catch (Exception $e) {
             //log errors here
         }
     }
 
-    private function _processOrder($query, $order) {
-        $redirect = self::DEFAULT_REDIRECT_PAGE;
-        try {
-            switch ($query['status']) {
-                case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_CANCELLED:
-                    // adding comment
-                    $order->addStatusHistoryComment(__('Customer cancelled the payment'));
-
-                            // perform cancel order and save the order
-                    $this->response->cancelOrder($order, __('Payment is cancelled by Gateway.'));
-                    $this->response->returnProductsToCart($order);
-                    $this->messageManager->addError(__('You have cancelled your Afterpay payment. Please select an alternative payment method.'));
-                break;
-                case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_FAILURE:
-                    // adding comment
-                    $order->addStatusHistoryComment(__('Customer payment was declined'));
-
-                    // perform cancel order and return product to cart
-                    $this->response->cancelOrder($order, __('Payment has detected failure by Gateway.'));
-                    $this->response->returnProductsToCart($order);
-                    $this->messageManager->addError(__('Your Afterpay payment was declined. Please select an alternative payment method.'));
-                break;
-                case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_SUCCESS:
-                    if (!array_key_exists('orderId', $query)) {
-                        throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment'));
-                    } else {
-                        if ($this->response->processSuccessPayment($order, $query['orderId'])) {
-                            $redirect = 'checkout/onepage/success';
-                        } else {
-                            throw new \Magento\Framework\Exception\LocalizedException(__('Afterpay Payment cannot be processes. Please contact administrator.'));
-                        }
-                    }
-                break;
-            }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->_helper->debug("Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addError(
-                $e->getMessage()
-            );
-        } catch (\Exception $e) {
-            
-            $this->_helper->debug("Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addError(
-                $e->getMessage()
-            );
-        }
-
-        return $redirect;
-    }
 }

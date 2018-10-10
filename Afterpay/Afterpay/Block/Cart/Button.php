@@ -2,8 +2,8 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Block\Cart;
 
@@ -11,6 +11,8 @@ use Magento\Framework\View\Element\Template;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Directory\Model\Currency as Currency;
 use Afterpay\Afterpay\Model\Config\Payovertime as AfterpayConfig;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Component\ComponentRegistrar as ComponentRegistrar;
 
 class Button extends Template
 {
@@ -20,6 +22,8 @@ class Button extends Template
     protected $afterpayConfig;
     protected $checkoutSession;
     protected $currency;
+    protected $customerSession;
+    protected $componentRegistrar;
 
     /**
      * Button constructor.
@@ -34,11 +38,15 @@ class Button extends Template
         AfterpayConfig $afterpayConfig,
         CheckoutSession $checkoutSession,
         Currency $currency,
+        CustomerSession $customerSession,
+        ComponentRegistrar $componentRegistrar,
         array $data
     ) {
         $this->afterpayConfig = $afterpayConfig;
         $this->checkoutSession = $checkoutSession;
         $this->currency = $currency;
+        $this->customerSession = $customerSession;
+        $this->componentRegistrar = $componentRegistrar;
         parent::__construct($context, $data);
     }
 
@@ -99,5 +107,29 @@ class Button extends Template
 
         // all ok
         return true;
+    }
+
+    /**
+     * Calculate region specific Instalment Text for Cart page
+     * @return string
+     */
+    public function getCartPageText()
+    {
+        $currencyCode = $this->afterpayConfig->getCurrencyCode();
+        $assetsPath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Afterpay_Afterpay');
+
+        if(file_exists($assetsPath.'/assets.ini'))
+        {
+            $assets = parse_ini_file($assetsPath.'/assets.ini',true);
+            $assets_cart_page = $assets[$currencyCode]['cart_page'];
+            $assets_cart_page = str_replace(array('[modal-href]'), 
+                    array('javascript:void(0)'), $assets_cart_page);
+        } 
+        else
+        {
+            $assets_cart_page = '';       
+        }
+        return $assets_cart_page;
+       
     }
 }

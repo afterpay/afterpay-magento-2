@@ -3,13 +3,14 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <css src="Afterpay_Afterpay::css/afterpay.css"/>
+        <link src="Afterpay_Afterpay::js/view/product/afterpay-products.js"/>
     </head>
     <body>
         <referenceContainer name="product.info.main">

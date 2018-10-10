@@ -2,8 +2,8 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 -->
 <div class="payment-method" id="afterpaypayovertime-method" data-bind="css: {'_active': (getCode() == isChecked())}">
@@ -14,10 +14,13 @@
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
         <label data-bind="attr: {'for': getCode()}" class="label">
             <!-- Afterpay Logo -->
+            <span data-bind="style: { display: getOptionalTermsText() < 0 ? 'inline' : 'none'}">
+                <!-- ko i18n: 'Installments by ' --><!-- /ko -->
+            </span>
             <img data-bind="attr: {src: getAfterpayPayovertimeLogoSrc(), alt: getTitle()}"
                  class="payment-icon"/>
             <!-- Afterpay Logo -->
-            <span>
+            <span data-bind="style: { display: getOptionalTermsText() > 0 ? 'inline' : 'none'}">
                 <!-- ko i18n: 'Interest-free payments.' --><!-- /ko -->
             </span>
         </label>
@@ -35,14 +38,14 @@
             <div style="">
 
                 <h3>
-                    <!-- ko i18n: 'Four interest-free payments totalling' --><!-- /ko -->
+                    <strong><span class="afterpay_checkout_text" data-bind="text: getCheckoutText()"></span></strong>
                     <strong><span class="afterpay_total_amount" data-bind="text: getGrandTotal()"></span></strong>
                 </h3>
                 <ul class="cost">
                     <li><span class="afterpay_instalments_amount"></span></li>
                     <li><span class="afterpay_instalments_amount"></span></li>
                     <li><span class="afterpay_instalments_amount"></span></li>
-                    <li><span class="afterpay_instalments_amount"></span></li>
+                    <li><span class="afterpay_instalments_amount_last"></span></li>
                 </ul>
                 <ul class="icon">
                     <li>
@@ -69,7 +72,7 @@
         <div class="payment-method-content afterpay-checkout-redirect">
             <div class="instalment-footer">
                 <!-- ko i18n: 'You will be redirected to the Afterpay website when you proceed to checkout. ' --><!-- /ko -->
-                    <a href="http://www.afterpay.com/terms/" target="_blank"><!-- ko i18n: 'Terms & Conditions' --><!-- /ko --></a>
+                    <a href="http://www.afterpay.com/terms/" target="_blank" data-bind="style: { display: getOptionalTermsText() > 0 ? 'inline' : 'none'}"><!-- ko i18n: 'Terms & Conditions' --><!-- /ko --></a>
             </div>
             <div class="actions-toolbar">
                 <div class="primary">

@@ -2,8 +2,8 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Block\Catalog;
 
@@ -12,6 +12,8 @@ use Magento\Catalog\Model\Product as Product;
 use Magento\Framework\Registry as Registry;
 use Magento\Directory\Model\Currency as Currency;
 use Afterpay\Afterpay\Model\Config\Payovertime as AfterpayConfig;
+use Magento\Framework\Component\ComponentRegistrar as ComponentRegistrar;
+
 
 class Installments extends Template
 {
@@ -22,6 +24,7 @@ class Installments extends Template
     protected $registry;
     protected $currency;
     protected $afterpayConfig;
+    protected $componentRegistrar;
 
     /**
      * Installments constructor.
@@ -38,12 +41,14 @@ class Installments extends Template
         Registry $registry,
         Currency $currency,
         AfterpayConfig $afterpayConfig,
+        ComponentRegistrar $componentRegistrar,
         array $data
     ) {
         $this->product = $product;
         $this->registry = $registry;
         $this->currency = $currency;
         $this->afterpayConfig = $afterpayConfig;
+        $this->componentRegistrar = $componentRegistrar;
         parent::__construct($context, $data);
     }
 
@@ -89,5 +94,39 @@ class Installments extends Template
         }
 
         return true;
+    }
+
+    /**
+     * Calculate region specific Instalment Text
+     * @return string
+     */
+    public function getInstalmentText()
+    {
+        $currencyCode = $this->afterpayConfig->getCurrencyCode();
+        $assetsPath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Afterpay_Afterpay');
+        $assets_product_page = [];
+        if(file_exists($assetsPath.'/assets.ini'))
+            {
+                $assets = parse_ini_file($assetsPath.'/assets.ini',true);
+                $assets_product_page['snippet1'] = $assets[$currencyCode]['product_page1'];
+                $assets_product_page['snippet2'] = $assets[$currencyCode]['product_page2'];
+            } 
+           return $assets_product_page;
+    }  
+
+    
+    /**
+    * @return float
+    */
+    public function getMaxOrderLimit() {
+        return $this->afterpayConfig->getMaxOrderLimit();
+    }
+
+    /**
+     * @return float
+     */
+    public function getMinOrderLimit() {
+        return $this->afterpayConfig->getMinOrderLimit();
+
     }
 }

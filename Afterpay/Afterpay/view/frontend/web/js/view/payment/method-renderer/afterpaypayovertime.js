@@ -1,8 +1,10 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * Updated on 27th March 2018
+ * Removed API V0 functionality
  */
 /*browser:true*/
 /*global define*/
@@ -55,11 +57,14 @@ define(
                 storage.get(resourceUrlManager.getUrlForCartTotals(quote), false)
                 .done(
                     function (response) {
-                        var amount = response.grand_total;
-                        var installmentFee = response.grand_total / 4;
+
+                        var amount = response.base_grand_total;
+                        var installmentFee = response.base_grand_total / 4;
+                        var installmentFeeLast = amount - installmentFee.toFixed(window.checkoutConfig.priceFormat.precision) * 3;
 
                         $(".afterpay_total_amount").text( format.replace(/%s/g, amount.toFixed(window.checkoutConfig.priceFormat.precision)) );
                         $(".afterpay_instalments_amount").text( format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)) );
+                        $(".afterpay_instalments_amount_last").text( format.replace(/%s/g, installmentFeeLast.toFixed(window.checkoutConfig.priceFormat.precision)) );
 
                         return format.replace(/%s/g, amount);
                     })
@@ -69,6 +74,40 @@ define(
 
                     return 'Error';
                 });
+            },
+
+            /**
+             * Get Checkout Message based on the currency
+             * @returns {*}
+             */
+            getCheckoutText: function() {
+
+                var afterpay = window.checkoutConfig.payment.afterpay;
+                var afterpayCheckoutText = '';
+                if(afterpay.currencyCode == 'AUD')
+                {
+                    afterpayCheckoutText = 'Four interest-free payments totalling';
+                } else if(afterpay.currencyCode == 'NZD')
+                {
+                    afterpayCheckoutText = 'Four interest-free payments totalling';
+                } else if(afterpay.currencyCode == 'USD')
+                {
+                    afterpayCheckoutText = 'Four interest-free installments totalling';
+                }
+                
+                return afterpayCheckoutText;
+            },
+
+            getOptionalTermsText: function() {
+
+                var afterpay = window.checkoutConfig.payment.afterpay;
+                var afterpayCheckoutTermsText = '';
+                if(afterpay.currencyCode == 'USD')
+                {
+                    return -1;
+                }
+                
+                return 1;
             },
 
             /**
@@ -95,16 +134,22 @@ define(
                 if (additionalValidators.validate()) {
                     // start afterpay payment is here
                     var afterpay = window.checkoutConfig.payment.afterpay;
-
-                    // Making sure it using current flow
-                    if (afterpay.paymentAction == 'order') {
-                        this.placeOrder();
+                    // Making sure it using API V1
+                    var url = mageUrl.build("afterpay/payment/process");
+                    var data = $("#co-shipping-form").serialize();
+                    var email = window.checkoutConfig.customerData.email;
+                    //CountryCode Object to pass in initialize function.
+                    var countryCode = {};
+                    if(afterpay.currencyCode == 'AUD')
+                    {
+                        countryCode = {countryCode: "AU"};
+                    } else if(afterpay.currencyCode == 'NZD')
+                    {
+                        countryCode = {countryCode: "NZ"};
+                    } else if(afterpay.currencyCode == 'USD')
+                    {
+                        countryCode = {countryCode: "US"};
                     }
-                    else {
-                        // Making sure it using API V1
-                        var url = mageUrl.build("afterpay/payment/process");
-                        var data = $("#co-shipping-form").serialize();
-                        var email = window.checkoutConfig.customerData.email;
 
                         //handle guest and registering customer emails
                         if (!window.checkoutConfig.quoteData.customer_id) {
@@ -127,8 +172,14 @@ define(
 
                             if( data.success && (typeof data.token !== 'undefined' && data.token !== null && data.token.length) ) {
                                     
-                                //Init Afterpay
-                                AfterPay.init();
+                                //Init or Initialize Afterpay
+                                //Pass countryCode to Initialize function
+                                if (typeof AfterPay.initialize === "function") {
+                                    AfterPay.initialize(countryCode);
+                                }
+                                else {
+                                    AfterPay.init();
+                                }
 
                                 //Waiting for all AJAX calls to resolve to avoid error messages upon redirection
                                 $("body").ajaxStop(function() {
@@ -165,7 +216,7 @@ define(
                             customerData.invalidate(['cart']);
                             $('body').trigger('processStop');
                         });
-                    }
+
                 }
             },
 
@@ -190,9 +241,15 @@ define(
                         // var data = $.parseJSON(response);
                         var data = response;
 
-                        AfterPay.init({
-                            relativeCallbackURL: window.checkoutConfig.payment.afterpay.afterpayReturnUrl
-                        });
+                        if (typeof AfterPay.initialize === "function") { 
+                            AfterPay.initialize({
+                                relativeCallbackURL: window.checkoutConfig.payment.afterpay.afterpayReturnUrl
+                            });
+                        } else {
+                            AfterPay.init({
+                                relativeCallbackURL: window.checkoutConfig.payment.afterpay.afterpayReturnUrl
+                            });
+                        }
 
                         switch (window.Afterpay.checkoutMode) {
                             case 'lightbox':

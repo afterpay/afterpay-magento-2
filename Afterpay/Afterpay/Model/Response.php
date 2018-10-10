@@ -2,8 +2,8 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model;
 
@@ -40,6 +40,10 @@ class Response
     protected $jsonHelper;
     protected $salesOrderConfig;
     protected $status;
+    protected $_orderRepository;
+    protected $_paymentRepository;
+    protected $_transactionRepository;
+    protected $_quoteRepository;
 
     /**
      * Response constructor.
@@ -50,9 +54,13 @@ class Response
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
      * @param Adapter\AfterpayPayment $afterpayApiPayment
+     * @param \Afterpay\Afterpay\Model\Adapter\AfterpayPayment $afterpayApiPayment
      * @param \Afterpay\Afterpay\Helper\Data $helper
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
      * @param \Magento\Sales\Model\Order\Config $salesOrderConfig
+     * @param \Magento\Sales\Model\OrderRepository $orderRepository
+     * @param \Magento\Sales\Model\Order\Payment\Repository $paymentRepository
+     * @param \Magento\Quote\Model\ResourceModel\Quote $quoteRepository
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -64,7 +72,10 @@ class Response
         \Afterpay\Afterpay\Model\Adapter\AfterpayPayment $afterpayApiPayment,
         \Afterpay\Afterpay\Helper\Data $helper,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
-        \Magento\Sales\Model\Order\Config $salesOrderConfig
+        \Magento\Sales\Model\Order\Config $salesOrderConfig,
+        \Magento\Sales\Model\OrderRepository $orderRepository,
+        \Magento\Sales\Model\Order\Payment\Repository $paymentRepository,
+        \Magento\Quote\Model\ResourceModel\Quote $quoteRepository
     ) {
         $this->objectManager = $objectManager;
         $this->checkoutSession = $checkoutSession;
@@ -76,6 +87,9 @@ class Response
         $this->helper = $helper;
         $this->jsonHelper = $jsonHelper;
         $this->salesOrderConfig = $salesOrderConfig;
+        $this->_orderRepository = $orderRepository;
+        $this->_paymentRepository = $paymentRepository;
+        $this->_quoteRepository = $quoteRepository;
     }
 
     /**
@@ -120,7 +134,7 @@ class Response
 
             // then canceling it
             $order->cancel();
-            $order->save();
+            $this->_orderRepository->save($order);
 
             // debug mode
             $this->helper->debug('Cancel order for Magento order ' . $order->getIncrementId());
@@ -136,9 +150,11 @@ class Response
      */
     public function returnProductsToCart(\Magento\Sales\Model\Order $order)
     {
-        $quote = $this->objectManager->create('Magento\Quote\Model\Quote')->load($order->getQuoteId());
+        //$quote = $this->objectManager->create('Magento\Quote\Model\Quote')->load($order->getQuoteId());
+        $quote = $this->objectManager->create('Magento\Quote\Model\QuoteRepository')->get($order->getQuoteId());
         if ($quote->getId()) {
-            $quote->setIsActive(1)->setReservedOrderId(null)->save();
+            $quote->setIsActive(1)->setReservedOrderId(null);
+            $this->_quoteRepository->save($quote);
             $this->checkoutSession->replaceQuote($quote);
 
             // debug mode
@@ -179,7 +195,7 @@ class Response
                     $order->addStatusHistoryComment(__('Payment under review by Afterpay'));
                     $order->setState(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
                     $order->setStatus('payment_review');
-                    $order->save();
+                    $this->_orderRepository->save($order);
                     break;
             }
 
@@ -216,8 +232,9 @@ class Response
         $payment = $order->getPayment();
         $payment->setTransactionId($orderId);
         $payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_ORDERID, $orderId);
-        $payment->save(); // have save here to link afterpay order id right after checking the API
-
+        // have save here to link afterpay order id right after checking the API
+        $this->_paymentRepository->save($payment);
+        
         // debug mode
         $this->helper->debug('Added Afterpay Payment ID ' . $orderId . ' for Magento order ' . $order->getIncrementId());
     }
@@ -250,8 +267,7 @@ class Response
         $transaction = $this->transactionFactory->create();
         $transaction->addObject($order)
             ->addObject($invoice)
-            ->addObject($invoice->getOrder())
-            ->save();
+            ->addObject($invoice->getOrder())->save();
 
         // debug mode
         $this->helper->debug('Invoice created and update status for Magento order ' . $order->getIncrementId());

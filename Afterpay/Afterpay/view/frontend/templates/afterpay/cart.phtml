@@ -2,19 +2,13 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 ?>
 <?php if ($block->canShow()) : ?>
-    <div class="payment-method-note afterpay-checkout-note" style="text-align: left; margin-bottom: 1.5rem; font-size: 13px;">
-        <h3 style="font-size: 1.5rem">
-            <span style="color: #00a4e4;"><?php echo __('Check out with Afterpay and pay by instalment.') ?></span>
-        </h3>
-        <span><?php echo __('Simply pay 4 fortnightly instalments.') ?></span>
-        <!-- <span><?php echo $block->getInstallmentsTotalHtml() ?></span> -->
-        <br/>
-        <span><?php echo __('Use your payment card, instant approval.') ?>  <a href="javascript:void(0)" class="afterpay-modal-popup-trigger"><?php echo __('Learn more') ?></a></span>
+    <div class='payment-method-note afterpay-checkout-note' style='text-align: left; margin-bottom: 1.5rem; font-size: 13px;'><h3 style="font-size: 1.5rem"><span style="color: #00a4e4;">
+    <?php echo $block->getCartPageText(); ?>
     </div>
 
     <!--    Button buy now-->

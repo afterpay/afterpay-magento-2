@@ -8,7 +8,7 @@
     "authors":[
         {
             "name":"Afterpay",
-            "email":"steven.gunarso@touchcorp.com"
+            "homepage":"https://www.afterpay.com"
         }
     ],
     "autoload": {

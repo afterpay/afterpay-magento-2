@@ -2,8 +2,10 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * Updated on 27th March 2018
+ * Removed API V0 functionality
  */
 namespace Afterpay\Afterpay\Model\Adapter;
 
@@ -51,7 +53,6 @@ class AfterpayTotalLimit
     public function getLimit($override = array())
     {
         /** @var \Afterpay\Afterpay\Model\Config\Payovertime $url */
-        // $url = $this->afterpayConfig->getApiUrl('merchants/valid-payment-types'); //V0
         $url = $this->afterpayConfig->getApiUrl('v1/configuration'); //V1
 
         // calling API

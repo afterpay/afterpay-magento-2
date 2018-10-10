@@ -2,8 +2,8 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Adapter\Afterpay;
 
@@ -77,7 +77,8 @@ class Call
         if( $url == $this->afterpayConfig->getApiUrl('v1/configuration') ||
             $url == $this->afterpayConfig->getApiUrl('merchants/valid-payment-types') ) {
 
-            $this->helper->debug('Merchant Override: ' . $_SERVER['REQUEST_URI']);
+            $this->helper->debug('Merchant Origin: ' . $_SERVER['REQUEST_URI']);
+            $this->helper->debug('Target URL: ' . $url);
             $this->helper->debug('Merchant ID:' . $this->afterpayConfig->getMerchantId($override));
 
             $merchant_key = $this->afterpayConfig->getMerchantKey($override);
@@ -132,8 +133,6 @@ class Call
             );
             $this->helper->debug($this->jsonHelper->jsonEncode($responseLog));
 
-            $responseBody = $response->getBody();
-            $debugData['response'] = $responseBody;
         } catch (\Exception $e) {
             $this->helper->debug($e->getMessage());
 

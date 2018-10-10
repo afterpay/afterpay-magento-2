@@ -2,8 +2,10 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * Updated on 27th March 2018
+ * Removed API V0 functionality
  */
 namespace Afterpay\Afterpay\Model\Source;
 use \Magento\Payment\Model\Method\AbstractMethod;
@@ -22,10 +24,6 @@ class PaymentAction implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         return [
-            [
-                'value' => AbstractMethod::ACTION_ORDER,
-                'label' => __('Order'),
-            ],
             [
                 'value' => AbstractMethod::ACTION_AUTHORIZE_CAPTURE,
                 'label' => __('Authorise and Capture'),

@@ -3,29 +3,16 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
+ * @author Afterpay Touch <anu.nayyar@afterpaytouch.com>
  * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * Made changes on 27th March 2018.
+ * Removed enviornment variables for QA, Stage and Development
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Afterpay\Afterpay\Model\Adapter\ApiMode">
         <arguments>
             <argument name="environments" xsi:type="array">
-                <item name="development" xsi:type="array">
-                    <item name="label" xsi:type="string">Development</item>
-                    <item name="api_url" xsi:type="string">https://api-dev.paylater.touchcorp.net/</item>
-                    <item name="web_url" xsi:type="string">https://portal-dev.paylater.touchcorp.net/</item>
-                </item>
-                <item name="qa" xsi:type="array">
-                    <item name="label" xsi:type="string">QA</item>
-                    <item name="api_url" xsi:type="string">https://api-qa.paylater.touchcorp.net/</item>
-                    <item name="web_url" xsi:type="string">https://portal-qa.paylater.touchcorp.net/</item>
-                </item>
-                <item name="stage" xsi:type="array">
-                    <item name="label" xsi:type="string">Stage</item>
-                    <item name="api_url" xsi:type="string">https://api-stg.afterpay.com/</item>
-                    <item name="web_url" xsi:type="string">https://portal-stg.afterpay.com/</item>
-                </item>
                 <item name="sandbox" xsi:type="array">
                     <item name="label" xsi:type="string">Sandbox</item>
                     <item name="api_url" xsi:type="string">https://api-sandbox.afterpay.com/</item>

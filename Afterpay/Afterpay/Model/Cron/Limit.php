@@ -2,8 +2,8 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Cron;
 
@@ -110,6 +110,12 @@ class Limit
                 }
             }
 
+            //Change the minimum amd maximum to Not applicable if both limits are 0.
+            if($minTotal == "0" && $maxTotal=="0") {
+                $minTotal="N/A";
+                $maxTotal="N/A";
+            }
+
             $this->_resourceConfig->saveConfig(
                 'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MIN_TOTAL_LIMIT,
                 $minTotal,
@@ -155,6 +161,12 @@ class Limit
                     $minTotal = isset($result['minimumAmount']['amount']) ? $result['minimumAmount']['amount'] : "0";
                     $maxTotal = isset($result['maximumAmount']['amount']) ? $result['maximumAmount']['amount'] : "0";
                 }
+            }
+
+            //Change the minimum amd maximum to Not applicable if both limits are 0.
+            if($minTotal == "0" && $maxTotal=="0") {
+                $minTotal="N/A";
+                $maxTotal="N/A";
             }
 
             $result = $this->_writerInterface->save(

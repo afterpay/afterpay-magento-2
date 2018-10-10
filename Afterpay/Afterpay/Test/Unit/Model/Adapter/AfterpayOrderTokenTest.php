@@ -2,73 +2,42 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * Updated on 19th April 2018
+ * Removed API V0 assertions
  */
 namespace Afterpay\Afterpay\Test\Unit\Model\Adapter;
+use \PHPUnit\Framework\TestCase;
 
 /**
  * Class AfterpayOrderTokenTest
- * @package Afterpay\Afterpay\Test\Unit\Model\Adapter
+ * Includes Sample assertions
  */
-class AfterpayOrderTokenTest extends \PHPUnit_Framework_TestCase
+class AfterpayOrderTokenTest extends TestCase
 {
-    /**
-     * mock the order
-     */
-    public function setUp()
+    //Sample assertions
+
+    //Additions of 2 numbers
+    public function testAdd()
     {
-        $this->scopeConfigMock = $this->getMockBuilder('Magento\Framework\App\Config\ScopeConfigInterface')
-            ->getMock();
-        $this->paymentMock = $this->getMockBuilder('Magento\Sales\Model\Order\Payment')
-            ->disableOriginalConstructor()
-            ->setMethods([
-                'getOrder', 'getId', 'setAdditionalInformation', 'getAdditionalInformation',
-                'setIsTransactionDenied', 'setIsTransactionClosed', 'decrypt', 'getCcLast4',
-                'getParentTransactionId', 'getPoNumber'
-            ])
-            ->getMock();
-        $this->dataHelperMock = $this->getMockBuilder('Magento\Authorizenet\Helper\Data')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->initResponseFactoryMock();
-
-        $this->transactionRepositoryMock = $this->getMockBuilder(
-            'Magento\Sales\Model\Order\Payment\Transaction\Repository'
-        )
-            ->disableOriginalConstructor()
-            ->setMethods(['getByTransactionId'])
-            ->getMock();
-
-        $this->transactionServiceMock = $this->getMockBuilder('Magento\Authorizenet\Model\TransactionService')
-            ->disableOriginalConstructor()
-            ->setMethods(['getTransactionDetails'])
-            ->getMock();
-
-        $this->requestFactory = $this->getRequestFactoryMock();
-        $httpClientFactoryMock = $this->getHttpClientFactoryMock();
-
-        $helper = new ObjectManagerHelper($this);
-        $this->directpost = $helper->getObject(
-            'Magento\Authorizenet\Model\Directpost',
-            [
-                'scopeConfig' => $this->scopeConfigMock,
-                'dataHelper' => $this->dataHelperMock,
-                'requestFactory' => $this->requestFactory,
-                'responseFactory' => $this->responseFactoryMock,
-                'transactionRepository' => $this->transactionRepositoryMock,
-                'transactionService' => $this->transactionServiceMock,
-                'httpClientFactory' => $httpClientFactoryMock
-            ]
-        );
+        $a = 7;
+        $b = 5;
+        $expected = 12;
+        $this->assertEquals($expected, $a + $b);
     }
 
-    /**
-     * Actual testing method
-     */
-    public function testValidateRequestToken()
+    //Stack Push and Pop
+    public function testPushAndPop()
     {
-        // @todo Assert the order to generate token
+        $stack = [];
+        $this->assertEquals(0, count($stack));
+
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertEquals(1, count($stack));
+
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEquals(0, count($stack));
     }
 }

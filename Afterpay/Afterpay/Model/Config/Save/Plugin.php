@@ -2,8 +2,8 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Config\Save;
 
@@ -78,6 +78,12 @@ class Plugin
                             $minTotal = isset($result['minimumAmount']['amount']) ? $result['minimumAmount']['amount'] : "0";
                             $maxTotal = isset($result['maximumAmount']['amount']) ? $result['maximumAmount']['amount'] : "0";
                         }
+                    }
+
+                    //Change the minimum amd maximum to Not applicable if both limits are 0.
+                    if($minTotal == "0" && $maxTotal=="0") {
+                        $minTotal="N/A";
+                        $maxTotal="N/A";
                     }
 
                     // set on config request

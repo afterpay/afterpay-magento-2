@@ -2,8 +2,8 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model;
 
@@ -51,6 +51,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'redirectMode'      => $this->afterpayConfig->getCheckoutMode(),
                     'paymentAction'     => $this->afterpayConfig->getPaymentAction(),
                     'termsConditionUrl' => self::TERMS_CONDITION_LINK,
+                    'currencyCode'     => $this->afterpayConfig->getCurrencyCode(),
                 ],
             ],
         ]);

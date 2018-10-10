@@ -2,8 +2,10 @@
 /**
  * Magento 2 extensions for Afterpay
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Mony https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * Updated on 27th March 2018
+ * Removed API V0 functionality
  */
 namespace Afterpay\Afterpay\Controller\Payment;
 
@@ -17,6 +19,7 @@ use \Magento\Framework\Json\Helper\Data as JsonHelper;
 use \Afterpay\Afterpay\Helper\Data as Helper;
 use \Magento\Checkout\Model\Cart as Cart;
 use \Magento\Store\Model\StoreResolver as StoreResolver;
+use \Magento\Quote\Model\ResourceModel\Quote as QuoteRepository;
 use \Magento\Framework\Controller\Result\JsonFactory as JsonResultFactory;
 
 /**
@@ -34,6 +37,7 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $_helper;
     protected $_cart;
     protected $_storeResolver;
+    protected $_quoteRepository;
     protected $_jsonResultFactory;
 
     /**
@@ -52,6 +56,7 @@ class Process extends \Magento\Framework\App\Action\Action
         Helper $helper,
         Cart $cart,
         StoreResolver $storeResolver,
+        QuoteRepository $quoteRepository,
         JsonResultFactory $jsonResultFactory
     ) {
         $this->_checkoutSession = $checkoutSession;
@@ -63,6 +68,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->_helper = $helper;
         $this->_cart = $cart;
         $this->_storeResolver = $storeResolver;
+        $this->_quoteRepository = $quoteRepository;
         $this->_jsonResultFactory = $jsonResultFactory;
 
         parent::__construct($context);
@@ -72,10 +78,6 @@ class Process extends \Magento\Framework\App\Action\Action
         if( $this->_afterpayConfig->getPaymentAction() == AbstractMethod::ACTION_AUTHORIZE_CAPTURE ) {
             $result = $this->_processAuthorizeCapture();
         }
-        else {
-            $result = $this->_processOrder();
-        } 
-        
         return $result;
     }   
 
@@ -126,9 +128,21 @@ class Process extends \Magento\Framework\App\Action\Action
             $post = $this->getRequest()->getPostValue();
 
             if( !empty($post['email']) ) {
-                $quote->setCustomerEmail($post['email'])
-                    ->setCustomerIsGuest(true)
-                    ->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
+                $email = htmlspecialchars($post['email'],ENT_QUOTES);
+                $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+                try {
+                    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {              
+                        $quote->setCustomerEmail($email)
+                            ->setCustomerIsGuest(true)
+                            ->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
+                        }
+                    }
+                    catch (\Exception $e) {
+                            $result = $this->_jsonResultFactory->create()->setData(
+                            array('error' => 1, 'message' => $e->getMessage())
+                        );
+                        return $result;
+                     }
             }
         }
 
@@ -151,7 +165,7 @@ class Process extends \Magento\Framework\App\Action\Action
         }
 
         $quote->setPayment($payment);
-        $quote->save();
+        $this->_quoteRepository->save($quote);
 
         $this->_checkoutSession->replaceQuote($quote);
 
@@ -188,28 +202,5 @@ class Process extends \Magento\Framework\App\Action\Action
             throw new \Magento\Framework\Exception\LocalizedException(__('There is an issue processing your order.'));
         }
         return $payment;
-    }
-
-    private function _processOrder() {
-        $orderId = $this->_checkoutSession->getLastOrderId();
-        $order = $this->_orderFactory->create()->load($orderId);
-
-        $payment = $order->getPayment();
-
-        if( !empty($payment) ) {
-            $token = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKEN);
-            
-            $result = $this->_jsonResultFactory->create()->setData(
-                        array('success' => true, 'token' => $token)
-                    );
-        }
-        else {
-
-            $result = $this->_jsonResultFactory->create()->setData(
-                        array('success' => false)
-                    );
-        }
-
-        return $result;
     }
 }

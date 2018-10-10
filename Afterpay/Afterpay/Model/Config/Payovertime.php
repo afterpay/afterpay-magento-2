@@ -2,8 +2,11 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * Updated on 27th March 2018
+ * Added function getSiteConfig() to calculate Api and Web Url based on the selected currency.
+ * Added Multi site support to get correct URL's
  */
 namespace Afterpay\Afterpay\Model\Config;
 
@@ -103,18 +106,22 @@ class Payovertime
     protected function _getRequestedUrl($type, $path, $query, $override = array() )
     {
         if( !empty( $override["website_id"] ) ) {
+            $websiteId = $override["website_id"];
             $currentApi = $this->apiMode->getCurrentMode($override);
         }
         else if( $this->getWebsiteId() > 1 ) {
+            $websiteId = $this->getWebsiteId();
             $currentApi = $this->apiMode->getCurrentMode(array("website_id" => $this->getWebsiteId()));
         }
         else {
+            $websiteId=1;
             $currentApi = $this->apiMode->getCurrentMode();
         }
-
         if (array_key_exists($type, $currentApi)) {
-            // set the url and path
-            $url = $currentApi[$type] . $path;
+                       
+            //Get Site config.
+            $siteURL = $this->getSiteConfig($currentApi['label'],$type,$websiteId);
+            $url = $siteURL . $path;
 
             // calculate the query
             if (!empty($query)) {
@@ -125,6 +132,96 @@ class Payovertime
         }
         return false;
     }
+
+    /**
+     * Calculated the currency code
+     *
+     * @return $text
+     */
+    public function getCurrencyCode() {
+        $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
+        $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
+        $store = $storeManager->getStore();
+        return $store->getCurrentCurrencyCode();
+    }
+        
+
+     /* Calculated the url to generate api/web url
+     *
+     * @param $apiMode
+     * @param $type
+     * @param $websiteId
+     * @return $url
+     */
+
+    public function getSiteConfig($apiMode,$type,$websiteId) {
+        $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
+        $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
+
+        //In case of multiple websites, find the currency for the selected store based on the website ID.
+        if( !empty($websiteId) ) {           
+            $websites = $storeManager->getWebsites();
+            
+            foreach($websites as $website){
+                foreach($website->getStores() as $store){
+                    if( !empty($websiteId) && $websiteId == $website->getId()) {
+                        $store = $storeManager->getStore($store);
+                        $currency = $store->getCurrentCurrencyCode();
+                    }
+                }
+            }
+        } else {
+            $store = $storeManager->getStore();
+            $currency = $store->getCurrentCurrencyCode();
+        }
+       
+        if($type=='api_url')
+        {
+            if($apiMode == 'Sandbox')             
+            {
+                if($currency == 'USD') {
+                    $url = 'https://api.us-sandbox.afterpay.com/';
+                }
+                else {
+                    $url = 'https://api-sandbox.afterpay.com/';
+                }
+            }
+            else if($apiMode == 'Production')
+            {
+                if($currency == 'USD') {
+                    $url = 'https://api.us.afterpay.com/';
+                }
+                else {
+                    $url = 'https://api.afterpay.com/';
+                }
+            }
+        }
+        
+        if($type=='web_url')
+        {
+            if($apiMode == 'Sandbox')
+            {
+                if($currency == 'USD') {
+                    $url = 'https://portal.us-sandbox.afterpay.com/';
+                }
+                else {
+                    $url = 'https://portal-sandbox.afterpay.com/';
+                }
+            }
+            else if($apiMode == 'Production')
+            {
+                if($currency == 'USD') {
+                    $url = 'https://portal.us.afterpay.com/';
+                }
+                else {
+                    $url = 'https://portal.afterpay.com/';
+                }
+            }
+            
+        }
+        return $url;
+    }
+
 
     public function getStoreObjectFromRequest() {
         //get the store source

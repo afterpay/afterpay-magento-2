@@ -2,16 +2,27 @@
 /**
  * Magento 2 extensions for Afterpay Payment
  *
- * @author Afterpay <steven.gunarso@touchcorp.com>
- * @copyright 2016 Afterpay https://www.afterpay.com.au/
+ * @author Afterpay
+ * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 ?>
-<?php if ($block->canShow()) : ?>
-<div style="position: relative; font-style: italic; line-height: 1.4;" class="afterpay-installments afterpay-installments-amount"><?php echo __('or 4 interest-free payments of') ?> <?php echo $block->getInstallmentsAmount(); ?>
-    <br/>
-    
-    <span class="afterpay_instalments_logo" style=""></span>
+<?php if (!$block->canShow()) {
+	$hide = "display:none;";
+} else {
+	$hide = "";
+}
+?>
 
-    <a href="javascript:void(0)" class="afterpay-modal-popup-trigger"><?php echo __('Learn more') ?></a>
+<div maxLimit="<?php echo $block->getMaxOrderLimit(); ?>" minLimit="<?php echo $block->getMinOrderLimit(); ?>" style="position: relative; font-style: italic; line-height: 1.4; <?php echo $hide; ?>" class="afterpay-installments afterpay-installments-amount">
+<?php $assets_product_page = $block->getInstalmentText(); 
+echo $assets_product_page['snippet1'];
+?>
+<span class="afterpay_instalment_price"><?php echo $block->getInstallmentsAmount(); ?></span>
+	<br/>
+<?php
+$assets_product_snippet2  = $assets_product_page['snippet2'];
+$assets_product_snippet2 = str_replace(array('[modal-href]'), 
+                    array('javascript:void(0)'), $assets_product_snippet2);
+echo $assets_product_snippet2;
+?>
 </div>
-<?php endif; ?>
