@@ -8,6 +8,7 @@
  * Removed API V0 functionality
  */
 namespace Afterpay\Afterpay\Model\Source;
+
 use \Magento\Payment\Model\Method\AbstractMethod;
 
 /**

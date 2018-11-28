@@ -11,6 +11,7 @@ use Magento\Framework\View\Element\Template;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Directory\Model\Currency as Currency;
 use Afterpay\Afterpay\Model\Config\Payovertime as AfterpayConfig;
+use Afterpay\Afterpay\Model\Payovertime as AfterpayPayovertime;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Component\ComponentRegistrar as ComponentRegistrar;
 
@@ -20,6 +21,7 @@ class Button extends Template
      * @var AfterpayConfig
      */
     protected $afterpayConfig;
+    protected $afterpayPayovertime;
     protected $checkoutSession;
     protected $currency;
     protected $customerSession;
@@ -36,6 +38,7 @@ class Button extends Template
     public function __construct(
         Template\Context $context,
         AfterpayConfig $afterpayConfig,
+        AfterpayPayovertime $afterpayPayovertime,
         CheckoutSession $checkoutSession,
         Currency $currency,
         CustomerSession $customerSession,
@@ -43,6 +46,7 @@ class Button extends Template
         array $data
     ) {
         $this->afterpayConfig = $afterpayConfig;
+        $this->afterpayPayovertime = $afterpayPayovertime;
         $this->checkoutSession = $checkoutSession;
         $this->currency = $currency;
         $this->customerSession = $customerSession;
@@ -75,7 +79,7 @@ class Button extends Template
      */
     public function getInstallmentsTotalHtml()
     {
-        return $this->getCurrency()->getCurrencySymbol() . number_format( $this->getInstallmentsTotal(), 2 );
+        return $this->getCurrency()->getCurrencySymbol() . number_format($this->getInstallmentsTotal(), 2);
     }
 
     /**
@@ -110,6 +114,20 @@ class Button extends Template
     }
 
     /**
+     * @return boolean
+     */
+    public function canUseCurrency()
+    {
+        //Check for Supported currency
+        if($this->afterpayConfig->getCurrencyCode())
+        {
+            return $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode());
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Calculate region specific Instalment Text for Cart page
      * @return string
      */
@@ -117,19 +135,18 @@ class Button extends Template
     {
         $currencyCode = $this->afterpayConfig->getCurrencyCode();
         $assetsPath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Afterpay_Afterpay');
+        $assets_cart_page = '';
 
         if(file_exists($assetsPath.'/assets.ini'))
         {
             $assets = parse_ini_file($assetsPath.'/assets.ini',true);
-            $assets_cart_page = $assets[$currencyCode]['cart_page'];
-            $assets_cart_page = str_replace(array('[modal-href]'), 
+            if(isset($assets[$currencyCode]['cart_page']))
+            {
+                $assets_cart_page = $assets[$currencyCode]['cart_page'];
+                $assets_cart_page = str_replace(array('[modal-href]'), 
                     array('javascript:void(0)'), $assets_cart_page);
+            } 
         } 
-        else
-        {
-            $assets_cart_page = '';       
-        }
         return $assets_cart_page;
-       
     }
 }

@@ -100,11 +100,10 @@ class Response extends \Magento\Framework\App\Action\Action
         $order = $this->_checkoutSession->getLastRealOrder();
 
         // Check if not fraud detected not doing anything (let cron update the order if payment successful)
-        if( $this->_afterpayConfig->getPaymentAction() == AbstractMethod::ACTION_AUTHORIZE_CAPTURE ) {
+        if ($this->_afterpayConfig->getPaymentAction() == AbstractMethod::ACTION_AUTHORIZE_CAPTURE) {
             //Steven - Bypass the response and do capture
             $redirect = $this->_processAuthCapture($query);
-        }
-        else if (!$this->response->validCallback($order, $query)) {
+        } elseif (!$this->response->validCallback($order, $query)) {
             $this->_helper->debug('Request redirect url is not valid.');
         }
         // debug mode
@@ -114,20 +113,18 @@ class Response extends \Magento\Framework\App\Action\Action
         $this->_redirect($redirect);
     }
 
-    private function _processAuthCapture($query) {
+    private function _processAuthCapture($query)
+    {
         $redirect = self::DEFAULT_REDIRECT_PAGE;
         try {
             switch ($query['status']) {
                 case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_CANCELLED:
-
                     $this->messageManager->addError(__('You have cancelled your Afterpay payment. Please select an alternative payment method.'));
                     break;
                 case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_FAILURE:
-
                     $this->messageManager->addError(__('Afterpay payment failure. Please select an alternative payment method.'));
                     break;
                 case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_SUCCESS:
-                    
                     //Steven - Capture here
                     $quote = $this->_checkoutSession->getQuote();
 
@@ -142,17 +139,13 @@ class Response extends \Magento\Framework\App\Action\Action
                     /**
                      * Validation to check between session and post request
                      */
-                    if( !$response_check ) {
+                    if (!$response_check) {
                         // Check the order token being use
                         throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment. Invalid Token'));
-                    }
-                    else if( $merchant_order_id != $response_check['merchantReference'] ) {
-                        
+                    } elseif ($merchant_order_id != $response_check['merchantReference']) {
                         // Check order id
                         throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment. Invalid Merchant Reference'));
-                    }
-                    else if( round($quote->getGrandTotal(), 2) != round($response_check['totalAmount']['amount'], 2) ) {
-
+                    } elseif (round($quote->getGrandTotal(), 2) != round($response_check['totalAmount']['amount'], 2)) {
                         // Check the order amount
                         throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment. Invalid Amount'));
                     }
@@ -161,14 +154,13 @@ class Response extends \Magento\Framework\App\Action\Action
                     $response = $this->_directCapture->generate($token, $merchant_order_id);
                     $response = $this->_jsonHelper->jsonDecode($response->getBody());
 
-                    if( empty($response['status']) ) {
+                    if (empty($response['status'])) {
                         $response['status'] = \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_DECLINED;
                         $this->_helper->debug("Transaction Exception (Empty Response): " . json_encode($response));
                     }
 
-                    switch($response['status']) {
+                    switch ($response['status']) {
                         case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_APPROVED:
-
                             $payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_ORDERID, $response['id']);
 
                             $this->_checkoutSession
@@ -236,7 +228,7 @@ class Response extends \Magento\Framework\App\Action\Action
         return $redirect;
     }
 
-    private function _createTransaction($order = null, $paymentData = array())
+    private function _createTransaction($order = null, $paymentData = [])
     {
         try {
             //get payment object from order object
@@ -267,11 +259,8 @@ class Response extends \Magento\Framework\App\Action\Action
             $transaction = $this->_transactionRepository->save($transaction);
  
             return  $transaction->getTransactionId();
- 
-            
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             //log errors here
         }
     }
-
 }

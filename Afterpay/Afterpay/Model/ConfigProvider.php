@@ -48,7 +48,6 @@ class ConfigProvider implements ConfigProviderInterface
                 'afterpay' => [
                     'afterpayJs'        => $this->afterpayConfig->getWebUrl('afterpay.js'),
                     'afterpayReturnUrl' => 'afterpay/payment/response',
-                    'redirectMode'      => $this->afterpayConfig->getCheckoutMode(),
                     'paymentAction'     => $this->afterpayConfig->getPaymentAction(),
                     'termsConditionUrl' => self::TERMS_CONDITION_LINK,
                     'currencyCode'     => $this->afterpayConfig->getCurrencyCode(),

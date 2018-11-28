@@ -55,7 +55,7 @@ class Plugin
         \Closure $proceed
     ) {
         
-        //first saving run to eliminate possibilities of conflicting config results 
+        //first saving run to eliminate possibilities of conflicting config results
         $proceed();
 
         if (class_exists('\Afterpay\Afterpay\Model\Payovertime')) {
@@ -63,7 +63,6 @@ class Plugin
             $this->requested = array_key_exists(\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE, $configRequest);
 
             if ($this->requested) {
-
                 $response = $this->afterpayTotalLimit->getLimit();
                 $response = $this->jsonHelper->jsonDecode($response->getBody());
 
@@ -81,7 +80,7 @@ class Plugin
                     }
 
                     //Change the minimum amd maximum to Not applicable if both limits are 0.
-                    if($minTotal == "0" && $maxTotal=="0") {
+                    if ($minTotal == "0" && $maxTotal=="0") {
                         $minTotal="N/A";
                         $maxTotal="N/A";
                     }
@@ -93,9 +92,8 @@ class Plugin
                     $subject->setGroups($configRequest);
 
                     return $proceed();
-                }
-                else {
-                    $this->messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.' );
+                } else {
+                    $this->messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.');
                 }
             }
         }

@@ -8,6 +8,7 @@
  * Removed API V0 assertions
  */
 namespace Afterpay\Afterpay\Test\Unit\Block\Adminhtml\System\Config\Button;
+
 use \PHPUnit\Framework\TestCase;
 
 /**
@@ -40,5 +41,4 @@ class UpdateTest extends TestCase
         $this->assertEquals('foo', array_pop($stack));
         $this->assertEquals(0, count($stack));
     }
-  
 }

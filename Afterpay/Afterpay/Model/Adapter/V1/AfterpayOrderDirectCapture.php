@@ -78,10 +78,10 @@ class AfterpayOrderDirectCapture
             );
         } catch (\Exception $e) {
             $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
-            $response->setBody($this->jsonHelper->jsonEncode(array(
+            $response->setBody($this->jsonHelper->jsonEncode([
                 'error' => 1,
                 'message' => $e->getMessage()
-            )));
+            ]));
         }
 
         return $response;

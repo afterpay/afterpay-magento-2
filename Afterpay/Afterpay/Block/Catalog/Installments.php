@@ -12,8 +12,8 @@ use Magento\Catalog\Model\Product as Product;
 use Magento\Framework\Registry as Registry;
 use Magento\Directory\Model\Currency as Currency;
 use Afterpay\Afterpay\Model\Config\Payovertime as AfterpayConfig;
+use Afterpay\Afterpay\Model\Payovertime as AfterpayPayovertime;
 use Magento\Framework\Component\ComponentRegistrar as ComponentRegistrar;
-
 
 class Installments extends Template
 {
@@ -24,6 +24,7 @@ class Installments extends Template
     protected $registry;
     protected $currency;
     protected $afterpayConfig;
+    protected $afterpayPayovertime;
     protected $componentRegistrar;
 
     /**
@@ -41,6 +42,7 @@ class Installments extends Template
         Registry $registry,
         Currency $currency,
         AfterpayConfig $afterpayConfig,
+        AfterpayPayovertime $afterpayPayovertime,
         ComponentRegistrar $componentRegistrar,
         array $data
     ) {
@@ -48,6 +50,7 @@ class Installments extends Template
         $this->registry = $registry;
         $this->currency = $currency;
         $this->afterpayConfig = $afterpayConfig;
+        $this->afterpayPayovertime = $afterpayPayovertime;
         $this->componentRegistrar = $componentRegistrar;
         parent::__construct($context, $data);
     }
@@ -97,6 +100,20 @@ class Installments extends Template
     }
 
     /**
+     * @return boolean
+     */
+    public function canUseCurrency()
+    {
+        //Check for Supported currency
+        if($this->afterpayConfig->getCurrencyCode())
+        {
+            return $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode());
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Calculate region specific Instalment Text
      * @return string
      */
@@ -108,25 +125,32 @@ class Installments extends Template
         if(file_exists($assetsPath.'/assets.ini'))
             {
                 $assets = parse_ini_file($assetsPath.'/assets.ini',true);
-                $assets_product_page['snippet1'] = $assets[$currencyCode]['product_page1'];
-                $assets_product_page['snippet2'] = $assets[$currencyCode]['product_page2'];
+                if(isset($assets[$currencyCode]['product_page1']))
+                {
+                    $assets_product_page['snippet1'] = $assets[$currencyCode]['product_page1'];
+                    $assets_product_page['snippet2'] = $assets[$currencyCode]['product_page2'];
+                } else {
+                    $assets_product_page['snippet1'] = '';
+                    $assets_product_page['snippet2'] = '';
+                }
             } 
            return $assets_product_page;
-    }  
+    }
 
     
     /**
-    * @return float
-    */
-    public function getMaxOrderLimit() {
+     * @return float
+     */
+    public function getMaxOrderLimit()
+    {
         return $this->afterpayConfig->getMaxOrderLimit();
     }
 
     /**
      * @return float
      */
-    public function getMinOrderLimit() {
+    public function getMinOrderLimit()
+    {
         return $this->afterpayConfig->getMinOrderLimit();
-
     }
 }

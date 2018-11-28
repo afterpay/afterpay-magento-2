@@ -41,9 +41,9 @@ class Token
 
         if ($payment->getMethod() == \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE) {
             $data = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKEN);
-            $return = $this->jsonHelper->jsonEncode(array(
+            $return = $this->jsonHelper->jsonEncode([
                 'token' => $data
-            ));
+            ]);
         }
 
         return $return;

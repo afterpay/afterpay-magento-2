@@ -6,13 +6,13 @@
  * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 ?>
-<div id="afterpay-modal-popup">
+<div id="afterpay-modal-popup" style="display:none">
     <a href="https://www.afterpay.com/terms/" target="_blank">
         <img class="afterpay-modal-image" src="https://static.secure-afterpay.com.au/banner-large.png" alt="Afterpay"/>
         <img class="afterpay-modal-image-mobile" src="https://static.secure-afterpay.com.au/modal-mobile.png" alt="Afterpay"/>
     </a>
 </div>
-<div id="afterpay-modal-popup-us">
+<div id="afterpay-modal-popup-us" style="display:none">
     <a href="https://www.afterpay.com/purchase-payment-agreement" target="_blank">
         <img class="afterpay-modal-image" src="https://static.afterpay.com/us-popup-medium.png" alt="Afterpay"/>
         <img class="afterpay-modal-image-mobile" src="https://static.afterpay.com/us-popup-small.png" alt="Afterpay"/>
@@ -39,13 +39,16 @@
 
             // register the click to be popup
             $( ".afterpay-modal-popup-trigger" ).on( "click", function() {
+                $('#afterpay-modal-popup').show();
                 $('#afterpay-modal-popup').modal('openModal');
             });
 
             // register the click to be popup
             $( ".afterpay-modal-popup-trigger-us" ).on( "click", function() {
+                $('#afterpay-modal-popup-us').show();
                 $('#afterpay-modal-popup-us').modal('openModal');
             });
         }
     );
 </script>
+

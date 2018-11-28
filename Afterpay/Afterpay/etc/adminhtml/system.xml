@@ -70,13 +70,6 @@
                 <group id="afterpaypayovertime_advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Advanced Settings]]></label>
 
-                    <!-- checkout mode -->
-                    <field id="payment_display" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Payment Display</label>
-                        <source_model>Afterpay\Afterpay\Model\Source\PaymentDisplay</source_model>
-                        <config_path>payment/afterpaypayovertime/payment_display</config_path>
-                    </field>
-
                     <!-- minimum order total -->
                     <field id="min_order_total" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Minimum Order Total</label>

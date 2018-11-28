@@ -29,7 +29,7 @@ class Label extends \Magento\Config\Block\System\Config\Form\Field
 
     protected function _getElementHtml(AbstractElement $element)
     {
-    	$version = $this->helper->getModuleVersion();
+        $version = $this->helper->getModuleVersion();
         return $version;
     }
 }

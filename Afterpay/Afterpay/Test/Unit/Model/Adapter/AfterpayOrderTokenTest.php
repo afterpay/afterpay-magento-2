@@ -8,6 +8,7 @@
  * Removed API V0 assertions
  */
 namespace Afterpay\Afterpay\Test\Unit\Model\Adapter;
+
 use \PHPUnit\Framework\TestCase;
 
 /**

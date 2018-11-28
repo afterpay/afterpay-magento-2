@@ -66,20 +66,20 @@ class AfterpayOrderTokenCheck
      * @return mixed|\Zend_Http_Response
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function generate($token = NULL)
+    public function generate($token = null)
     {
         try {
             $response = $this->afterpayApiCall->send(
-                $this->afterpayConfig->getApiUrl('v1/orders/' . $token ),
-                array(),
+                $this->afterpayConfig->getApiUrl('v1/orders/' . $token),
+                [],
                 \Magento\Framework\HTTP\ZendClient::GET
             );
         } catch (\Exception $e) {
             $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
-            $response->setBody($this->jsonHelper->jsonEncode(array(
+            $response->setBody($this->jsonHelper->jsonEncode([
                 'error' => 1,
                 'message' => $e->getMessage()
-            )));
+            ]));
         }
 
         return $response;

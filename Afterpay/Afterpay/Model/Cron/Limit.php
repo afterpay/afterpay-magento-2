@@ -63,10 +63,9 @@ class Limit
         $websites = $this->_getWebsites();
         //$this->_helper->debug("CRON Websites:" . json_encode($websites));
 
-        if( $websites && count($websites) > 1 ) {
-
-            foreach( $websites as $key => $website ) {
-                $this->_updateWebsite( $website );
+        if ($websites && count($websites) > 1) {
+            foreach ($websites as $key => $website) {
+                $this->_updateWebsite($website);
             }
         }
     }
@@ -74,7 +73,8 @@ class Limit
     /**
      * @return array
      */
-    private function _getWebsites() {
+    private function _getWebsites()
+    {
         $websites = $this->_storeManager->getWebsites();
         return $websites;
     }
@@ -82,7 +82,8 @@ class Limit
     /**
      * @return bool
      */
-    private function _updateDefault() {
+    private function _updateDefault()
+    {
 
         // $this->_helper->debug("Update Default");
         $response = $this->_afterpayTotalLimit->getLimit();
@@ -91,13 +92,11 @@ class Limit
         $this->_helper->debug("CRON :" . array_key_exists('errorCode', $response));
         
 
-        if ( array_key_exists('errorCode', $response) ) {
+        if (array_key_exists('errorCode', $response)) {
             //Unfortunately Message Manager is not working with CRON jobs yet
             $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key. Default Config');
             return false;
-        }
-        else {
-
+        } else {
             // default min and max if not provided
             $minTotal = "0";
             $maxTotal = "0";
@@ -111,7 +110,7 @@ class Limit
             }
 
             //Change the minimum amd maximum to Not applicable if both limits are 0.
-            if($minTotal == "0" && $maxTotal=="0") {
+            if ($minTotal == "0" && $maxTotal=="0") {
                 $minTotal="N/A";
                 $maxTotal="N/A";
             }
@@ -137,20 +136,19 @@ class Limit
     /**
      * @return bool
      */
-    private function _updateWebsite($website) {
+    private function _updateWebsite($website)
+    {
         
         $website_id = $website["website_id"];
 
-        $response = $this->_afterpayTotalLimit->getLimit( array( "website_id" => $website_id ) );
+        $response = $this->_afterpayTotalLimit->getLimit([ "website_id" => $website_id ]);
         $response = $this->_jsonHelper->jsonDecode($response->getBody());
 
-        if ( array_key_exists('errorCode', $response) ) {
+        if (array_key_exists('errorCode', $response)) {
             //Unfortunately Message Manager is not working with CRON jobs yet
-            $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.' . $website["name"] );
+            $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.' . $website["name"]);
             return false;
-        }
-        else {
-
+        } else {
             // default min and max if not provided
             $minTotal = "0";
             $maxTotal = "0";
@@ -164,7 +162,7 @@ class Limit
             }
 
             //Change the minimum amd maximum to Not applicable if both limits are 0.
-            if($minTotal == "0" && $maxTotal=="0") {
+            if ($minTotal == "0" && $maxTotal=="0") {
                 $minTotal="N/A";
                 $maxTotal="N/A";
             }
@@ -172,14 +170,14 @@ class Limit
             $result = $this->_writerInterface->save(
                 'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MIN_TOTAL_LIMIT,
                 $minTotal,
-                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES, 
+                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES,
                 $website_id
             );
 
             $this->_writerInterface->save(
                 'payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . \Afterpay\Afterpay\Model\Config\Payovertime::MAX_TOTAL_LIMIT,
                 $maxTotal,
-                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES, 
+                \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES,
                 $website_id
             );
 

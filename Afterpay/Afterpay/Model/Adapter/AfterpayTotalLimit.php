@@ -50,20 +50,20 @@ class AfterpayTotalLimit
     /**
      * @return mixed|\Zend_Http_Response
      */
-    public function getLimit($override = array())
+    public function getLimit($override = [])
     {
         /** @var \Afterpay\Afterpay\Model\Config\Payovertime $url */
         $url = $this->afterpayConfig->getApiUrl('v1/configuration'); //V1
 
         // calling API
         try {
-            $response = $this->afterpayApiCall->send($url, NULL, NULL, $override);
+            $response = $this->afterpayApiCall->send($url, null, null, $override);
         } catch (\Exception $e) {
             $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
-            $response->setBody($this->jsonHelper->jsonEncode(array(
+            $response->setBody($this->jsonHelper->jsonEncode([
                 'error' => 1,
                 'message' => $e->getMessage()
-            )));
+            ]));
         }
 
         return $response;

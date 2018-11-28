@@ -29,7 +29,6 @@ class Payovertime
     const API_MODE_XML_NODE       = 'api_mode';
     const API_URL_XML_NODE       = 'api_url';
     const WEB_URL_XML_NODE       = 'web_url';
-    const CHECKOUT_MODE_XML_NODE = 'payment_display';
     const MERCHANT_ID_XML_NODE   = 'merchant_id';
     const MERCHANT_KEY_XML_NODE  = 'merchant_key';
     const PAYMENT_ACTION         = 'payment_action';
@@ -77,7 +76,7 @@ class Payovertime
      * @param array $override
      * @return bool|string
      */
-    public function getApiUrl($path = '', $query = array(), $override = array())
+    public function getApiUrl($path = '', $query = [], $override = [])
     {
         return $this->_getRequestedUrl(self::API_URL_XML_NODE, $path, $query, $override);
     }
@@ -90,7 +89,7 @@ class Payovertime
      * @param array $override
      * @return bool|string
      */
-    public function getWebUrl($path = '', $query = array(), $override = array())
+    public function getWebUrl($path = '', $query = [], $override = [])
     {
         return $this->_getRequestedUrl(self::WEB_URL_XML_NODE, $path, $query, $override);
     }
@@ -103,24 +102,21 @@ class Payovertime
      * @param $query
      * @return bool|string
      */
-    protected function _getRequestedUrl($type, $path, $query, $override = array() )
+    protected function _getRequestedUrl($type, $path, $query, $override = [])
     {
-        if( !empty( $override["website_id"] ) ) {
+        if (!empty($override["website_id"])) {
             $websiteId = $override["website_id"];
             $currentApi = $this->apiMode->getCurrentMode($override);
-        }
-        else if( $this->getWebsiteId() > 1 ) {
+        } elseif ($this->getWebsiteId() > 1) {
             $websiteId = $this->getWebsiteId();
-            $currentApi = $this->apiMode->getCurrentMode(array("website_id" => $this->getWebsiteId()));
-        }
-        else {
+            $currentApi = $this->apiMode->getCurrentMode(["website_id" => $this->getWebsiteId()]);
+        } else {
             $websiteId=1;
             $currentApi = $this->apiMode->getCurrentMode();
         }
         if (array_key_exists($type, $currentApi)) {
-                       
             //Get Site config.
-            $siteURL = $this->getSiteConfig($currentApi['label'],$type,$websiteId);
+            $siteURL = $this->getSiteConfig($currentApi['label'], $type, $websiteId);
             $url = $siteURL . $path;
 
             // calculate the query
@@ -138,7 +134,8 @@ class Payovertime
      *
      * @return $text
      */
-    public function getCurrencyCode() {
+    public function getCurrencyCode()
+    {
         $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
         $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
         $store = $storeManager->getStore();
@@ -154,17 +151,18 @@ class Payovertime
      * @return $url
      */
 
-    public function getSiteConfig($apiMode,$type,$websiteId) {
+    public function getSiteConfig($apiMode, $type, $websiteId)
+    {
         $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
         $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
 
         //In case of multiple websites, find the currency for the selected store based on the website ID.
-        if( !empty($websiteId) ) {           
+        if (!empty($websiteId)) {
             $websites = $storeManager->getWebsites();
             
-            foreach($websites as $website){
-                foreach($website->getStores() as $store){
-                    if( !empty($websiteId) && $websiteId == $website->getId()) {
+            foreach ($websites as $website) {
+                foreach ($website->getStores() as $store) {
+                    if (!empty($websiteId) && $websiteId == $website->getId()) {
                         $store = $storeManager->getStore($store);
                         $currency = $store->getCurrentCurrencyCode();
                     }
@@ -175,89 +173,66 @@ class Payovertime
             $currency = $store->getCurrentCurrencyCode();
         }
        
-        if($type=='api_url')
-        {
-            if($apiMode == 'Sandbox')             
-            {
-                if($currency == 'USD') {
+        if ($type=='api_url') {
+            if ($apiMode == 'Sandbox') {
+                if ($currency == 'USD') {
                     $url = 'https://api.us-sandbox.afterpay.com/';
-                }
-                else {
+                } else {
                     $url = 'https://api-sandbox.afterpay.com/';
                 }
-            }
-            else if($apiMode == 'Production')
-            {
-                if($currency == 'USD') {
+            } elseif ($apiMode == 'Production') {
+                if ($currency == 'USD') {
                     $url = 'https://api.us.afterpay.com/';
-                }
-                else {
+                } else {
                     $url = 'https://api.afterpay.com/';
                 }
             }
         }
         
-        if($type=='web_url')
-        {
-            if($apiMode == 'Sandbox')
-            {
-                if($currency == 'USD') {
-                    $url = 'https://portal.us-sandbox.afterpay.com/';
-                }
-                else {
-                    $url = 'https://portal-sandbox.afterpay.com/';
-                }
+        if ($type=='web_url') {
+            if ($apiMode == 'Sandbox') {
+                $url = 'https://portal-sandbox.afterpay.com/';
+            } elseif ($apiMode == 'Production') {
+                $url = 'https://portal.afterpay.com/';
             }
-            else if($apiMode == 'Production')
-            {
-                if($currency == 'USD') {
-                    $url = 'https://portal.us.afterpay.com/';
-                }
-                else {
-                    $url = 'https://portal.afterpay.com/';
-                }
-            }
-            
         }
         return $url;
     }
 
 
-    public function getStoreObjectFromRequest() {
+    public function getStoreObjectFromRequest()
+    {
         //get the store source
         $stores = $this->storeManager->getStores();
 
-        if( !empty($_SERVER['HTTP_REFERER']) ) {
-            foreach( $stores as $key => $store ) {
-                    
+        if (!empty($_SERVER['HTTP_REFERER'])) {
+            foreach ($stores as $key => $store) {
                 $referrer = $_SERVER['HTTP_REFERER'];
 
-                if( strpos($referrer, $store->getBaseUrl() ) > -1 ) {
+                if (strpos($referrer, $store->getBaseUrl()) !== false) {
                     return $store;
-                }  
+                }
             }
-        }
-        else {
-            foreach( $stores as $key => $store ) {
-                return $store;  
+        } else {
+            foreach ($stores as $key => $store) {
+                return $store;
             }
         }
     }
 
-    public function getWebsiteId() {
+    public function getWebsiteId()
+    {
 
-        $website_id = NULL;
+        $website_id = null;
 
-        if( $this->state->getAreaCode() == \Magento\Framework\App\Area::AREA_ADMINHTML ) {
+        if ($this->state->getAreaCode() == \Magento\Framework\App\Area::AREA_ADMINHTML) {
             $website_id = (int) $this->request->getParam('website', 0);
-        }
-        else if ( $this->request->isXmlHttpRequest() ) {
+        } elseif ($this->request->isXmlHttpRequest()) {
             $store = $this->getStoreObjectFromRequest();
-            if( !empty($store) ) {
+            if (!empty($store)) {
                 $website_id = $store->getWebsiteId();
             }
-        }
-        else {
+        } else {
             $website_id = $this->storeManager->getStore()->getWebsiteId();
         }
 
@@ -271,31 +246,20 @@ class Payovertime
      * @param $override array
      * @return mixed
      */
-    protected function _getConfigData( $path, $override = array() )
+    protected function _getConfigData($path, $override = [])
     {
         $website_id = $this->getWebsiteId();
 
-        if( !empty( $override["website_id"] ) ) {
+        if (!empty($override["website_id"])) {
             $website_id = $override["website_id"];
         }
 
-        if( !empty($website_id) && $website_id ) {
+        if (!empty($website_id) && $website_id) {
             return $this->scopeConfig->getValue('payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . $path, \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES, $website_id);
-        }
-        else { 
+        } else {
             // var_dump($this->scopeConfig->getValue('payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . $path, 'default'));
             return $this->scopeConfig->getValue('payment/' . \Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '/' . $path, 'default');
         }
-    }
-
-    /**
-     * Get config checkout mode
-     *
-     * @return string (redirect | lightbox)
-     */
-    public function getCheckoutMode()
-    {
-        return $this->_getConfigData(self::CHECKOUT_MODE_XML_NODE);
     }
 
     /**
@@ -313,9 +277,9 @@ class Payovertime
      *
      * @return mixed
      */
-    public function getMerchantId($override = array())
+    public function getMerchantId($override = [])
     {
-        return $this->_cleanup_string( $this->_getConfigData(self::MERCHANT_ID_XML_NODE, $override) );
+        return $this->_cleanup_string($this->_getConfigData(self::MERCHANT_ID_XML_NODE, $override));
     }
 
     /**
@@ -323,9 +287,9 @@ class Payovertime
      *
      * @return mixed
      */
-    public function getMerchantKey($override = array())
+    public function getMerchantKey($override = [])
     {
-        return $this->_cleanup_string( $this->_getConfigData(self::MERCHANT_KEY_XML_NODE, $override) );
+        return $this->_cleanup_string($this->_getConfigData(self::MERCHANT_KEY_XML_NODE, $override));
     }
 
     /**
@@ -371,10 +335,11 @@ class Payovertime
     /**
      * Filters the String for screcret keys
      *
-     * @return string Authorization code 
+     * @return string Authorization code
      * @since 1.0.1
      */
-    private function _cleanup_string($string) {
+    private function _cleanup_string($string)
+    {
         $result = preg_replace("/[^a-zA-Z0-9]+/", "", $string);
         return $result;
     }

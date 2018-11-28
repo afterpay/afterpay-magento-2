@@ -23,10 +23,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_logger = $logger;
         $this->_afterpayConfig = $afterpayConfig;
         $this->_moduleList = $moduleList;
-
     }
 
-    public function debug($message, array $context = array())
+    public function debug($message, array $context = [])
     {
         if ($this->_afterpayConfig->isDebugEnabled()) {
             return $this->_logger->debug($message, $context);
@@ -35,7 +34,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getModuleVersion()
     {
-        $moduleInfo = $this->_moduleList->getOne('Afterpay_Afterpay'); 
+        $moduleInfo = $this->_moduleList->getOne('Afterpay_Afterpay');
         return $moduleInfo['setup_version'];
     }
 }

@@ -48,7 +48,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * For dependency injection
      */
-    protected $supportedCurrencyCodes = array('AUD','NZD','USD');
+    protected $supportedCurrencyCodes = ['AUD','NZD','USD'];
     protected $afterPayPaymentTypeCode = self::AFTERPAY_PAYMENT_TYPE_CODE;
 
     protected $logger;
@@ -120,8 +120,8 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
-    )
-    {
+    ) {
+    
         parent::__construct(
             $context,
             $registry,
@@ -149,7 +149,6 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
         $this->afterpayOrderTokenV1 = $afterpayOrderTokenV1;
         $this->_paymentQuoteRepository = $paymentQuoteRepository;
-
     }
 
     /**
@@ -158,7 +157,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     public function isInitializeNeeded()
     {
         if ($this->getConfigData('payment_action') == self::ACTION_AUTHORIZE_CAPTURE) {
-            $this->afterPayPaymentTypeCode = self::AFTERPAY_PAYMENT_TYPE_CODE_V1;            
+            $this->afterPayPaymentTypeCode = self::AFTERPAY_PAYMENT_TYPE_CODE_V1;
             return false;
         }
         
@@ -190,7 +189,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         $result = $this->jsonHelper->jsonDecode($result->getBody(), true);
         $orderToken = array_key_exists('token', $result) ? $result['token'] : false;
         
-        if( !array_key_exists('token', $result) ) {
+        if (!array_key_exists('token', $result)) {
             $orderToken = array_key_exists('orderToken', $result) ? $result['orderToken'] : false;
         }
 
@@ -219,7 +218,6 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKENGENERATED, false);
         $this->_paymentQuoteRepository->save($payment);
         return $this;
-     
     }
 
 
@@ -236,11 +234,15 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
         // if order ID is not exist
         if (!$orderId) {
-            $response = $this->afterpayPayment->getPaymentByToken( $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN), 
-                array("website_id" => $payment->getOrder()->getStore()->getWebsiteId()) );
+            $response = $this->afterpayPayment->getPaymentByToken(
+                $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN),
+                ["website_id" => $payment->getOrder()->getStore()->getWebsiteId()]
+            );
         } else {
-            $response = $this->afterpayPayment->getPayment($orderId, 
-                array("website_id" => $payment->getOrder()->getStore()->getWebsiteId()) );
+            $response = $this->afterpayPayment->getPayment(
+                $orderId,
+                ["website_id" => $payment->getOrder()->getStore()->getWebsiteId()]
+            );
         }
 
         $response = $this->jsonHelper->jsonDecode($response->getBody());
@@ -252,7 +254,6 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         // }
 
         return $this;
-
     }
 
     /**
@@ -271,28 +272,24 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
         // Check if order is linked to the Afterpay Order
         if ($orderId) {
-
-            if( $payment->getOrder()->getStore()->getWebsiteId() > 1 ) {
+            if ($payment->getOrder()->getStore()->getWebsiteId() > 1) {
                 $response = $this->afterpayPayment->refund(
-                    round($amount, 2), 
-                    $orderId, 
-                    $payment->getOrder()->getOrderCurrencyCode(), 
-                    array("website_id" => $payment->getOrder()->getStore()->getWebsiteId()) //override
+                    round($amount, 2),
+                    $orderId,
+                    $payment->getOrder()->getOrderCurrencyCode(),
+                    ["website_id" => $payment->getOrder()->getStore()->getWebsiteId()] //override
                 );
-            }
-            else {
+            } else {
                 $response = $this->afterpayPayment->refund(round($amount, 2), $orderId, $payment->getOrder()->getOrderCurrencyCode());
             }
 
             $response = $this->jsonHelper->jsonDecode($response->getBody());
 
             //Display API error if refund id is not returned.
-            if( !empty($response['refundId']) ) {
-
+            if (!empty($response['refundId'])) {
                 // debug mode
                 $this->helper->debug('Finished \Afterpay\Afterpay\Model\Payovertime::refund()');
                 return $this;
-
             } else {
                 $message = __('Afterpay API Error: ' . $response['message']);
             }
@@ -356,8 +353,10 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         if ($orderScopeDate < $requestDate) {
             // set token and get payment data from API
             $token = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_TOKEN);
-            $response = $this->afterpayPayment->getPaymentByToken($token, 
-                            array("website_id" => $order->getStore()->getWebsiteId()) );
+            $response = $this->afterpayPayment->getPaymentByToken(
+                $token,
+                ["website_id" => $order->getStore()->getWebsiteId()]
+            );
             $response = $this->jsonHelper->jsonDecode($response->getBody());
 
             // check if result found

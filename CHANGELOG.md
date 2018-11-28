@@ -1,5 +1,53 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.0.3
+
+_28 Nov 2018 (AEDT)_
+ 
+### Supported Editions & Versions
+
+- Magento Community Edition (CE) version 2.1.1 and later
+- Magento Enterprise Edition (EE) version 2.1.1 and later
+
+### Highlights
+
+- Revised Portal and API URLs for Afterpay US.
+- Improved handling of front-end JS.
+- Removed deprecated "Payment Display" configuration options.
+- Removed deprecated cron job configuration.
+
+---
+
+## Version 3.0.2
+
+_23 Oct 2018 (AEDT)_
+ 
+### Supported Editions & Versions
+
+- Magento Community Edition (CE) version 2.1.1 and later
+- Magento Enterprise Edition (EE) version 2.1.1 and later
+
+### Highlights
+
+- Improved handling of unsupported store currencies.
+
+---
+
+## Version 3.0.1
+
+_21 Nov 2018 (AEDT)_
+ 
+### Supported Editions & Versions
+
+- Magento Community Edition (CE) version 2.1.1 and later
+- Magento Enterprise Edition (EE) version 2.1.1 and later
+
+### Highlights
+
+- Compliance with MEQP2
+
+---
+
 ## Version 3.0.0
 
 _Wed 10 Oct 2018 (AEDT)_

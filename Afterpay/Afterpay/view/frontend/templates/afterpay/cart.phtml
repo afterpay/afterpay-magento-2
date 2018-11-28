@@ -6,13 +6,16 @@
  * @copyright 2016-2018 Afterpay https://www.afterpay.com
  */
 ?>
+<?php $canUseCurrency = $block->canUseCurrency();?>
 <?php if ($block->canShow()) : ?>
-    <div class='payment-method-note afterpay-checkout-note' style='text-align: left; margin-bottom: 1.5rem; font-size: 13px;'><h3 style="font-size: 1.5rem"><span style="color: #00a4e4;">
-    <?php echo $block->getCartPageText(); ?>
-    </div>
+	<?php if($canUseCurrency) : ?>
+	    <div class='payment-method-note afterpay-checkout-note' style='text-align: left; margin-bottom: 1.5rem; font-size: 13px;'><h3 style="font-size: 1.5rem"><span style="color: #00a4e4;">
+	    <?php echo $block->getCartPageText(); ?>
+	    </div>
 
-    <!--    Button buy now-->
-    <button type="button" data-role="proceed-to-checkout" onclick="window.location.href='<?php echo $block->getUrl('checkout', ['_secure' => true]);?>'" title="<?php echo __('Buy now, pay later') ?>" class="action primary btn-afterpay-checkout">
-        <img src="<?php echo $block->getViewFileUrl('Afterpay_Afterpay::images/afterpay_logo_white.png'); ?>" alt="<?php echo __('Buy now, pay later'); ?>" />
-    </button>
+	    <!--    Button buy now-->
+	    <button type="button" data-role="proceed-to-checkout" onclick="window.location.href='<?php echo $block->getUrl('checkout', ['_secure' => true]);?>'" title="<?php echo __('Buy now, pay later') ?>" class="action primary btn-afterpay-checkout">
+	        <img src="<?php echo $block->getViewFileUrl('Afterpay_Afterpay::images/afterpay_logo_white.png'); ?>" alt="<?php echo __('Buy now, pay later'); ?>" />
+	    </button>
+	<?php endif; ?>
 <?php endif; ?>

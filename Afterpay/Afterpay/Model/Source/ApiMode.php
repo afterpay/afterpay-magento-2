@@ -40,10 +40,10 @@ class ApiMode implements \Magento\Framework\Option\ArrayInterface
         foreach ($apiMode->getAllApiModes() as $name => $environment) {
             array_push(
                 $result,
-                array(
+                [
                     'value' => $name,
                     'label' => $environment['label'],
-                )
+                ]
             );
         }
 

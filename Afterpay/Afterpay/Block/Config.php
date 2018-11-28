@@ -30,8 +30,8 @@ class Config extends Template
         Data $dataHelper,
         Template\Context $context,
         array $data
-    )
-    {
+    ) {
+    
         $this->_payOverTime = $payovertime;
         $this->_dataHelper = $dataHelper;
 
@@ -53,17 +53,5 @@ class Config extends Template
     public function getAfterpayJsUrl()
     {
         return $this->_payOverTime->getWebUrl('afterpay.js');
-    }
-
-    /**
-     * Get Afterpay checkout mode
-     *
-     * For simplicity of use on the frontend (this is a Block class after all) the response is json encoded as a string
-     *
-     * @return string
-     */
-    public function getCheckoutMode()
-    {
-        return $this->_dataHelper->jsonEncode($this->_payOverTime->getCheckoutMode());
     }
 }

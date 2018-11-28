@@ -74,14 +74,16 @@ class Process extends \Magento\Framework\App\Action\Action
         parent::__construct($context);
     }
 
-    public function execute() {
-        if( $this->_afterpayConfig->getPaymentAction() == AbstractMethod::ACTION_AUTHORIZE_CAPTURE ) {
+    public function execute()
+    {
+        if ($this->_afterpayConfig->getPaymentAction() == AbstractMethod::ACTION_AUTHORIZE_CAPTURE) {
             $result = $this->_processAuthorizeCapture();
         }
         return $result;
-    }   
+    }
 
-    public function _processAuthorizeCapture() {
+    public function _processAuthorizeCapture()
+    {
         
         //need to load the correct quote by store
         $data = $this->_checkoutSession->getData();
@@ -89,15 +91,15 @@ class Process extends \Magento\Framework\App\Action\Action
         $quote = $this->_checkoutSession->getQuote();
         $website_id = $this->_afterpayConfig->getStoreObjectFromRequest()->getWebsiteId();
 
-        if( $website_id > 1 ) {
-            $quote = $this->_quoteFactory->create()->loadByIdWithoutStore($data["quote_id_" . $website_id]);    
+        if ($website_id > 1) {
+            $quote = $this->_quoteFactory->create()->loadByIdWithoutStore($data["quote_id_" . $website_id]);
         }
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $customerSession = $objectManager->get('Magento\Customer\Model\Session');
         $customerRepository = $objectManager->get('Magento\Customer\Api\CustomerRepositoryInterface');
 
-        if($customerSession->isLoggedIn()) {
+        if ($customerSession->isLoggedIn()) {
             $customerId = $customerSession->getCustomer()->getId();
             $customer = $customerRepository->getById($customerId);
 
@@ -108,41 +110,38 @@ class Process extends \Magento\Framework\App\Action\Action
             $shippingAddress = $quote->getShippingAddress();
 
             //check if shipping address is missing - e.g. Gift Cards
-            if( (empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))  ) {
+            if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
                 $result = $this->_jsonResultFactory->create()->setData(
-                            array('success' => false, 'message' => 'Please select an Address')
-                        );
+                    ['success' => false, 'message' => 'Please select an Address']
+                );
 
                 return $result;
-            }
-            // else if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))  || empty($shippingAddress->getFirstname()) ) {
+            } // else if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))  || empty($shippingAddress->getFirstname()) ) {
             //     $shippingAddress = $quote->getBillingAddress();
             //     $quote->setShippingAddress($quote->getBillingAddress());
             // }
-            else if( empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname()) ) {
+            elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
                 $billingAddress = $quote->getShippingAddress();
                 $quote->setBillingAddress($quote->getShippingAddress());
             }
-        }
-        else {
+        } else {
             $post = $this->getRequest()->getPostValue();
 
-            if( !empty($post['email']) ) {
-                $email = htmlspecialchars($post['email'],ENT_QUOTES);
+            if (!empty($post['email'])) {
+                $email = htmlspecialchars($post['email'], ENT_QUOTES);
                 $email = filter_var($email, FILTER_SANITIZE_EMAIL);
                 try {
-                    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {              
+                    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $quote->setCustomerEmail($email)
                             ->setCustomerIsGuest(true)
                             ->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
-                        }
                     }
-                    catch (\Exception $e) {
-                            $result = $this->_jsonResultFactory->create()->setData(
-                            array('error' => 1, 'message' => $e->getMessage())
-                        );
-                        return $result;
-                     }
+                } catch (\Exception $e) {
+                    $result = $this->_jsonResultFactory->create()->setData(
+                        ['error' => 1, 'message' => $e->getMessage()]
+                    );
+                    return $result;
+                }
             }
         }
 
@@ -155,11 +154,10 @@ class Process extends \Magento\Framework\App\Action\Action
 
         try {
             $payment = $this->_getAfterPayOrderToken($this->_afterpayOrderTokenV1, $payment, $quote);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $result = $this->_jsonResultFactory->create()->setData(
-                        array('error' => 1, 'message' => $e->getMessage())
-                    );
+                ['error' => 1, 'message' => $e->getMessage()]
+            );
 
             return $result;
         }
@@ -172,8 +170,8 @@ class Process extends \Magento\Framework\App\Action\Action
         $token = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_TOKEN);
 
         $result = $this->_jsonResultFactory->create()->setData(
-                    array('success' => true, 'token' => $token)
-                );
+            ['success' => true, 'token' => $token]
+        );
 
         return $result;
     }
@@ -185,10 +183,9 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     private function _getAfterPayOrderToken($afterpayOrderToken, $payment, $targetObject)
     {
-        if( $targetObject && $targetObject->getReservedOrderId() ) {
-            $result = $afterpayOrderToken->generate($targetObject, \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE_V1, array('merchantOrderId' => $targetObject->getReservedOrderId() ) );
-        }
-        else if( $targetObject ) {
+        if ($targetObject && $targetObject->getReservedOrderId()) {
+            $result = $afterpayOrderToken->generate($targetObject, \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE_V1, ['merchantOrderId' => $targetObject->getReservedOrderId() ]);
+        } elseif ($targetObject) {
             $result = $afterpayOrderToken->generate($targetObject, \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE_V1);
         }
         

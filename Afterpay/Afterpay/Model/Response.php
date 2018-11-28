@@ -123,7 +123,6 @@ class Response
         if (!$order->isCanceled() &&
             $order->getState() !== \Magento\Sales\Model\Order::STATE_COMPLETE &&
             $order->getState() !== \Magento\Sales\Model\Order::STATE_CLOSED) {
-
             // perform this before order process or cancel
             $this->_beforeUpdateOrder($order);
 
@@ -181,7 +180,6 @@ class Response
 
         // make sure the order can be invoiced and correct order
         if ($order->canInvoice() && $this->_shouldInvoiced($order, $orderId)) {
-
             // adding order ID to payment and last transaction Id
             $this->updatePayment($order, $orderId);
 
