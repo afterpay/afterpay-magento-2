@@ -8,12 +8,12 @@
 namespace Afterpay\Afterpay\Model\Cron;
 
 use Afterpay\Afterpay\Model\Adapter\AfterpayTotalLimit as AfterpayTotalLimit;
+use Afterpay\Model\Logger\Logger as AfterpayLogger;
 use Magento\Store\Model\StoreManagerInterface as StoreManagerInterface;
 use Afterpay\Afterpay\Helper\Data as AfterpayHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\App\Config\Storage\WriterInterface as WriterInterface;
 use Magento\Config\Model\ResourceModel\Config as RequestConfig;
-use Magento\Framework\Message\ManagerInterface as MessageManager;
 
 class Limit
 {
@@ -26,7 +26,7 @@ class Limit
     protected $_jsonHelper;
     protected $_resourceConfig;
     protected $_writerInterface;
-    protected $_messageManager;
+    protected $_logger;
 
     /**
      * Limit constructor.
@@ -41,7 +41,7 @@ class Limit
         JsonHelper $jsonHelper,
         WriterInterface $writerInterface,
         RequestConfig $resourceConfig,
-        MessageManager $messageManager
+        AfterpayLogger $afterpayLogger
     ) {
         $this->_afterpayTotalLimit = $afterpayTotalLimit;
         $this->_storeManager = $storeManager;
@@ -49,7 +49,7 @@ class Limit
         $this->_resourceConfig = $resourceConfig;
         $this->_helper = $helper;
         $this->_writerInterface = $writerInterface;
-        $this->_messageManager = $messageManager;
+        $this->_logger = $afterpayLogger;
     }
 
     /**
@@ -93,8 +93,7 @@ class Limit
         
 
         if (array_key_exists('errorCode', $response)) {
-            //Unfortunately Message Manager is not working with CRON jobs yet
-            $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key. Default Config');
+            $this->_logger->warning('Afterpay Update Limits Failed. Please check Merchant ID and Key. Default Config');
             return false;
         } else {
             // default min and max if not provided
@@ -145,8 +144,7 @@ class Limit
         $response = $this->_jsonHelper->jsonDecode($response->getBody());
 
         if (array_key_exists('errorCode', $response)) {
-            //Unfortunately Message Manager is not working with CRON jobs yet
-            $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.' . $website["name"]);
+            $this->_logger->warning('Afterpay Update Limits Failed. Please check Merchant ID and Key.' . $website["name"]);
             return false;
         } else {
             // default min and max if not provided
