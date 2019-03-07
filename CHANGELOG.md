@@ -1,5 +1,20 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.0.4
+
+_25 Jan 2019 (AEDT)_
+ 
+### Supported Editions & Versions
+
+- Magento Community Edition (CE) version 2.0.2 and later
+- Magento Enterprise Edition (EE) version 2.0.2 and later
+
+### Highlights
+
+- Improved support for HTTP/2.
+
+---
+
 ## Version 3.0.3
 
 _28 Nov 2018 (AEDT)_

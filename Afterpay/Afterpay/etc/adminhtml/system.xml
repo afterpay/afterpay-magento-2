@@ -101,6 +101,14 @@
                         <config_path>payment/afterpaypayovertime/debug</config_path>
                     </field>
 
+                    <!-- HTTP Version Header Support -->
+                    <field id="http_header_support" translate="label" type="select" sortOrder="101" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>HTTP Version Header Support</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpaypayovertime/http_header_support</config_path>
+                        <comment><![CDATA[Enable when "Invalid header line detected" error is encountered.]]></comment>
+                    </field>
+
                     <!-- sort order -->
                     <field id="sort_order" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Sort Order</label>

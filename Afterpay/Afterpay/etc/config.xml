@@ -19,6 +19,7 @@
                 <merchant_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <allowspecific>1</allowspecific>
                 <specificcountry>AU</specificcountry>
+                <http_header_support>0</http_header_support>
             </afterpaypayovertime>
         </payment>
     </default>

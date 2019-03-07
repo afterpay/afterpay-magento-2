@@ -58,12 +58,20 @@ class AfterpayTotalLimit
         // calling API
         try {
             $response = $this->afterpayApiCall->send($url, null, null, $override);
-        } catch (\Exception $e) {
-            $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
-            $response->setBody($this->jsonHelper->jsonEncode([
-                'error' => 1,
-                'message' => $e->getMessage()
-            ]));
+        } 
+        catch (\Exception $e) {
+
+            $state =  $this->objectManagerInterface->get('Magento\Framework\App\State');
+            if ($state->getAreaCode() == \Magento\Framework\App\Area::AREA_ADMINHTML) {
+                throw new \Exception($e->getMessage());
+            }
+            else {
+                $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
+                $response->setBody($this->jsonHelper->jsonEncode([
+                    'error' => 1,
+                    'message' => $e->getMessage()
+                ]));
+            }
         }
 
         return $response;

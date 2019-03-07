@@ -47,19 +47,29 @@ class Call
 
     /**
      * Send using HTTP call
+     * The HTTP Support can switched between the Zend Client and Afterpay Client
+     * This is to provide Fallback to the Zend Client related issues
      *
      * @param $url
      * @param bool $body
      * @param string $method
      * @param array $override
      * @return \Zend_Http_Response
+     * @return \Afterpay\Afterpay\Model\Adapter\Afterpay\AfterpayResponse
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Zend_Http_Client_Exception
      */
     public function send($url, $body = false, $method = \Magento\Framework\HTTP\ZendClient::GET, $override = [])
     {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
         // set the client http
-        $client = $this->httpClientFactory->create();
+        if ($this->afterpayConfig->isHTTPHeaderSupportEnabled()) {
+            $client = $objectManager->get('Afterpay\Afterpay\Model\Adapter\Afterpay\AfterpayClient');
+        }
+        else {
+            $client = $this->httpClientFactory->create();
+        }
+
         $client->setUri($url);
 
         // set body and the url

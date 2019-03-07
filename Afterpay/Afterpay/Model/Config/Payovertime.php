@@ -35,6 +35,7 @@ class Payovertime
     const DEBUG_MODE             = 'debug';
     const MIN_TOTAL_LIMIT        = 'min_order_total';
     const MAX_TOTAL_LIMIT        = 'max_order_total';
+    const HTTP_HEADER_SUPPORT    = 'http_header_support';
 
     /**
      * @var ApiMode
@@ -270,6 +271,16 @@ class Payovertime
     public function getApiMode()
     {
         return $this->_getConfigData(self::API_MODE_XML_NODE);
+    }
+
+    /**
+     * Get HTTP Header Support Fallback
+     *
+     * @return bool
+    */
+    public function isHTTPHeaderSupportEnabled()
+    {
+        return $this->_getConfigData(self::HTTP_HEADER_SUPPORT);
     }
 
     /**
