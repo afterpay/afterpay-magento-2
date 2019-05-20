@@ -2,9 +2,8 @@
     "name": "afterpay/module-afterpay",
     "license": "OSL-3.0",
     "type": "magento2-module",
-    "description": "Add your description here",
-    "require": {
-    },
+    "description": "Afterpay Payment Method for Magento 2",
+    "minimum-stability": "stable",
     "authors":[
         {
             "name":"Afterpay",

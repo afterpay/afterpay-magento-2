@@ -34,7 +34,7 @@ This section outlines the steps to upgrade the currently installed Afterpay plug
 The process of upgrading the Afterpay plugin version involves the complete removal of Afterpay plugin files.
 Note: [MAGENTO] refers to the root folder where Magento is installed.
 
-- Remove "Afterpay" folder in: *[MAGENTO} /app/code/*
+- Remove "Afterpay" folder in: *[MAGENTO]/app/code/*
 - Download the Magento-Afterpay plugin - Available as a .zip or tar.gz file from the Afterpay GitHub directory.
 - Unzip the file 
 - Copy the *'Afterpay'* folder to: *[MAGENTO]/app/code/*
