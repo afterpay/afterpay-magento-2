@@ -1,49 +1,47 @@
-<h2> 1.1 New Afterpay Installation </h2>
-<p>This section outlines the steps to install the Afterpay plugin for the first time.</p>
+# Magento2_Afterpay
+Afterpay Payment Method for Magento 2
 
-<p> Note: [MAGENTO] refers to the root folder where Magento is installed. </p>
+## New Afterpay Installation
+This section outlines the steps to install the Afterpay plugin for the first time.
 
-<ol>
-	<li> Download the Magento-Afterpay plugin - Available as a .zip or tar.gz file from the Afterpay GitHub directory. </li>
-	<li> Unzip the file </li>
-	<li> Copy the <em>'Afterpay'</em> folder to: <br/> <em>[MAGENTO]/app/code/</em> </li>
-	<li> Open Command Line Interface </li>
-	<li> In CLI, run the below command to enable Afterpay module: <br/> <em>php bin/magento module:enable Afterpay_Afterpay</em> </li>
-	<li> In CLI, run the Magento setup upgrade: <br/> <em>php bin/magento setup:upgrade</em> </li>
-	<li> In CLI, run the Magento Dependencies Injection Compile: <br/> <em>php bin/magento setup:di:compile</em> </li>
-	<li> In CLI, run the Magento Static Content deployment: <br/> <em>php bin/magento setup:static-content:deploy</em> </li>
-	<li> Login to Magento Admin and navigate to System/Cache Management </li>
-	<li> Flush the cache storage by selecting Flush Cache Storage </li>
-</ol>
+Note: [MAGENTO] refers to the root folder where Magento is installed.
 
-<h2> 1.2	Afterpay Merchant Setup </h2>
-<p> Complete the below steps to configure the merchant’s Afterpay Merchant Credentials in Magento Admin. </p>
-<p> Note: Prerequisite for this section is to obtain an Afterpay Merchant ID and Secret Key from Afterpay. </p>
+- Download the Magento-Afterpay plugin - Available as a .zip or tar.gz file from the Afterpay GitHub directory. 
+- Unzip the file
+- Copy the *'Afterpay'* folder to: *[MAGENTO]/app/code/* 
+- Open Command Line Interface
+- In CLI, run the below command to enable Afterpay module: *php bin/magento module:enable Afterpay_Afterpay*
+- In CLI, run the Magento setup upgrade: *php bin/magento setup:upgrade*
+- In CLI, run the Magento Dependencies Injection Compile: *php bin/magento setup:di:compile*
+- In CLI, run the Magento Static Content deployment: *php bin/magento setup:static-content:deploy*
+- Login to Magento Admin and navigate to System/Cache Management
+- Flush the cache storage by selecting Flush Cache Storage
 
-<ol>
-	<li> Navigate to <em>Magento Admin/Stores/Configuration/Sales/Payment Methods/Afterpay</em> </li>
-	<li> Enter the <em>Merchant ID</em> and <em>Merchant Key</em>. </li>
-	<li> Enable Afterpay plugin using the <em>Enabled</em> checkbox. </li>
-	<li> Configure the Afterpay API Mode (<em>Sandbox Mode</em> for testing on a staging instance and <em>Production Mode</em> for a live website and legitimate transactions). </li>
-	<li> Save the configuration. </li>
-	<li> Click the <em>Update Limits</em> button to retrieve the Minimum and Maximum Afterpay Order values.</li>
-</ol>
 
-<h2> 1.3	Upgrade Of Afterpay Installation </h2>
-<p> This section outlines the steps to upgrade the currently installed Afterpay plugin version. </p>
-<p> The process of upgrading the Afterpay plugin version involves the complete removal of Afterpay plugin files. </p>
-<p> Note: [MAGENTO] refers to the root folder where Magento is installed. </p>
+## Afterpay Merchant Setup
+Complete the below steps to configure the merchant's Afterpay Merchant Credentials in Magento Admin.
+Note: Prerequisite for this section is to obtain an Afterpay Merchant ID and Secret Key from Afterpay.
 
-<ol>
-	<li> Remove "Afterpay" folder in: <em>[MAGENTO} /app/code/</em></li>
-	<li> Download the Magento-Afterpay plugin - Available as a .zip or tar.gz file from the Afterpay GitHub directory. </li>
-	<li> Unzip the file </li>
-	<li> Copy the <em>'Afterpay'</em> folder to: <br/> <em>[MAGENTO]/app/code/</em> </li>
-	<li> Open Command Line Interface </li>
-	<li> In CLI, run the below command to enable Afterpay module: <br/> <em>php bin/magento module:enable Afterpay_Afterpay</em> </li>
-	<li> In CLI, run the Magento setup upgrade: <br/> <em>php bin/magento setup:upgrade</em> </li>
-	<li> In CLI, run the Magento Dependencies Injection Compile: <br/> <em>php bin/magento setup:di:compile</em> </li>
-	<li> In CLI, run the Magento Static Content deployment: <br/> <em>php bin/magento setup:static-content:deploy</em> </li>
-	<li> Login to Magento Admin and navigate to System/Cache Management </li>
-	<li> Flush the cache storage by selecting Flush Cache Storage </li>
-</ol>
+- Navigate to *Magento Admin/Stores/Configuration/Sales/Payment Methods/Afterpay*
+- Enter the *Merchant ID* and *Merchant Key*.
+- Enable Afterpay plugin using the *Enabled* checkbox.
+- Configure the Afterpay API Mode (*Sandbox Mode* for testing on a staging instance and *Production Mode* for a live website and legitimate transactions).
+- Save the configuration.
+- Click the *Update Limits* button to retrieve the Minimum and Maximum Afterpay Order values.
+
+## Upgrade Of Afterpay Installation
+This section outlines the steps to upgrade the currently installed Afterpay plugin version.
+The process of upgrading the Afterpay plugin version involves the complete removal of Afterpay plugin files.
+Note: [MAGENTO] refers to the root folder where Magento is installed.
+
+- Remove "Afterpay" folder in: *[MAGENTO} /app/code/*
+- Download the Magento-Afterpay plugin - Available as a .zip or tar.gz file from the Afterpay GitHub directory.
+- Unzip the file 
+- Copy the *'Afterpay'* folder to: *[MAGENTO]/app/code/*
+- Open Command Line Interface
+- In CLI, run the below command to enable Afterpay module: *php bin/magento module:enable Afterpay_Afterpay*
+- In CLI, run the Magento setup upgrade: *php bin/magento setup:upgrade*
+- In CLI, run the Magento Dependencies Injection Compile: *php bin/magento setup:di:compile*
+- In CLI, run the Magento Static Content deployment: *php bin/magento setup:static-content:deploy*
+- Login to Magento Admin and navigate to System/Cache Management
+- Flush the cache storage by selecting Flush Cache Storage
