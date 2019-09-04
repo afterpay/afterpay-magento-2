@@ -3,9 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2018 Afterpay https://www.afterpay.com
- * Updated on 27th March 2018
- * Removed API V0 functionality
+ * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Controller\Payment;
 
@@ -36,7 +34,8 @@ class Response extends \Magento\Framework\App\Action\Action
     protected $_orderRepository;
     protected $_paymentRepository;
     protected $_transactionRepository;
-
+	protected $_notifierPool;
+	
     /**
      * Response constructor.
      * @param \Magento\Framework\App\Action\Context $context
@@ -58,7 +57,8 @@ class Response extends \Magento\Framework\App\Action\Action
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Sales\Model\OrderRepository $orderRepository,
         \Magento\Sales\Model\Order\Payment\Repository $paymentRepository,
-        \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository
+        \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
+		\Magento\Framework\Notification\NotifierInterface $notifierPool
     ) {
         $this->_resultForwardFactory = $resultForwardFactory;
         $this->response = $response;
@@ -84,6 +84,8 @@ class Response extends \Magento\Framework\App\Action\Action
         $this->_paymentRepository = $paymentRepository;
 
         $this->_transactionRepository = $transactionRepository;
+		
+        $this->_notifierPool = $notifierPool;
 
         parent::__construct($context);
     }
@@ -170,10 +172,36 @@ class Response extends \Magento\Framework\App\Action\Action
 
                             // Create Order From Quote
                             $quote->collectTotals();
-                            $order = $this->_quoteManagement->submit($quote);
+                            //Catch the deadlock exception while creating the order and retry 3 times
+                            
+                            $tries = 0;
+                            do
+                            {
+	                          $retry = false;
+							  
+	                          try{
+								  $this->_helper->debug("Trying Order Creation. Try number:".$tries);
+		                          $order = $this->_quoteManagement->submit($quote);
+                              }
+	                            catch (\Exception $e) {
+								
+		                         if (preg_match('/SQLSTATE\[40001\]: Serialization failure: 1213 Deadlock found/', $e->getMessage()) && $tries<2){
+			                       $this->_helper->debug("Waiting for a second before retrying the Order Creation");
+			                       $retry = true;
+			                       sleep(1);
+		                         } 
+		                         else{
+									$this->_notifierPool->addMajor(
+									'Afterpay Order Failed',
+									'There was a problem with an Afterpay order. Order number : '.$response['id'].' and the merchant order number : '.$merchant_order_id,
+									''
+									);
+									$this->_helper->debug("Order Exception : There was a problem with order creation. ".$e->getMessage());
+		                         }
+	                            }
+								$tries++;
+                            }while($tries<3 && $retry);
                             // $order->setEmailSent(0);
-                    
-
                             if ($order) {
                                 $this->_checkoutSession->setLastOrderId($order->getId())
                                                    ->setLastRealOrderId($order->getIncrementId())
@@ -196,8 +224,9 @@ class Response extends \Magento\Framework\App\Action\Action
 
                                 $redirect = 'checkout/onepage/success';
                                 // $this->_redirect('checkout/onepage/success');
+                            } else {
+	                           $this->_helper->debug("Order Exception : There was a problem with order creation.");
                             }
-
                             break;
                         case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_DECLINED:
                             $this->messageManager->addError(__('Afterpay payment declined. Please select an alternative payment method.'));
@@ -220,9 +249,7 @@ class Response extends \Magento\Framework\App\Action\Action
             );
         } catch (\Exception $e) {
             $this->_helper->debug("Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addError(
-                $e->getMessage()
-            );
+            $this->messageManager->addError("There was a problem in placing your order.");
         }
         
         return $redirect;
@@ -261,6 +288,7 @@ class Response extends \Magento\Framework\App\Action\Action
             return  $transaction->getTransactionId();
         } catch (\Exception $e) {
             //log errors here
+            $this->_helper->debug("Transaction Exception: There was a problem with creating the transaction. ".$e->getMessage());
         }
     }
 }

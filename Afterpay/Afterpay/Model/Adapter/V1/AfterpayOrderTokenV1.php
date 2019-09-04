@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Adapter\V1;
 
@@ -140,13 +140,14 @@ class AfterpayOrderTokenV1
     {
         //get the country to obtain state required data
         $billing_country = ( !empty($requestData['billing']['countryCode']) ? $requestData['billing']['countryCode'] : null);
-        //if the country doesn't require state, make Suburb goes to State Field
-        if (!in_array($billing_country, $listStateRequired)) {
+        //if the country doesn't require state, make Suburb goes to State Field --This isn't required anymore
+       
+/*	   if (!in_array($billing_country, $listStateRequired)) {
             $requestData['billing']['state'] = $requestData['billing']['suburb'];
             if (!empty($requestData["shipping"])) {
                 $requestData['shipping']['state'] = $requestData['shipping']['suburb'];
             }
-        }
+        }*/
         $billing_state = ( !empty($requestData['billing']['state']) ? $requestData['billing']['state'] : null);
         $shipping_state = ( !empty($requestData['shipping']['state']) ? $requestData['shipping']['state'] : null);
         //if the Billing or Shipping State is empty, enforce a transfer of values
@@ -173,15 +174,23 @@ class AfterpayOrderTokenV1
             $errors[] = 'Address is required';
         } elseif (empty($billing_suburb)) {
             $errors[] = 'Suburb/City is required';
-        } elseif (empty($billing_state) || strlen(trim($billing_state)) < 3) {
+        }
+        //state is optional now		
+		/*elseif (empty($billing_state) || strlen(trim($billing_state)) < 3) {
             $errors[] = 'State is required';
-        } elseif (empty($billing_postcode) || strlen(trim($billing_postcode)) < 3) {
+        }*/
+        elseif(!empty($billing_state) && strlen(trim($billing_state)) < 2){
+            $errors[] = "Please enter a valid State name";
+        }
+		elseif (empty($billing_postcode) || strlen(trim($billing_postcode)) < 3) {
             $errors[] = 'Zip/Postal is required';
         } elseif (empty($billing_country)) {
             $errors[] = 'Country is required';
-        } elseif (empty($billing_phone)) {
+        } 
+        //Phone number is optional now	
+        /*elseif (empty($billing_phone)) {
             $errors[] = 'Phone is required';
-        }
+        }*/
         if (count($errors)) {
             throw new \Magento\Framework\Exception\LocalizedException(__(implode($errors, '')));
         } else {
@@ -210,7 +219,7 @@ class AfterpayOrderTokenV1
 
 
         //check if shipping address is missing - e.g. Gift Cards
-        if (empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) {
+        if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && !$object->isVirtual()) {
             $shippingAddress = $object->getBillingAddress();
         } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1))) {
             $billingAddress = $object->getShippingAddress();
@@ -264,18 +273,22 @@ class AfterpayOrderTokenV1
             'amount'   => isset($taxAmount) ? round((float)$taxAmount, $precision) : 0,
             'currency' => (string)$data['store_currency_code']
         ];
-        $street = $shippingAddress->getStreet();
-        $params['shipping'] = [
-            'name'          => (string)$shippingAddress->getFirstname() . ' ' . $shippingAddress->getLastname(),
-            'line1'         => (string)$shippingAddress->getStreetLine(1),
-            'line2'         => (string)$shippingAddress->getStreetLine(2),
-            'suburb'        => (string)$shippingAddress->getCity(),
-            'postcode'      => (string)$shippingAddress->getPostcode(),
-            'state'         => (string)$shippingAddress->getRegion(),
-            'countryCode'   => (string)$shippingAddress->getCountryId(),
-            // 'countryCode'   => 'AU',
-            'phoneNumber'   => (string)$shippingAddress->getTelephone(),
-        ];
+	
+		if(!empty($shippingAddress) && !empty($shippingAddress->getStreetLine(1)))
+		{
+			$street = $shippingAddress->getStreet();
+			$params['shipping'] = [
+				'name'          => (string)$shippingAddress->getFirstname() . ' ' . $shippingAddress->getLastname(),
+				'line1'         => (string)$shippingAddress->getStreetLine(1),
+				'line2'         => (string)$shippingAddress->getStreetLine(2),
+				'suburb'        => (string)$shippingAddress->getCity(),
+				'postcode'      => (string)$shippingAddress->getPostcode(),
+				'state'         => (string)$shippingAddress->getRegion(),
+				'countryCode'   => (string)$shippingAddress->getCountryId(),
+				// 'countryCode'   => 'AU',
+				'phoneNumber'   => (string)$shippingAddress->getTelephone(),
+			];
+		}
         $street = $billingAddress->getStreet();
         $params['billing'] = [
             'name'          => (string)$billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),

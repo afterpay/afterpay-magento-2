@@ -3,31 +3,19 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
 ?>
 <?php 
-//Check for supported currency (AUD,NZD and USD)
-$canUseCurrency = $block->canUseCurrency();
-
-//If currency is supported, check if Afterpay is enabled.
-if($canUseCurrency) {
-	if (!$block->canShow()) {
-		$hide = "display:none;";
-		$showAfterpay = false;
-	} else {
-		$hide = "";
-		$showAfterpay = true;
-	}
-}
-
-if($canUseCurrency) : ?>
-	<div showAfterpay="<?php echo $showAfterpay; ?>" maxLimit="<?php echo $block->getMaxOrderLimit(); ?>" minLimit="<?php echo $block->getMinOrderLimit(); ?>" style="position: relative; font-style: italic; line-height: 1.4; <?php echo $hide; ?>" class="afterpay-installments afterpay-installments-amount">
+//Check currency and if Afterpay is enabled
+$product_type=$block->getTypeOfProduct();
+if($block->canShow()) : ?>
+	<div maxLimit="<?php echo $block->getMaxOrderLimit(); ?>" minLimit="<?php echo $block->getMinOrderLimit(); ?>" style="position: relative; font-style: italic; line-height: 1.4;margin-bottom:5px;<?php echo $block->isProductEligible(); ?>" product_type="<?php echo $product_type; ?>" class="afterpay-installments afterpay-installments-amount">
 	<?php $assets_product_page = $block->getInstalmentText(); 
 	echo $assets_product_page['snippet1'];
 	?>
 	<span class="afterpay_instalment_price"><?php echo $block->getInstallmentsAmount(); ?></span>
-		<br/>
+	<br/>
 	<?php
 	$assets_product_snippet2  = $assets_product_page['snippet2'];
 	$assets_product_snippet2 = str_replace(array('[modal-href]'), 

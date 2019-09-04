@@ -4,7 +4,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
@@ -19,5 +19,6 @@
         <referenceContainer name="content">
             <block class="Magento\Framework\View\Element\Template" name="afterpay.modal.popup" after="-" template="Afterpay_Afterpay::afterpay/modal.phtml" />
         </referenceContainer>
+		<move element="customize.button" destination="product.info.main" after="afterpay.price.installments" />
     </body>
 </page>

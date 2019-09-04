@@ -3,10 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2018 Afterpay https://www.afterpay.com
- * Updated on 27th March 2018
- * Added function getSiteConfig() to calculate Api and Web Url based on the selected currency.
- * Added Multi site support to get correct URL's
+ * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Config;
 
@@ -142,7 +139,7 @@ class Payovertime
         $store = $storeManager->getStore();
         return $store->getCurrentCurrencyCode();
     }
-        
+
 
      /* Calculated the url to generate api/web url
      *
@@ -160,7 +157,7 @@ class Payovertime
         //In case of multiple websites, find the currency for the selected store based on the website ID.
         if (!empty($websiteId)) {
             $websites = $storeManager->getWebsites();
-            
+
             foreach ($websites as $website) {
                 foreach ($website->getStores() as $store) {
                     if (!empty($websiteId) && $websiteId == $website->getId()) {
@@ -173,7 +170,7 @@ class Payovertime
             $store = $storeManager->getStore();
             $currency = $store->getCurrentCurrencyCode();
         }
-       
+
         if ($type=='api_url') {
             if ($apiMode == 'Sandbox') {
                 if ($currency == 'USD') {
@@ -189,10 +186,10 @@ class Payovertime
                 }
             }
         }
-        
+
         if ($type=='web_url') {
             if ($apiMode == 'Sandbox') {
-                $url = 'https://portal-sandbox.afterpay.com/';
+                $url = 'https://portal.sandbox.afterpay.com/';
             } elseif ($apiMode == 'Production') {
                 $url = 'https://portal.afterpay.com/';
             }

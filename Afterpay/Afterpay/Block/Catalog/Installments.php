@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Block\Catalog;
 
@@ -86,18 +86,29 @@ class Installments extends Template
         if (!$this->_getPaymentIsActive()) {
             return false;
         }
-        
-        // get current product
-        $product = $this->registry->registry('product');
-
-        // check if price is above max or min limit
-        if ($product->getFinalPrice() > $this->afterpayConfig->getMaxOrderLimit() // greater than max order limit
-                || $product->getFinalPrice() < $this->afterpayConfig->getMinOrderLimit()) { // lower than min order limit
-            return false;
-        }
-
-        return true;
+		else{
+			if($this->afterpayConfig->getCurrencyCode()){
+				return $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode());
+			} else {
+				return false;
+			}
+		}
     }
+	/**
+     * @return bool
+     */
+	public function isProductEligible(){
+		
+		$display_product = "display:block";
+		
+		$product = $this->registry->registry('product');
+		if ($product->getFinalPrice() > $this->afterpayConfig->getMaxOrderLimit() // greater than max order limit
+                || $product->getFinalPrice() < $this->afterpayConfig->getMinOrderLimit()) { // lower than min order limit
+            $display_product = "display:none";
+        }
+		
+		return $display_product;
+	}
 
     /**
      * @return boolean
@@ -128,6 +139,9 @@ class Installments extends Template
                 if(isset($assets[$currencyCode]['product_page1']))
                 {
                     $assets_product_page['snippet1'] = $assets[$currencyCode]['product_page1'];
+					if($this->getTypeOfProduct()=="bundle"){
+						$assets_product_page['snippet1'] = $assets[$currencyCode]['product_page_from'];
+					}  
                     $assets_product_page['snippet2'] = $assets[$currencyCode]['product_page2'];
                 } else {
                     $assets_product_page['snippet1'] = '';
@@ -153,4 +167,12 @@ class Installments extends Template
     {
         return $this->afterpayConfig->getMinOrderLimit();
     }
+	/**
+     * @return string
+     */
+    public function getTypeOfProduct()
+	{
+		$product = $this->registry->registry('product');
+		return $product->getTypeId();
+	}
 }

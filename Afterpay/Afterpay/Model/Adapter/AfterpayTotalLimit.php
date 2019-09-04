@@ -3,9 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2018 Afterpay https://www.afterpay.com
- * Updated on 27th March 2018
- * Removed API V0 functionality
+ * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Adapter;
 

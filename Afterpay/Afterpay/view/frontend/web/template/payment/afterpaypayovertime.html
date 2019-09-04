@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2018 Afterpay https://www.afterpay.com
+ * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
 -->
 <div class="payment-method" id="afterpaypayovertime-method" data-bind="css: {'_active': (getCode() == isChecked())}">
@@ -72,7 +72,7 @@
         <div class="payment-method-content afterpay-checkout-redirect">
             <div class="instalment-footer">
                 <!-- ko i18n: 'You will be redirected to the Afterpay website when you proceed to checkout. ' --><!-- /ko -->
-                    <a href="http://www.afterpay.com/terms/" target="_blank" data-bind="style: { display: getOptionalTermsText() > 0 ? 'inline' : 'none'}"><!-- ko i18n: 'Terms & Conditions' --><!-- /ko --></a>
+                    <a data-bind="attr:{href: getTermsLink()}" target="_blank" style="display:inline;"><!-- ko i18n: 'Terms & Conditions' --><!-- /ko --></a>
             </div>
             <div class="actions-toolbar">
                 <div class="primary">
