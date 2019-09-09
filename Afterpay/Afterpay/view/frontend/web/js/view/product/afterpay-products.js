@@ -42,25 +42,27 @@ require(
 
 			var price = price_raw.text().match(/[\d\.]+/g);
 
-			if (price[1]) {
-				product_variant_price = price[0]+price[1];
-			} else {
-				product_variant_price = price[0];
-			}
+			if (price) {
+				if (price[1]) {
+					product_variant_price = price[0]+price[1];
+				} else {
+					product_variant_price = price[0];
+				}
 
-			var instalment_price = parseFloat(Math.round(product_variant_price / 4 * 100) / 100);
+				var instalment_price = parseFloat(Math.round(product_variant_price / 4 * 100) / 100);
 
-			//pass the price format object - fix for the group product format
+				//pass the price format object - fix for the group product format
 
-			var format = {decimalSymbol: '.',pattern:'$%s'};
-			var formatted_instalment_price = priceUtils.formatPrice(instalment_price,format);
+				var format = {decimalSymbol: '.',pattern:'$%s'};
+				var formatted_instalment_price = priceUtils.formatPrice(instalment_price,format);
 
-			$('.afterpay-installments.afterpay-installments-amount .afterpay_instalment_price').text(formatted_instalment_price);
+				$('.afterpay-installments.afterpay-installments-amount .afterpay_instalment_price').text(formatted_instalment_price);
 
-			if (parseFloat(product_variant_price) >= parseFloat(min_limit) && parseFloat(product_variant_price) <= parseFloat(max_limit)) {
-				afterpay_instalment_element.show();
-			} else {
-				afterpay_instalment_element.hide();
+				if (parseFloat(product_variant_price) >= parseFloat(min_limit) && parseFloat(product_variant_price) <= parseFloat(max_limit)) {
+					afterpay_instalment_element.show();
+				} else {
+					afterpay_instalment_element.hide();
+				}
 			}
 		}
 	}
