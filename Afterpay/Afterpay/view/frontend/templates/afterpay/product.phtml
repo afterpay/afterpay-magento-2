@@ -11,16 +11,16 @@
 $product_type=$block->getTypeOfProduct();
 if($block->canShow()) : ?>
 	<div maxLimit="<?php echo $block->getMaxOrderLimit(); ?>" minLimit="<?php echo $block->getMinOrderLimit(); ?>" style="position: relative; font-style: italic; line-height: 1.4;margin-bottom:5px;<?php echo $block->isProductEligible(); ?>" product_type="<?php echo $product_type; ?>" class="afterpay-installments afterpay-installments-amount">
-	<?php $assets_product_page = $block->getInstalmentText(); 
-	echo $assets_product_page['snippet1'];
-	?>
-	<span class="afterpay_instalment_price"><?php echo $block->getInstallmentsAmount(); ?></span>
-	<br/>
-	<?php
-	$assets_product_snippet2  = $assets_product_page['snippet2'];
-	$assets_product_snippet2 = str_replace(array('[modal-href]'), 
-	                    array('javascript:void(0)'), $assets_product_snippet2);
-	echo $assets_product_snippet2;
-	?>
+	<?php if (!empty($assets_product_page = $block->getInstalmentText())): ?>
+	<?php echo $assets_product_page['snippet1']; ?>
+        <span class="afterpay_instalment_price"><?php echo $block->getInstallmentsAmount(); ?></span>
+        <br/>
+        <?php
+        $assets_product_snippet2  = $assets_product_page['snippet2'];
+        $assets_product_snippet2 = str_replace(array('[modal-href]'),
+                            array('javascript:void(0)'), $assets_product_snippet2);
+        echo $assets_product_snippet2;
+        ?>
 	</div>
+    <?php endif; ?>
 <?php endif; ?>
