@@ -1,5 +1,27 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.0.6
+
+_Wed 25 Sep 2019 (AEST)_
+ 
+### Supported Editions & Versions
+
+- Magento Community Edition (CE) version 2.0.2 and later
+- Magento Enterprise Edition (EE) version 2.0.2 and later
+
+### Highlights
+
+- Added a new feature to allow Afterpay to be disabled for a specified set of product categories.
+- Added a new feature to allow Cross Border Trade (CBT) editions of modal assets to be presented on PDP and cart pages (for AU & NZ only).
+- Improved default labelling of Afterpay at the checkout.
+- Improved compatibility between Afterpay and Clearpay modules in multi-regional Magento installations.
+- Improved support for Credit Memos used in conjunction with Afterpay orders in Magento Enterprise installations.
+- Improved support for Product Detail Pages (PDP) where the main price element is missing the "data-price-type" attribute.
+- Upgraded regional assets for modal popups.
+- Removed potentially sensitive information from log files.
+
+---
+
 ## Version 3.0.5
 
 _04 Sep 2019 (AEST)_

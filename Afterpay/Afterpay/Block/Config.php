@@ -54,4 +54,17 @@ class Config extends Template
     {
         return $this->_payOverTime->getWebUrl('afterpay.js');
     }
+	/**
+     * @return bool
+     */
+	public function checkCurrency()
+    {
+		$supportedCurrency=['AUD','NZD','USD'];
+		if(in_array($this->_payOverTime->getCurrencyCode(),$supportedCurrency)){
+			return true;
+		}
+		else{
+			return false;
+		}
+    }
 }

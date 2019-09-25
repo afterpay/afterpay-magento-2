@@ -12,7 +12,7 @@
         <payment>
             <afterpaypayovertime>
                 <active>0</active>
-                <title>Afterpay Pay Overtime</title>
+                <title>Afterpay</title>
                 <api_mode>sandbox</api_mode>
                 <model>Afterpay\Afterpay\Model\Payovertime</model>
                 <payment_action>authorize_capture</payment_action>

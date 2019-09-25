@@ -95,22 +95,49 @@ class Button extends Template
      */
     public function canShow()
     {
-        // check if payment is active
+		 // check if payment is active
         if (!$this->_getPaymentIsActive()) {
             return false;
         }
-
-        // get grand total (final amount need to be paid)
-        $grandTotal = $this->checkoutSession->getQuote()->getGrandTotal();
-
-        // check if total is still in limit range
-        if ($this->afterpayConfig->getMaxOrderLimit() < $grandTotal // greater than max order total
-            || $this->afterpayConfig->getMinOrderLimit() > $grandTotal) { // lower than min order total
-            return false;
-        }
-
-        // all ok
-        return true;
+		else{
+			//Check for Supported currency
+			if($this->afterpayConfig->getCurrencyCode()){
+				
+				$quote = $this->checkoutSession->getQuote();
+				// get grand total (final amount need to be paid)
+				$grandTotal =$quote->getGrandTotal();
+				$excluded_categories=$this->afterpayConfig->getExcludedCategories();
+				
+				if($this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode()) && $this->afterpayConfig->getMaxOrderLimit() > $grandTotal && $this->afterpayConfig->getMinOrderLimit() < $grandTotal){
+					
+					if($excluded_categories !=""){
+						$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+						$productRepository = $objectManager->get('\Magento\Catalog\Model\ProductRepository');
+						
+						
+						foreach ($quote->getAllVisibleItems() as $item) {
+							$productid = $item->getProductId();
+							$product=$productRepository->getById($productid);
+							$categoryids = $product->getCategoryIds();
+							
+							foreach($categoryids as $k)
+							{
+								if(strpos($excluded_categories,$k) !== false){
+									return false;
+								}
+							}
+						}
+					}
+					return true;
+				}
+				else{
+					return false;
+				}
+			} 
+			else {
+				return false;
+			}
+		}
     }
 
     /**

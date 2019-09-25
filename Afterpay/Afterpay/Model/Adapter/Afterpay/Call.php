@@ -126,7 +126,7 @@ class Call
             'type' => 'Request',
             'method' => $method,
             'url' => $url,
-            'body' => $body
+            'body' => $this->obfuscateCustomerData($body)
         ];
         $this->helper->debug($this->jsonHelper->jsonEncode($requestLog));
 
@@ -140,7 +140,7 @@ class Call
                 'method' => $method,
                 'url' => $url,
                 'httpStatusCode' => $response->getStatus(),
-                'body' => $this->jsonHelper->jsonDecode($response->getBody())
+                'body' => $this->obfuscateCustomerData($this->jsonHelper->jsonDecode($response->getBody()))
             ];
             $this->helper->debug($this->jsonHelper->jsonEncode($responseLog));
         } catch (\Exception $e) {
@@ -179,4 +179,34 @@ class Call
 
         return $url;
     }
+	
+	private function obfuscateCustomerData($body = array())
+    {
+		$fieldsToObfuscate= ["shipping","billing","consumer",'orderDetails'];
+		$body_replace=[];
+		if(!empty($body)){
+			foreach($body as $body_key=>$body_value)
+			{
+				if(in_array($body_key,$fieldsToObfuscate)){
+					$body_replace[$body_key]=array();
+					
+					foreach($body_value as $key=>$value){
+						if(is_array($value)){
+							$body_replace[$body_key] = $this->obfuscateCustomerData($body_value);
+						}
+						else{
+							if($value){
+								$body_replace[$body_key][$key]=str_repeat("*",strlen($value));
+							}
+							else{
+								$body_replace[$body_key][$key]='';
+							}
+						}
+					}
+				}
+			}
+			return array_replace($body,$body_replace);
+		}
+		return $body;
+	}
 }

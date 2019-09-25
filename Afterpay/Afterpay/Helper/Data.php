@@ -37,4 +37,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $moduleInfo = $this->_moduleList->getOne('Afterpay_Afterpay');
         return $moduleInfo['setup_version'];
     }
+	
+	public function getConfig($config_path)
+    {
+        return $this->scopeConfig->getValue(
+            $config_path,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
 }

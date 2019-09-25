@@ -12,7 +12,7 @@
         <section id="payment">
             <group id="afterpaypayovertime" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Afterpay</label>
-                <comment><![CDATA[<span class="logo">&nbsp;</span><strong>Pay Overtime</strong><p>Offer interest-free instalment plans at checkout with zero risk. <a href="https://www.afterpay.com.au/for-merchants/" target="_blank">Register here</a></p>]]></comment>
+                <comment><![CDATA[<span class="logo">&nbsp;</span><p>Offer interest-free instalment plans at checkout with zero risk. <a href="https://www.afterpay.com.au/for-merchants/" target="_blank">Register here</a></p>]]></comment>
                 <attribute type="expanded">1</attribute>
                 <fieldset_css>complex afterpaypayovertime-section</fieldset_css>
                 <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
@@ -113,6 +113,21 @@
                     <field id="sort_order" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Sort Order</label>
                         <config_path>payment/afterpaypayovertime/sort_order</config_path>
+                    </field>
+					<field id="exclude_category" translate="label" type="multiselect" sortOrder="102" showInDefault="1" showInWebsite="1" showInStore="1">
+						<label>Exclude Category</label>
+						<source_model>Afterpay\Afterpay\Model\Config\Source\Categorylist</source_model>
+						<config_path>payment/afterpaypayovertime/exclude_category</config_path>
+						<can_be_empty>1</can_be_empty>
+						<comment><![CDATA[Please select the "direct category" of the product instead of the parent category.]]></comment>
+					</field>
+
+					<!-- Cross Border Trade -->
+                    <field id="enable_cbt" translate="label" type="select" sortOrder="102" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Cross Border Trade (CBT) Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpaypayovertime/enable_cbt</config_path>
+						<comment><![CDATA[Select "Yes" only if your Afterpay account is enabled for CBT. This option is dependent on your commercial contract. This will change the Afterpay artwork presented to consumers to promote CBT.]]></comment>
                     </field>
                 </group>
 

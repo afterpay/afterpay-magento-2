@@ -19,6 +19,5 @@
         <referenceContainer name="content">
             <block class="Magento\Framework\View\Element\Template" name="afterpay.modal.popup" after="-" template="Afterpay_Afterpay::afterpay/modal.phtml" />
         </referenceContainer>
-		<move element="customize.button" destination="product.info.main" after="afterpay.price.installments" />
     </body>
 </page>

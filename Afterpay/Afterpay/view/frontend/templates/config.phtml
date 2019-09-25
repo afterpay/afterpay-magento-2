@@ -1,8 +1,10 @@
 <?php
 /** @var Afterpay\Afterpay\Block\Config $this */
+if($this->checkCurrency()){
 ?>
 
 <script src="<?php echo $this->getAfterpayJsUrl() ?>"></script>
 <script>
     window.Afterpay = window.Afterpay || {};
 </script>
+<?php }?>

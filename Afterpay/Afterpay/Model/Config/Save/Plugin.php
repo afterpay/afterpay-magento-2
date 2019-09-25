@@ -63,42 +63,49 @@ class Plugin
             try {
                 $configRequest = $subject->getGroups();
                 $this->requested = array_key_exists(\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE, $configRequest);
+				
+				if ($this->requested) {
+					$config_array=$configRequest[\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE]['groups'][\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '_basic']['fields'][\Afterpay\Afterpay\Model\Config\Payovertime::ACTIVE];
+					
+					if(array_key_exists('value',$config_array)){
+						
+						if($config_array['value'] == '1'){
+							$response = $this->afterpayTotalLimit->getLimit();
+							$response = $this->jsonHelper->jsonDecode($response->getBody());
 
-                if ($this->requested) {
-                    $response = $this->afterpayTotalLimit->getLimit();
-                    $response = $this->jsonHelper->jsonDecode($response->getBody());
+							if (!array_key_exists('errorCode', $response)) {
+								// default min and max if not provided
+								$minTotal = "0";
+								$maxTotal = "0";
 
-                    if (!array_key_exists('errorCode', $response)) {
-                        // default min and max if not provided
-                        $minTotal = "0";
-                        $maxTotal = "0";
+								// understand the response from the API
+								foreach ($response as $result) {
+									if (!empty($result['type']) && $result['type'] === \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE_V1) {
+										$minTotal = isset($result['minimumAmount']['amount']) ? $result['minimumAmount']['amount'] : "0";
+										$maxTotal = isset($result['maximumAmount']['amount']) ? $result['maximumAmount']['amount'] : "0";
+									}
+								}
 
-                        // understand the response from the API
-                        foreach ($response as $result) {
-                            if (!empty($result['type']) && $result['type'] === \Afterpay\Afterpay\Model\Payovertime::AFTERPAY_PAYMENT_TYPE_CODE_V1) {
-                                $minTotal = isset($result['minimumAmount']['amount']) ? $result['minimumAmount']['amount'] : "0";
-                                $maxTotal = isset($result['maximumAmount']['amount']) ? $result['maximumAmount']['amount'] : "0";
-                            }
-                        }
+								//Change the minimum amd maximum to Not applicable if both limits are 0.
+								if ($minTotal == "0" && $maxTotal=="0") {
+									$minTotal="N/A";
+									$maxTotal="N/A";
+								}
 
-                        //Change the minimum amd maximum to Not applicable if both limits are 0.
-                        if ($minTotal == "0" && $maxTotal=="0") {
-                            $minTotal="N/A";
-                            $maxTotal="N/A";
-                        }
+								// set on config request
+								$configRequest[\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE]['groups'][\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '_advanced']['fields'][\Afterpay\Afterpay\Model\Config\Payovertime::MIN_TOTAL_LIMIT]['value'] = $minTotal;
+								$configRequest[\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE]['groups'][\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '_advanced']['fields'][\Afterpay\Afterpay\Model\Config\Payovertime::MAX_TOTAL_LIMIT]['value'] = $maxTotal;
 
-                        // set on config request
-                        $configRequest[\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE]['groups'][\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '_advanced']['fields'][\Afterpay\Afterpay\Model\Config\Payovertime::MIN_TOTAL_LIMIT]['value'] = $minTotal;
-                        $configRequest[\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE]['groups'][\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '_advanced']['fields'][\Afterpay\Afterpay\Model\Config\Payovertime::MAX_TOTAL_LIMIT]['value'] = $maxTotal;
+								$subject->setGroups($configRequest);
 
-                        $subject->setGroups($configRequest);
-
-                        return $proceed();
-                    } else {
-                        $this->messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.');
-                    }
-                }
-            }
+								return $proceed();
+							} else {
+								$this->messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.');
+							}
+						}
+					}
+				}
+			}
             catch (\Exception $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             }

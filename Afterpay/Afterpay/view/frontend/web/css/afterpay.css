@@ -96,26 +96,6 @@
     }
 }
 
-.modal-popup.afterpay-learn-more .modal-inner-wrap .afterpay-modal-image {
-    display: none;
-}
-
-@media only screen and (min-width : 992px) {
-    .modal-popup.afterpay-learn-more .modal-inner-wrap .afterpay-modal-image {
-        display: block;
-    }
-}
-
-.modal-popup.afterpay-learn-more .modal-inner-wrap .afterpay-modal-image-mobile {
-    display: block;
-}
-
-@media only screen and (min-width : 992px) {
-    .modal-popup.afterpay-learn-more .modal-inner-wrap .afterpay-modal-image-mobile {
-        display: none;
-    }
-}
-
 .modal-popup.afterpay-learn-more .modal-inner-wrap .modal-footer button{
     display: none;
 }

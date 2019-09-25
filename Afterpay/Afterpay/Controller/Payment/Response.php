@@ -282,7 +282,11 @@ class Response extends \Magento\Framework\App\Action\Action
             );
             $payment->setParentTransactionId(null);
             $this->_paymentRepository->save($payment);
-            $this->_orderRepository->save($order);
+			
+			$order->setBaseCustomerBalanceInvoiced(null);
+			$order->setCustomerBalanceInvoiced(null);
+            
+			$this->_orderRepository->save($order);
             $transaction = $this->_transactionRepository->save($transaction);
  
             return  $transaction->getTransactionId();

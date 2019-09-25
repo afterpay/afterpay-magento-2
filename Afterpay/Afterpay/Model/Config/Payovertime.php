@@ -33,6 +33,7 @@ class Payovertime
     const MIN_TOTAL_LIMIT        = 'min_order_total';
     const MAX_TOTAL_LIMIT        = 'max_order_total';
     const HTTP_HEADER_SUPPORT    = 'http_header_support';
+    const EXCLUDE_CATEGORY       = 'exclude_category';
 
     /**
      * @var ApiMode
@@ -338,6 +339,14 @@ class Payovertime
     public function getMinOrderLimit()
     {
         return (int)$this->_getConfigData(self::MIN_TOTAL_LIMIT);
+    }
+
+	/**
+     * @return int
+     */
+    public function getExcludedCategories()
+    {
+        return $this->_getConfigData(self::EXCLUDE_CATEGORY);
     }
 
     /**

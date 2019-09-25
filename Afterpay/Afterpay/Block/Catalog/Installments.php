@@ -81,15 +81,32 @@ class Installments extends Template
      * @return bool
      */
     public function canShow()
-    {
+    {	
         // check if payment is active
         if (!$this->_getPaymentIsActive()) {
-            return false;
+		    return false;
         }
 		else{
 			if($this->afterpayConfig->getCurrencyCode()){
-				return $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode());
-			} else {
+				if($this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode())){
+					$excluded_categories=$this->afterpayConfig->getExcludedCategories();
+					if($excluded_categories!=""){
+						$product = $this->registry->registry('product');
+						$categoryids = $product->getCategoryIds();
+						foreach($categoryids as $k)
+						{
+							if(strpos($excluded_categories,$k) !== false){
+								return false;
+							}
+						}
+					}
+					return true;				
+				}
+				else{
+					return false;
+				}
+			} 
+			else {
 				return false;
 			}
 		}
@@ -98,16 +115,13 @@ class Installments extends Template
      * @return bool
      */
 	public function isProductEligible(){
-		
-		$display_product = "display:block";
-		
+	
 		$product = $this->registry->registry('product');
 		if ($product->getFinalPrice() > $this->afterpayConfig->getMaxOrderLimit() // greater than max order limit
                 || $product->getFinalPrice() < $this->afterpayConfig->getMinOrderLimit()) { // lower than min order limit
-            $display_product = "display:none";
+           return false;
         }
-		
-		return $display_product;
+		return true;
 	}
 
     /**
@@ -167,12 +181,13 @@ class Installments extends Template
     {
         return $this->afterpayConfig->getMinOrderLimit();
     }
+
 	/**
      * @return string
      */
     public function getTypeOfProduct()
-	{
-		$product = $this->registry->registry('product');
+    {
+        $product = $this->registry->registry('product');
 		return $product->getTypeId();
-	}
+    }
 }

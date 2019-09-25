@@ -315,8 +315,31 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
         if (!$this->getConfigData('merchant_id') || !$this->getConfigData('merchant_key')) {
             return false;
         }
-
-        return parent::isAvailable($quote);
+		else{
+			$excluded_categories=$this->getConfigData('exclude_category');
+			if($excluded_categories!=""){
+				
+				$quote = $this->checkoutSession->getQuote();
+				$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+				$productRepository = $objectManager->get('\Magento\Catalog\Model\ProductRepository');
+				$excluded_categories=$this->getConfigData('exclude_category');
+			
+				foreach ($quote->getAllVisibleItems() as $item) {
+					$productid = $item->getProductId();
+					
+					$product=$productRepository->getById($productid);
+					$categoryids = $product->getCategoryIds();
+				
+					foreach($categoryids as $k)
+					{
+						if(strpos($excluded_categories,$k) !== false){
+							return false;
+						}
+					}
+				}	
+			}
+			return true;
+		}
     }
 
     /**

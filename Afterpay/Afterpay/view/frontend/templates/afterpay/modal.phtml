@@ -5,37 +5,68 @@
  * @author Afterpay
  * @copyright 2016-2019 Afterpay https://www.afterpay.com
  */
+$enable_cbt = $this->helper('Afterpay\Afterpay\Helper\Data')->getConfig('payment/afterpaypayovertime/enable_cbt');
+$store_base_currency = $this->helper('Afterpay\Afterpay\Helper\Data')->getConfig('currency/options/default');
+if(!$enable_cbt){
+	$enable_cbt = 0;
+}
 ?>
 <div id="afterpay-modal-popup" style="display:none">
     <a href="https://www.afterpay.com/terms/" target="_blank">
-        <img class="afterpay-modal-image" src="https://static.secure-afterpay.com.au/banner-large.png" alt="Afterpay"/>
-        <img class="afterpay-modal-image-mobile" src="https://static.secure-afterpay.com.au/modal-mobile.png" alt="Afterpay"/>
-    </a>
-</div>
-<div id="afterpay-modal-popup-us" style="display:none">
-    <a href="https://www.afterpay.com/purchase-payment-agreement" target="_blank">
-        <img class="afterpay-modal-image" src="https://static.afterpay.com/us-popup-medium.png" alt="Afterpay"/>
-        <img class="afterpay-modal-image-mobile" src="https://static.afterpay.com/us-popup-small.png" alt="Afterpay"/>
+        <img class="afterpay-modal-image" alt="Afterpay"/>
     </a>
 </div>
 <script>
-    require(
+	require(
         [
             'jquery',
-            'Magento_Ui/js/modal/modal'
-        ],
+			'Magento_Ui/js/modal/modal'
+		],
         function(
             $,
-            modal
-        ) {
-            var options = {
+			modal
+        ){
+			var storeCurrency="<?php echo $store_base_currency;?>";
+			var enable_cbt=<?php echo $enable_cbt;?>;
+			var width=$(window).width();
+			
+			if(storeCurrency=="USD" && !$("#afterpay-modal-container").length){
+			$('head').append('<link rel="stylesheet" href="https://static.afterpay.com/modal/us.css" type="text/css" src_type="url"/>');
+			 $.ajax({
+				url: 'https://static.afterpay.com/modal/us.html',
+				complete: function(jqXHR, textStatus) {
+				  if (jqXHR.status == 200) {
+					$('#maincontent')
+					  .append(jqXHR.responseText);
+					}
+				}
+			 });	
+			}
+			
+			var options = {
                 responsive: false,
                 innerScroll: false,
                 modalClass: 'afterpay-learn-more'
             };
             // register poup
             var popup = modal(options, $('#afterpay-modal-popup'));
-            var popup_us = modal(options, $('#afterpay-modal-popup-us'));
+			
+			if(enable_cbt){
+				if(width > 640){
+					$("#afterpay-modal-popup .afterpay-modal-image").attr({src:"https://static.afterpay.com/lightbox-desktop-cbt.png",srcset:"https://static.afterpay.com/lightbox-desktop-cbt.png 1x,https://static.afterpay.com/lightbox-desktop-cbt@2x.png 2x,https://static.afterpay.com/lightbox-desktop-cbt@3x.png 3x"});
+				}
+				else{
+					$("#afterpay-modal-popup .afterpay-modal-image").attr({src:"https://static.afterpay.com/lightbox-mobile.png",srcset:"https://static.afterpay.com/lightbox-mobile-cbt.png 1x,https://static.afterpay.com/lightbox-mobile-cbt@2x.png 2x,https://static.afterpay.com/lightbox-mobile-cbt@3x.png 3x"});
+				}
+			}
+			else{
+				if(width > 640){
+					$("#afterpay-modal-popup .afterpay-modal-image").attr({src:"https://static.afterpay.com/lightbox-desktop.png",srcset:"https://static.afterpay.com/lightbox-desktop.png 1x,https://static.afterpay.com/lightbox-desktop@2x.png 2x,https://static.afterpay.com/lightbox-desktop@3x.png 3x"});
+				}
+				else{
+					$("#afterpay-modal-popup .afterpay-modal-image").attr({src:"https://static.afterpay.com/lightbox-mobile.png",srcset:"https://static.afterpay.com/lightbox-mobile.png 1x,https://static.afterpay.com/lightbox-mobile@2x.png 2x,https://static.afterpay.com/lightbox-mobile@3x.png 3x"});
+				}
+			}
 
             // register the click to be popup
             $( ".afterpay-modal-popup-trigger" ).on( "click", function() {
@@ -45,10 +76,13 @@
 
             // register the click to be popup
             $( ".afterpay-modal-popup-trigger-us" ).on( "click", function() {
-                $('#afterpay-modal-popup-us').show();
-                $('#afterpay-modal-popup-us').modal('openModal');
+                if($("#afterpay-modal-container").length!=0){
+					var popup_us = modal(options, $('#afterpay-modal-content'));
+					$('#afterpay-modal-content').show();
+					$('#afterpay-modal-content').modal('openModal');
+				}
             });
-        }
-    );
+		}
+	);
 </script>
 
