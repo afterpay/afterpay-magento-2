@@ -1,5 +1,22 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.1.0
+
+_Wed 18 Dec 2019 (AEDT)_
+ 
+### Supported Editions & Versions
+
+- Magento Community Edition (CE) version 2.0.2 and later
+- Magento Enterprise Edition (EE) version 2.0.2 and later
+
+### Highlights
+
+- API upgrade from v1 to v2, including the introduction of "Deferred Payment Flow".
+- Improvements to quote validation prior to payment capture.
+- Improvements to the "Exclude Category" feature.
+
+---
+
 ## Version 3.0.6
 
 _Wed 25 Sep 2019 (AEST)_

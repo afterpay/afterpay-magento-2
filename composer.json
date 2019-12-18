@@ -1,0 +1,22 @@
+{
+    "name": "afterpay/module-afterpay",
+    "license": "OSL-3.0",
+    "type": "magento2-module",
+    "description": "Magento 2 Afterpay Payment Module",
+    "require": {
+    },
+    "authors":[
+        {
+            "name":"Afterpay",
+            "homepage":"https://www.afterpay.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Afterpay\\Afterpay\\": ""
+        }
+    }
+}

@@ -6,7 +6,8 @@
 <ol>
 	<li> Download the Magento-Afterpay plugin - Available as a .zip or tar.gz file from the Afterpay GitHub directory. </li>
 	<li> Unzip the file </li>
-	<li> Copy the <em>'Afterpay'</em> folder to: <br/> <em>[MAGENTO]/app/code/</em> </li>
+	<li> Create directory Afterpay/Afterpay in: <br/> <em>[MAGENTO]/app/code/</em></li>
+	<li> Copy the files to <em>'Afterpay/Afterpay'</em> folder </li>
 	<li> Open Command Line Interface </li>
 	<li> In CLI, run the below command to enable Afterpay module: <br/> <em>php bin/magento module:enable Afterpay_Afterpay</em> </li>
 	<li> In CLI, run the Magento setup upgrade: <br/> <em>php bin/magento setup:upgrade</em> </li>
@@ -35,10 +36,10 @@
 <p> Note: [MAGENTO] refers to the root folder where Magento is installed. </p>
 
 <ol>
-	<li> Remove "Afterpay" folder in: <em>[MAGENTO} /app/code/</em></li>
+	<li> Remove Files in: <em>[MAGENTO]/app/code/Afterpay/Afterpay</em></li>
 	<li> Download the Magento-Afterpay plugin - Available as a .zip or tar.gz file from the Afterpay GitHub directory. </li>
 	<li> Unzip the file </li>
-	<li> Copy the <em>'Afterpay'</em> folder to: <br/> <em>[MAGENTO]/app/code/</em> </li>
+	<li> Copy the files in folder to: <br/> <em>[MAGENTO]/app/code/Afterpay/Afterpay</em> </li>
 	<li> Open Command Line Interface </li>
 	<li> In CLI, run the below command to enable Afterpay module: <br/> <em>php bin/magento module:enable Afterpay_Afterpay</em> </li>
 	<li> In CLI, run the Magento setup upgrade: <br/> <em>php bin/magento setup:upgrade</em> </li>
