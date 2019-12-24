@@ -1,5 +1,21 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.1.1
+
+_Tue 24 Dec 2019 (AEDT)_
+ 
+### Supported Editions & Versions
+
+- Magento Community Edition (CE) version 2.0.2 and later
+- Magento Enterprise Edition (EE) version 2.0.2 and later
+
+### Highlights
+
+- Added support for installation and updates via Composer.
+- Improved support for running the Magento code compiler in Community Edition.
+
+---
+
 ## Version 3.1.0
 
 _Wed 18 Dec 2019 (AEDT)_

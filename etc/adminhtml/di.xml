@@ -12,5 +12,4 @@
         <plugin name="updateOrderTotalLimitAfterpay" type="Afterpay\Afterpay\Model\Config\Save\Plugin" />
     </type>
 	<preference for="Magento\Sales\Block\Adminhtml\Order\Creditmemo\Create\Items" type="Afterpay\Afterpay\Block\Adminhtml\Order\Creditmemo\Create\Items" />
-	<preference for="Magento\CustomerBalance\Block\Adminhtml\Sales\Order\Creditmemo\Controls" type="Afterpay\Afterpay\Block\Adminhtml\Order\Creditmemo\Controls" />
 </config>
