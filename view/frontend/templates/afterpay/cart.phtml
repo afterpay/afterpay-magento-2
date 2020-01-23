@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 ?>
 <?php if ($block->canShow()) : ?>
@@ -13,6 +13,6 @@
 
 	    <!--    Button buy now-->
 	    <button type="button" data-role="proceed-to-checkout" onclick="window.location.href='<?php echo $block->getUrl('checkout', ['_secure' => true]);?>'" title="<?php echo __('Buy now, pay later') ?>" class="action primary btn-afterpay-checkout">
-	        <img src="<?php echo $block->getViewFileUrl('Afterpay_Afterpay::images/afterpay_logo_white.png'); ?>" alt="<?php echo __('Buy now, pay later'); ?>" />
+	        <img src="https://static.afterpay.com/integration/logo-afterpay-white-149x31.png" alt="<?php echo __('Buy now, pay later'); ?>" srcset="https://static.afterpay.com/integration/logo-afterpay-white-149x31.png 1x,https://static.afterpay.com/integration/logo-afterpay-white-149x31@2x.png 2x,https://static.afterpay.com/integration/logo-afterpay-white-149x31@3px.png 3x" height="31"/>
 	    </button>
 <?php endif; ?>

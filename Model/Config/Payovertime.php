@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Config;
 
@@ -320,9 +320,9 @@ class Payovertime
     /**
      * @return bool
      */
-    public function isActive()
+    public function isActive($override = [])
     {
-        return (bool)(int)$this->_getConfigData(self::ACTIVE);
+        return (bool)(int)$this->_getConfigData(self::ACTIVE,$override);
     }
 
     /**

@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Adapter\Afterpay;
 
@@ -141,7 +141,8 @@ class Call
                 'httpStatusCode' => $response->getStatus(),
                 'body' => $this->obfuscateCustomerData($this->jsonHelper->jsonDecode($response->getBody()))
             ];
-            $this->helper->debug($this->jsonHelper->jsonEncode($responseLog));
+			$this->helper->debug($this->jsonHelper->jsonEncode($responseLog));
+			
         } catch (\Exception $e) {
             $this->helper->debug($e->getMessage());
 

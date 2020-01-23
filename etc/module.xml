@@ -4,11 +4,11 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-    <module name="Afterpay_Afterpay" setup_version="3.1.1">
+    <module name="Afterpay_Afterpay" setup_version="3.1.2">
         <sequence>
             <module name="Magento_Checkout"/>
             <module name="Magento_Sales"/>

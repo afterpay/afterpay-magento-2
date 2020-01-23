@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Observer;
 
@@ -20,7 +20,6 @@ class BeforeShipment implements ObserverInterface
   protected $_orderRepository;
   protected $_paymentCapture;
   protected $_afterpayResponse;
-  protected $_payovertime;
   protected $_jsonHelper;
   
   public function __construct(
@@ -28,7 +27,6 @@ class BeforeShipment implements ObserverInterface
 	\Magento\Sales\Model\OrderRepository $orderRepository,
 	\Afterpay\Afterpay\Model\Adapter\V2\AfterpayOrderPaymentCapture $paymentCapture,
 	\Afterpay\Afterpay\Model\Response $afterpayResponse,
-	\Afterpay\Afterpay\Model\Payovertime  $payovertime,
 	\Magento\Framework\Json\Helper\Data $jsonHelper
   )
   {
@@ -36,11 +34,10 @@ class BeforeShipment implements ObserverInterface
 	$this->_orderRepository = $orderRepository;
 	$this->_paymentCapture = $paymentCapture;
 	$this->_afterpayResponse = $afterpayResponse;
-	$this->_payovertime = $payovertime;
 	$this->_jsonHelper = $jsonHelper;
   }
 
-  public function execute(\Magento\Framework\Event\Observer $observer)
+ public function execute(\Magento\Framework\Event\Observer $observer)
   {
 	$shipment = $observer->getEvent()->getShipment();
 	$order    = $shipment->getOrder();
@@ -53,17 +50,11 @@ class BeforeShipment implements ObserverInterface
 			
 			$totalCaptureAmount  = 0.00;
 			$totalItemsToShip    = 0;
-			$additional_info['captureShipment'] = false;
 			$openToCaptureAmount = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::OPEN_TOCAPTURE_AMOUNT); 
 			$totalDiscountAmount = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_DISCOUNT); 
 			$rolloverAmount      = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_AMOUNT); 
 			$rolloverRefund      = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_REFUND); 
 			
-			if($totalDiscountAmount !=0){
-				 $totalDiscountAmount = $totalDiscountAmount - ($order->getCustomerBalanceRefunded() + $order->getGiftCardsRefunded());
-				 $payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_DISCOUNT, number_format($totalDiscountAmount, 2, '.', ''));
-			}
-
 			if($order->getShippingInclTax() > 0 && $order->getShipmentsCollection()->count()==0){
 				$shippingAmount = $order->getShippingInclTax();
 				
@@ -87,7 +78,7 @@ class BeforeShipment implements ObserverInterface
 			
 			foreach($shipment->getItemsCollection() as $item) {
 				if (!$item->getOrderItem()->getParentItem()) {
-					$itemPrice = $this->_payovertime->calculateItemPrice($item,$item->getQty());
+					$itemPrice = $this->_afterpayResponse->calculateItemPrice($item->getOrderItem(),$item->getQty());
 					$totalCaptureAmount = $totalCaptureAmount + $itemPrice;
 					$totalItemsToShip = $totalItemsToShip - $item->getQty();
 				}
@@ -95,6 +86,7 @@ class BeforeShipment implements ObserverInterface
 
 			if($totalDiscountAmount!=0){
 				if($totalCaptureAmount >= $totalDiscountAmount){
+					$this->_helper->debug("totalDiscountAmount :  ".$totalDiscountAmount);
 					$totalCaptureAmount = $totalCaptureAmount - $totalDiscountAmount;
 					$totalDiscountAmount = 0.00;
 				}
@@ -104,16 +96,14 @@ class BeforeShipment implements ObserverInterface
 				}
 				$payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_DISCOUNT, number_format($totalDiscountAmount, 2, '.', ''));
 			}
+		
 			
-			if($totalCaptureAmount > 0){
+			if($totalCaptureAmount > 1){
 				$afterpay_order_id = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_ORDERID);
 				$merchant_order_id = $order->getIncrementId();
 				$currencyCode      = $order->getOrderCurrencyCode();
-				$override = [];
+				$override = ["website_id" => $payment->getOrder()->getStore()->getWebsiteId()];
 				
-				if ($payment->getOrder()->getStore()->getWebsiteId() > 1) {
-					$override = ["website_id" => $payment->getOrder()->getStore()->getWebsiteId()];
-				}
 				$totalAmount= [
 							'amount'   => number_format($totalCaptureAmount, 2, '.', ''),
 							'currency' => $currencyCode
@@ -134,10 +124,16 @@ class BeforeShipment implements ObserverInterface
 					throw new \Magento\Framework\Exception\LocalizedException(__($response['message']));
 				}
 			}
+			else{
+				if($totalCaptureAmount > 0){
+					$payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_AMOUNT,$totalCaptureAmount);
+					$this->_helper->debug("Total afterpay capture amount is less then $1 for this shipment. We are adding it to the 'rollover amount' field");
+				}
+			}
 			//last shipment
 			if($totalItemsToShip == 0 && $rolloverRefund > 0){
 				$payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_REFUND,"0.00");
-				$result = $this->_afterpayResponse->afterpayProcessRefund($payment,$rolloverRefund,$additional_info);
+				$result = $this->_afterpayResponse->lastShipmentProcessRefund($payment,$rolloverRefund);
 				if(!$result['success']){
 					throw new \Magento\Framework\Exception\LocalizedException(__('There was a problem with your shipment. Please check the logs.'));
 				}

@@ -1,5 +1,24 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.1.2
+
+_Fri 24 Jan 2020 (AEDT)_
+ 
+### Supported Editions & Versions
+
+- Magento Community Edition (CE) version 2.0.2 and later
+- Magento Enterprise Edition (EE) version 2.0.2 and later
+
+### Highlights
+
+- Improved handling of Store Credit and Gift Cards in Magento Enterprise.
+- Improved handling of unusual AJAX behaviour at the checkout.
+- Replaced legacy internal assets with latest artwork hosted on the Afterpay CDN.
+- Added a cron job for Deferred Payment Flow to create Credit Memos in Magento if a payment Auth is allowed to expire.
+- Added a new field on the Magento Invoice to show when a payment Auth will expire.
+
+---
+
 ## Version 3.1.1
 
 _Tue 24 Dec 2019 (AEDT)_

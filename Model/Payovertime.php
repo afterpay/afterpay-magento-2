@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model;
 
@@ -26,7 +26,9 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     const ROLLOVER_DISCOUNT = 'afterpay_rollover_discount';
     const ROLLOVER_AMOUNT = 'afterpay_rollover_amount';
     const OPEN_TOCAPTURE_AMOUNT = 'afterpay_open_to_capture_amount';
-    const ROLLOVER_REFUND = 'afterpay_rollever_refund_amount';
+    const ROLLOVER_REFUND = 'afterpay_rollover_refund_amount';
+	const AUTH_EXPIRY = 'afterpay_auth_expiry_date';
+
 
     const AFTERPAY_PAYMENT_TYPE_CODE = 'PBI';
 
@@ -265,33 +267,8 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     {
         // debug mode
         $this->helper->debug('Start \Afterpay\Afterpay\Model\Payovertime::refund()');
-		$amountCaptured     = 0.00;
-		$creditmemo         = $payment->getCreditmemo();
-		$additional_info    =[];
-		foreach ($creditmemo->getAllItems() as $item) {
-			$orderItem = $item->getOrderItem();
-			if (!$orderItem->getHasChildren()) {
-				$qtyToRefund    = $item->getQty();
-				
-				if($orderItem->getIsVirtual()){
-					$amountCaptured = $amountCaptured + $this->calculateItemPrice($item,$qtyToRefund);
-				}
-				else{
-					$qtyShipped     = $orderItem->getQtyShipped();
-					$qtyOrdered     = $orderItem->getQtyOrdered();
-					$QtyRefunded    = $orderItem->getQtyRefunded() - $qtyToRefund;
-					$itemLeftToShip = $qtyOrdered - ($qtyShipped + $QtyRefunded);
-					if($qtyToRefund > $itemLeftToShip){
-						$qty = $qtyToRefund - $itemLeftToShip;
-						$amountCaptured = $amountCaptured + $this->calculateItemPrice($item,$qty);
-					}
-				}
-			}
-		}
 		
-		$additional_info['amountCaptured'] = $amountCaptured;
-		$additional_info['captureShipment'] = true;
-		$result = $this->afterpayResponse->afterpayProcessRefund($payment, $amount, $additional_info);
+		$result = $this->afterpayResponse->calculateRefund($payment, $amount);
 		
 		if(!array_key_exists('success',$result)){
 			throw new \Magento\Framework\Exception\LocalizedException(__('There was a problem with your refund. Please check the logs.'));
@@ -414,20 +391,5 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
         // return to the parent
         return parent::fetchTransactionInfo($payment, $transactionId);
-    }
-	/*
-    Calculate Total Price for the given item
-	  */
-    public function calculateItemPrice($item,$qty){
-		$totalQtyOrdered = $item->getOrderItem()->getQtyOrdered();
-		$totalTaxAmount  = $item->getOrderItem()->getBaseTaxAmount();
-		$totalDiscount   = $item->getOrderItem()->getDiscountAmount();
-		
-		$taxPerItem      = $totalTaxAmount/$totalQtyOrdered;
-		$discountPerItem = $totalDiscount / $totalQtyOrdered;
-		
-		$pricePerItem    = $item->getPrice() + $taxPerItem;
-		$itemPrice       = $qty * ($pricePerItem - $discountPerItem);
-		return $itemPrice;
     }
 }

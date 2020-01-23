@@ -2,7 +2,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 
 /** afterpay.css */
@@ -105,12 +105,9 @@
 }
 
 .afterpay_instalments_logo {
-    background-image: url("../images/afterpay_logo.png");
-    background-size: 76px 15px;
     vertical-align: middle;
     display: inline-block;
     height: 15px;
-    width: 76px;
 }
 
 .afterpay_checkout_steps {
@@ -120,20 +117,18 @@
     height: 12px;
     width: 12px;
 }
-
 .afterpay_checkout_steps_1 {
-    background-image: url("../images/circle_1@2x.png");
+    background-image: url("https://static.afterpay.com/checkout/circle_1@2x.png");
 }
 .afterpay_checkout_steps_2 {
-    background-image: url("../images/circle_2@2x.png");
+    background-image: url("https://static.afterpay.com/checkout/circle_2@2x.png");
 }
 .afterpay_checkout_steps_3 {
-    background-image: url("../images/circle_3@2x.png");
+    background-image: url("https://static.afterpay.com/checkout/circle_3@2x.png");
 }
 .afterpay_checkout_steps_4 {
-    background-image: url("../images/circle_4@2x.png");
+    background-image: url("https://static.afterpay.com/checkout/Circle_4@2x.png");
 }
-
 .checkout-methods-items button.btn-afterpay-checkout {
     padding: 13px 15px 10px 10px;
     width: 100%;

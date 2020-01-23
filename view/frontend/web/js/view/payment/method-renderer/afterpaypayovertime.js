@@ -2,7 +2,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 /*browser:true*/
 /*global define*/
@@ -28,11 +28,6 @@ define(
             defaults: {
                 template: 'Afterpay_Afterpay/payment/afterpaypayovertime',
                 billingAgreement: ''
-            },
-
-            /** Returns payment acceptance mark image path */
-            getAfterpayPayovertimeLogoSrc: function () {
-                return 'https://www.afterpay.com.au/wp-content/themes/afterpay/assets/img/logo_scroll.png';
             },
 
             /**
@@ -146,6 +141,7 @@ define(
                     var url = mageUrl.build("afterpay/payment/process");
                     var data = $("#co-shipping-form").serialize();
                     var email = window.checkoutConfig.customerData.email;
+                    var ajaxRedirected = false;
                     //CountryCode Object to pass in initialize function.
                     var countryCode = {};
                     if (afterpay.currencyCode == 'AUD') {
@@ -186,10 +182,20 @@ define(
 
                                 //Waiting for all AJAX calls to resolve to avoid error messages upon redirection
                                 $("body").ajaxStop(function () {
+									ajaxRedirected = true;
                                     AfterPay.redirect({
                                         token: data.token
                                     });
                                 });
+								setTimeout(
+									function(){
+										if(!ajaxRedirected){
+											 AfterPay.redirect({
+												token: data.token
+											});
+										}
+									}
+								,5000);
                             } else if (typeof data.error !== 'undefined' && typeof data.message !== 'undefined' &&
                                 data.error && data.message.length) {
                                 globalMessageList.addErrorMessage({

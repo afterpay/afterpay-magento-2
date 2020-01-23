@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2019 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 -->
 <div class="payment-method" id="afterpaypayovertime-method" data-bind="css: {'_active': (getCode() == isChecked())}">
@@ -17,8 +17,7 @@
             <span data-bind="style: { display: getOptionalTermsText() < 0 ? 'inline' : 'none'}">
                 <!-- ko i18n: 'Installments by ' --><!-- /ko -->
             </span>
-            <img data-bind="attr: {src: getAfterpayPayovertimeLogoSrc(), alt: getTitle()}"
-                 class="payment-icon"/>
+            <img src="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png" srcset="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png 1x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@2x.png 2x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@3x.png 3x" class="payment-icon" alt="Afterpay" height="46"/>
             <!-- Afterpay Logo -->
             <span data-bind="style: { display: getOptionalTermsText() > 0 ? 'inline' : 'none'}">
                 <!-- ko i18n: 'Interest-free payments.' --><!-- /ko -->
