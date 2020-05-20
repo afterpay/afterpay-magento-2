@@ -73,8 +73,8 @@ class Call
         $client->setUri($url);
 
         // set body and the url
-        if ($body) {
-            $client->setRawData($this->jsonHelper->jsonEncode($body), 'application/json');
+        if ($body || ($method == \Magento\Framework\HTTP\ZendClient::POST || $method == \Magento\Framework\HTTP\ZendClient::PUT)) {
+			$client->setRawData($this->jsonHelper->jsonEncode($body), 'application/json');
         }
 
         // add auth for API requirements
@@ -116,7 +116,7 @@ class Call
             [
                 'timeout'           => 80,
                 'maxredirects'      => 0,
-                'useragent'         => 'AfterpayMagento2Plugin ' . $this->helper->getModuleVersion() . ' (' . $description . ' ' . $version . ') MerchantID: ' . trim($this->afterpayConfig->getMerchantId($override) . ' URL: ' . $url)
+                'useragent'         => 'AfterpayMagento2Plugin ' . $this->helper->getModuleVersion() . ' (' . $description . ' ' . $version . ')' . ' PHPVersion: PHP/' . phpversion() . ' MerchantID: ' . trim($this->afterpayConfig->getMerchantId($override) . ' URL: ' . $url)
             ]
         );
 
@@ -132,6 +132,17 @@ class Call
         // do the request with catch
         try {
             $response = $client->request($method);
+			$responseBody = $response->getBody();
+
+			try{
+				$responseBody = $this->jsonHelper->jsonDecode($responseBody);
+			}
+			catch(\Exception $e){
+				$this->helper->debug("A non JSON response was received. Cf-ray ID : ".$response->getHeaders()['Cf-ray']);
+				throw new \Magento\Framework\Exception\LocalizedException(
+					__($e->getMessage())
+				);
+			}
 
             // debug mode
             $responseLog = [
@@ -139,7 +150,7 @@ class Call
                 'method' => $method,
                 'url' => $url,
                 'httpStatusCode' => $response->getStatus(),
-                'body' => $this->obfuscateCustomerData($this->jsonHelper->jsonDecode($response->getBody()))
+                'body' => $this->obfuscateCustomerData($responseBody)
             ];
 			$this->helper->debug($this->jsonHelper->jsonEncode($responseLog));
 			
@@ -184,7 +195,7 @@ class Call
     {
 		$fieldsToObfuscate= ["shipping","billing","consumer",'orderDetails'];
 		$body_replace=[];
-		if(!empty($body)){
+		if(!empty($body) && is_array($body)){
 			foreach($body as $body_key=>$body_value)
 			{
 				if(in_array($body_key,$fieldsToObfuscate)){

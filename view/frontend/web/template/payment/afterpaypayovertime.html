@@ -17,7 +17,7 @@
             <span data-bind="style: { display: getOptionalTermsText() < 0 ? 'inline' : 'none'}">
                 <!-- ko i18n: 'Installments by ' --><!-- /ko -->
             </span>
-            <img src="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png" srcset="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png 1x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@2x.png 2x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@3x.png 3x" class="payment-icon" alt="Afterpay" height="46"/>
+            <img src="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png" srcset="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png 1x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@2x.png 2x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@3x.png 3x" class="payment-icon" alt="Afterpay" height="40"/>
             <!-- Afterpay Logo -->
             <span data-bind="style: { display: getOptionalTermsText() > 0 ? 'inline' : 'none'}">
                 <!-- ko i18n: 'Interest-free payments.' --><!-- /ko -->
@@ -61,7 +61,7 @@
                     </li>
                 </ul>
                 <ul class="instalment">
-                    <li><!-- ko i18n: 'First instalment' --><!-- /ko --></li>
+                    <li data-bind="text: getFirstInstalmentText()"></li>
                     <li><!-- ko i18n: '2 weeks later' --><!-- /ko --></li>
                     <li><!-- ko i18n: '4 weeks later' --><!-- /ko --></li>
                     <li><!-- ko i18n: '6 weeks later' --><!-- /ko --></li>
@@ -70,8 +70,8 @@
         </div>
         <div class="payment-method-content afterpay-checkout-redirect">
             <div class="instalment-footer">
-                <!-- ko i18n: 'You will be redirected to the Afterpay website when you proceed to checkout. ' --><!-- /ko -->
-                    <a data-bind="attr:{href: getTermsLink()}" target="_blank" style="display:inline;"><!-- ko i18n: 'Terms & Conditions' --><!-- /ko --></a>
+				<span data-bind="text: getTermsText()"></span>
+                <a data-bind="attr:{href: getTermsLink()}" target="_blank" style="display:inline;"><!-- ko i18n: 'Terms & Conditions' --><!-- /ko --></a>
             </div>
             <div class="actions-toolbar">
                 <div class="primary">

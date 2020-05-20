@@ -11,4 +11,7 @@
 	<event name="sales_order_shipment_save_before">
         <observer name="afterpay_before_shipment" instance="Afterpay\Afterpay\Observer\BeforeShipment" />
     </event>
+	<event name="view_block_abstract_to_html_before">
+        <observer name="afterpay_view_block_abstract_to_html_before" instance="Afterpay\Afterpay\Observer\BeforeCreditmemoLoad" />
+    </event>
 </config>

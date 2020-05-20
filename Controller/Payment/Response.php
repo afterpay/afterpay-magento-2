@@ -39,6 +39,7 @@ class Response extends \Magento\Framework\App\Action\Action
 	protected $_paymentCapture;
 	protected $_quoteValidator;
 	protected $_timezone;
+	protected $_afterpayApiPayment;
 	
     /**
      * Response constructor.
@@ -80,7 +81,8 @@ class Response extends \Magento\Framework\App\Action\Action
 		\Magento\Framework\Notification\NotifierInterface $notifierPool,
 		\Afterpay\Afterpay\Model\Adapter\V2\AfterpayOrderPaymentCapture $paymentCapture,
 		\Magento\Quote\Model\QuoteValidator $quoteValidator,
-		\Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone
+		\Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+		\Afterpay\Afterpay\Model\Adapter\AfterpayPayment $afterpayApiPayment
     ) {
         $this->_resultForwardFactory = $resultForwardFactory; 
 		$this->response = $response;
@@ -101,6 +103,7 @@ class Response extends \Magento\Framework\App\Action\Action
 		$this->_paymentCapture = $paymentCapture;
 		$this->_quoteValidator = $quoteValidator;
 		$this->_timezone = $timezone;
+		$this->_afterpayApiPayment = $afterpayApiPayment;
 		
         parent::__construct($context);
     }
@@ -230,14 +233,57 @@ class Response extends \Magento\Framework\App\Action\Action
 			                       $retry = true;
 			                       sleep(1);
 		                         } 
-		                         else{
-									$this->_notifierPool->addMajor(
-									'Afterpay Order Failed',
-									'There was a problem with an Afterpay order. Order number : '.$response['id'].' and the merchant order number : '.$merchant_order_id,
-									''
-									);
-									$this->_helper->debug("Order Exception : There was a problem with order creation. ".$e->getMessage());
-		                         }
+								 else{
+									 //Reverse or void the order
+									$orderId = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_ORDERID);
+									$paymentStatus = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::PAYMENT_STATUS);
+									
+									if($paymentStatus == \Afterpay\Afterpay\Model\Response::PAYMENT_STATUS_AUTH_APPROVED){
+										$voidResponse = $this->_afterpayApiPayment->voidOrder($orderId);
+										$voidResponse = $this->_jsonHelper->jsonDecode($voidResponse->getBody());
+											
+										if(!array_key_exists("errorCode",$voidResponse)) {
+											$payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::PAYMENT_STATUS, $voidResponse['paymentState']);
+											
+											if(array_key_exists('openToCaptureAmount',$voidResponse) && !empty($voidResponse['openToCaptureAmount'])){
+												$payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::OPEN_TOCAPTURE_AMOUNT,$voidResponse['openToCaptureAmount']['amount']);
+											}
+											
+											throw new \Magento\Framework\Exception\LocalizedException(__('There was a problem placing your order. Your Afterpay order ' .$orderId. ' is refunded.'));
+											$this->_helper->debug('Order Exception : There was a problem with order creation. Afterpay Order ' .$orderId. ' Voided.'.$e->getMessage());
+										}
+										else{
+											$this->_helper->debug("Transaction Exception : " . json_encode($voidResponse));
+											$this->_notifierPool->addMajor(
+											'Afterpay Order Failed',
+											'There was a problem with an Afterpay order. Order number : '.$response['id'].' and the merchant order number : '.$merchant_order_id,
+											''
+											);
+											throw new \Magento\Framework\Exception\LocalizedException(__('There was a problem placing your order.'));						
+										}
+									}
+									else{
+										$orderTotal = $quote->getGrandTotal();
+										
+										$refundResponse = $this->_afterpayApiPayment->refund(number_format($orderTotal, 2, '.', ''),$orderId,$quote->getQuoteCurrencyCode());
+
+										$refundResponse = $this->_jsonHelper->jsonDecode($refundResponse->getBody());
+
+										if (!empty($refundResponse['refundId'])) {
+											throw new \Magento\Framework\Exception\LocalizedException(__('There was a problem placing your order. Your Afterpay order ' .$orderId. ' is refunded.'));
+											$this->_helper->debug('Order Exception : There was a problem with order creation. Afterpay Order ' .$orderId. ' refunded.'.$e->getMessage());
+											
+										} else {
+											$this->_helper->debug("Transaction Exception : " . json_encode($refundResponse));
+											$this->_notifierPool->addMajor(
+											'Afterpay Order Failed',
+											'There was a problem with an Afterpay order. Order number : '.$response['id'].' and the merchant order number : '.$merchant_order_id,
+											''
+											);
+											throw new \Magento\Framework\Exception\LocalizedException(__('There was a problem placing your order.'));
+										}
+									} 
+								 }
 	                            }
 								$tries++;
                             }while($tries<3 && $retry);

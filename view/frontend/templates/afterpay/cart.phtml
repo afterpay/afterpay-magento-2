@@ -8,7 +8,13 @@
 ?>
 <?php if ($block->canShow()) : ?>
 	    <div class='payment-method-note afterpay-checkout-note' style='text-align: left; margin-bottom: 1.5rem; font-size: 13px;'><h3 style="font-size: 1.5rem"><span style="color: #00a4e4;">
-	    <?php echo $block->getCartPageText(); ?>
+	    <?php $assets_cart_page = $block->getCartPageText(); 
+		echo $assets_cart_page['snippet1'];
+		?>
+		<span class="afterpay_instalment_price"> <?php echo $block->getInstallmentsTotalHtml();?></span>
+		<?php
+		echo $assets_cart_page['snippet2'];
+		?>
 	    </div>
 
 	    <!--    Button buy now-->

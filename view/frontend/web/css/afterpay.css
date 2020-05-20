@@ -111,11 +111,11 @@
 }
 
 .afterpay_checkout_steps {
-    background-size: 12px 12px;
+    background-size: 18px 18px;
     vertical-align: middle;
     display: inline-block;
-    height: 12px;
-    width: 12px;
+    height: 18px;
+    width: 18px;
 }
 .afterpay_checkout_steps_1 {
     background-image: url("https://static.afterpay.com/checkout/circle_1@2x.png");
@@ -132,4 +132,8 @@
 .checkout-methods-items button.btn-afterpay-checkout {
     padding: 13px 15px 10px 10px;
     width: 100%;
+}
+.checkout-payment-method #afterpaypayovertime-method .payment-icon{
+	height:40px;
+	width:auto;
 }

@@ -17,9 +17,10 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Ui/js/model/messageList',
         'Magento_Customer/js/customer-data',
-        'Magento_Customer/js/section-config'
+        'Magento_Customer/js/section-config',
+        'Afterpay_Afterpay/js/view/payment/method-renderer/afterpayredirect'
     ],
-    function ($, Component, quote, resourceUrlManager, storage, mageUrl, additionalValidators, globalMessageList, customerData, sectionConfig) {
+    function ($, Component, quote, resourceUrlManager, storage, mageUrl, additionalValidators, globalMessageList, customerData, sectionConfig, afterpayRedirect) {
         'use strict';
 
         return Component.extend({
@@ -46,7 +47,8 @@ define(
 
                 var total = quote.getCalculatedTotal();
                 var format = window.checkoutConfig.priceFormat.pattern
-
+				var afterpay = window.checkoutConfig.payment.afterpay;
+				
                 storage.get(resourceUrlManager.getUrlForCartTotals(quote), false)
                 .done(
                     function (response) {
@@ -55,11 +57,18 @@ define(
                         var installmentFee = response.base_grand_total / 4;
                         var installmentFeeLast = amount - installmentFee.toFixed(window.checkoutConfig.priceFormat.precision) * 3;
 
-                        $(".afterpay_total_amount").text(format.replace(/%s/g, amount.toFixed(window.checkoutConfig.priceFormat.precision)));
                         $(".afterpay_instalments_amount").text(format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)));
                         $(".afterpay_instalments_amount_last").text(format.replace(/%s/g, installmentFeeLast.toFixed(window.checkoutConfig.priceFormat.precision)));
-
-                        return format.replace(/%s/g, amount);
+						
+						
+						if (afterpay.currencyCode == 'USD') {
+							 $(".afterpay_total_amount").text(format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)));
+							return format.replace(/%s/g, installmentFee);
+						} else {
+							 $(".afterpay_total_amount").text(format.replace(/%s/g, amount.toFixed(window.checkoutConfig.priceFormat.precision)));
+							return format.replace(/%s/g, amount);
+						}
+                       
                     }
                 )
                 .fail(
@@ -84,10 +93,36 @@ define(
                 } else if (afterpay.currencyCode == 'NZD') {
                 afterpayCheckoutText = 'Four interest-free payments totalling';
                 } else if (afterpay.currencyCode == 'USD') {
-                afterpayCheckoutText = 'Four interest-free installments totalling';
+                afterpayCheckoutText = '4 interest-free installments of';
                 }
                 
                 return afterpayCheckoutText;
+            }, 
+			getFirstInstalmentText: function () {
+
+                var afterpay = window.checkoutConfig.payment.afterpay;
+                var afterpayFirstInstalmentText = '';
+                if (afterpay.currencyCode == 'USD') {
+					afterpayFirstInstalmentText = 'Due today';
+                } 
+				else {
+					afterpayFirstInstalmentText = 'First instalment';
+                }
+                
+                return afterpayFirstInstalmentText;
+            },
+			getTermsText: function () {
+
+                var afterpay = window.checkoutConfig.payment.afterpay;
+                var afterpayTermsText = '';
+                if (afterpay.currencyCode == 'USD') {
+					afterpayTermsText = 'You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.';
+                } 
+				else {
+					afterpayTermsText = 'You will be redirected to the Afterpay website when you proceed to checkout.';
+                }
+                
+                return afterpayTermsText;
             },
 
             getOptionalTermsText: function () {
@@ -183,16 +218,12 @@ define(
                                 //Waiting for all AJAX calls to resolve to avoid error messages upon redirection
                                 $("body").ajaxStop(function () {
 									ajaxRedirected = true;
-                                    AfterPay.redirect({
-                                        token: data.token
-                                    });
+                                    afterpayRedirect.redirectToAfterpay(data);
                                 });
 								setTimeout(
 									function(){
 										if(!ajaxRedirected){
-											 AfterPay.redirect({
-												token: data.token
-											});
+											afterpayRedirect.redirectToAfterpay(data);
 										}
 									}
 								,5000);
@@ -246,9 +277,7 @@ define(
                             });
                         }
 
-                        AfterPay.redirect({
-                            token: data.token
-                        });
+                        afterpayRedirect.redirectToAfterpay(data);
                     }
                 });
             }

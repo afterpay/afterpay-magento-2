@@ -45,7 +45,24 @@
 	<li> Click the <em>Update Limits</em> button to retrieve the Minimum and Maximum Afterpay Order values.</li>
 </ol>
 
-<h2> 1.4	Upgrade Of Afterpay Installation </h2>
+<h2> 1.4	Upgrade Of Afterpay Installation using Composer</h2>
+<p> This section outlines the steps to upgrade the currently installed Afterpay plugin version using composer. </p>
+<p> Notes: </p>
+<p>Prerequisite for this section is that the module should be installed using composer. Please see section 1.1 for guidelines to install Afterpay module using composer.</p>
+<p>[MAGENTO] refers to the root folder where Magento is installed. </p>
+
+<ol>
+	<li> Open Command Line Interface and navigate to the Magento directory on your server</li>
+	<li> In CLI, run the below command to update Afterpay module: <br/> <em>composer update afterpay-global/module-afterpay</em> </li>
+	<li> Make sure that Composer finished the update without errors </li>
+	<li> In CLI, run the Magento setup upgrade: <br/> <em>php bin/magento setup:upgrade</em> </li>
+	<li> In CLI, run the Magento Dependencies Injection Compile: <br/> <em>php bin/magento setup:di:compile</em> </li>
+	<li> In CLI, run the Magento Static Content deployment: <br/> <em>php bin/magento setup:static-content:deploy</em> </li>
+	<li> Login to Magento Admin and navigate to System/Cache Management </li>
+	<li> Flush the cache storage by selecting Flush Cache Storage </li>
+</ol>
+
+<h2> 1.5	Upgrade Of Afterpay Installation </h2>
 <p> This section outlines the steps to upgrade the currently installed Afterpay plugin version. </p>
 <p> The process of upgrading the Afterpay plugin version involves the complete removal of Afterpay plugin files. </p>
 <p> Note: [MAGENTO] refers to the root folder where Magento is installed. </p>
