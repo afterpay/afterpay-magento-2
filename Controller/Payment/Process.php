@@ -107,48 +107,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
             // customer login
             $quote->setCustomer($customer);
-
-            $billingAddress  = $quote->getBillingAddress();
-            $shippingAddress = $quote->getShippingAddress();
-
-            //check if shipping address is missing - e.g. Gift Cards
-            if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
-				
-              //Handle the virtual products
-              if($quote->isVirtual()){
-	            try{
-		           $billingID =  $customerSession->getCustomer()->getDefaultBilling();
-		           $this->_helper->debug("No billing address for the virtual product. Adding the Customer's default billing address.");
-		           $address = $objectManager->create('Magento\Customer\Model\Address')->load($billingID);
-		           $billingAddress->addData($address->getData());
-		
-	            }catch(\Exception $e){
-		            $this->_helper->debug($e->getMessage());
-		            $result = $this->_jsonResultFactory->create()->setData(
-		              ['success' => false, 'message' => 'Please select an Address']
-		            );
-
-		          return $result;
-	            }
-              }else{
-	              $result = $this->_jsonResultFactory->create()->setData(
-		            ['success' => false, 'message' => 'Please select an Address']
-	              );
-
-	              return $result;
-                }
-                
-            }
-            elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
-                
-                $billingAddress = $quote->getShippingAddress();
-                $quote->setBillingAddress($quote->getShippingAddress());
-                $this->_helper->debug("No billing address found. Adding the shipping address as billing address");
-				
-                // Above code copies the shipping address to billing address with the 'address_type' ='shipping', which results in problem with order creating.  
-				
-                $billingAddress->addData(array('address_type'=>'billing'));
-            }
+ 
         } else {
             $post = $this->getRequest()->getPostValue();
 
@@ -169,7 +128,87 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
             }
         }
+		
+		$billingAddress  = $quote->getBillingAddress();
+        $shippingAddress = $quote->getShippingAddress();
+		
+		if (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
+			if(!empty($shippingAddress) && !empty($shippingAddress->getStreetLine(1)))
+			{
+				$shippingAddressData = $shippingAddress->getData();
+				$billingAddress->setPrefix($shippingAddressData['prefix']);
+				$billingAddress->setFirstName($shippingAddressData['firstname']);
+				$billingAddress->setMiddleName($shippingAddressData['middlename']);
+				$billingAddress->setLastName($shippingAddressData['lastname']);
+				$billingAddress->setSuffix($shippingAddressData['suffix']);
+				$billingAddress->setCompany($shippingAddressData['company']);
+				$billingAddress->setStreet($shippingAddressData['street']);
+				$billingAddress->setCity($shippingAddressData['city']);
+				$billingAddress->setRegion($shippingAddressData['region']);
+				$billingAddress->setRegionId($shippingAddressData['region_id']);
+				$billingAddress->setPostcode($shippingAddressData['postcode']);
+				$billingAddress->setCountryId($shippingAddressData['country_id']);
+				$billingAddress->setTelephone($shippingAddressData['telephone']);
+				$billingAddress->setFax($shippingAddressData['fax']);
+				$this->_helper->debug("No billing address found. Adding the shipping address as billing address");
+			}
+			else{
+				if($customerSession->isLoggedIn()){
+					try{
+					   $billingID =  $customerSession->getCustomer()->getDefaultBilling();
+					   $this->_helper->debug("No billing address found. Adding the Customer's default billing address.");
+					   $address = $objectManager->create('Magento\Customer\Model\Address')->load($billingID);
+					   $billingAddress->addData($address->getData());
+			
+					}catch(\Exception $e){
+						$this->_helper->debug($e->getMessage());
+						$result = $this->_jsonResultFactory->create()->setData(
+						  ['success' => false, 'message' => 'Please select an Address']
+						);
 
+					  return $result;
+					}
+				}
+				else{
+				  $result = $this->_jsonResultFactory->create()->setData(
+					['success' => false, 'message' => 'Please select an Address']
+				  );
+
+				  return $result;
+				}
+			}
+		}
+		
+		if((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && !$quote->isVirtual()){
+			$billingAddress  = $quote->getBillingAddress();
+			if(!empty($billingAddress) && !empty($billingAddress->getStreetLine(1)))
+			{
+				$billingAddressData = $billingAddress->getData();
+				$shippingAddress->setPrefix($billingAddressData['prefix']);
+				$shippingAddress->setFirstName($billingAddressData['firstname']);
+				$shippingAddress->setMiddleName($billingAddressData['middlename']);
+				$shippingAddress->setLastName($billingAddressData['lastname']);
+				$shippingAddress->setSuffix($billingAddressData['suffix']);
+				$shippingAddress->setCompany($billingAddressData['company']);
+				$shippingAddress->setStreet($billingAddressData['street']);
+				$shippingAddress->setCity($billingAddressData['city']);
+				$shippingAddress->setRegion($billingAddressData['region']);
+				$shippingAddress->setRegionId($billingAddressData['region_id']);
+				$shippingAddress->setPostcode($billingAddressData['postcode']);
+				$shippingAddress->setCountryId($billingAddressData['country_id']);
+				$shippingAddress->setTelephone($billingAddressData['telephone']);
+				$shippingAddress->setFax($billingAddressData['fax']);
+				$this->_helper->debug("No shipping address found. Adding the billing address as shipping address");
+			}
+			else{
+				$result = $this->_jsonResultFactory->create()->setData(
+					['success' => false, 'message' => 'Please select an Address']
+				  );
+
+				return $result;
+			}
+		}
+		
         $payment = $quote->getPayment();
 
         $payment->setMethod(\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE);

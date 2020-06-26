@@ -18,9 +18,10 @@ define(
         'Magento_Ui/js/model/messageList',
         'Magento_Customer/js/customer-data',
         'Magento_Customer/js/section-config',
+		'Magento_Checkout/js/action/set-billing-address',
         'Afterpay_Afterpay/js/view/payment/method-renderer/afterpayredirect'
     ],
-    function ($, Component, quote, resourceUrlManager, storage, mageUrl, additionalValidators, globalMessageList, customerData, sectionConfig, afterpayRedirect) {
+    function ($, Component, quote, resourceUrlManager, storage, mageUrl, additionalValidators, globalMessageList, customerData, sectionConfig,setBillingAddressAction,afterpayRedirect) {
         'use strict';
 
         return Component.extend({
@@ -61,7 +62,7 @@ define(
                         $(".afterpay_instalments_amount_last").text(format.replace(/%s/g, installmentFeeLast.toFixed(window.checkoutConfig.priceFormat.precision)));
 						
 						
-						if (afterpay.currencyCode == 'USD') {
+						if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD' ) {
 							 $(".afterpay_total_amount").text(format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)));
 							return format.replace(/%s/g, installmentFee);
 						} else {
@@ -92,7 +93,7 @@ define(
                 afterpayCheckoutText = 'Four interest-free payments totalling';
                 } else if (afterpay.currencyCode == 'NZD') {
                 afterpayCheckoutText = 'Four interest-free payments totalling';
-                } else if (afterpay.currencyCode == 'USD') {
+                } else if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
                 afterpayCheckoutText = '4 interest-free installments of';
                 }
                 
@@ -102,7 +103,7 @@ define(
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayFirstInstalmentText = '';
-                if (afterpay.currencyCode == 'USD') {
+                if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
 					afterpayFirstInstalmentText = 'Due today';
                 } 
 				else {
@@ -115,7 +116,7 @@ define(
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayTermsText = '';
-                if (afterpay.currencyCode == 'USD') {
+                if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
 					afterpayTermsText = 'You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.';
                 } 
 				else {
@@ -129,7 +130,7 @@ define(
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayCheckoutTermsText = '';
-                if (afterpay.currencyCode == 'USD') {
+                if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
                 return -1;
                 }
                 
@@ -139,7 +140,7 @@ define(
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayCheckoutTermsLink = '';
-                if (afterpay.currencyCode == 'USD') {
+                if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
 					afterpayCheckoutTermsLink="https://www.afterpay.com/purchase-payment-agreement";
                 }
 				else{
@@ -185,7 +186,12 @@ define(
                     countryCode = {countryCode: "NZ"};
                     } else if (afterpay.currencyCode == 'USD') {
                     countryCode = {countryCode: "US"};
+                    }else if (afterpay.currencyCode == 'CAD') {
+                    countryCode = {countryCode: "CA"};
                     }
+					
+					//Update billing address of the quote
+					setBillingAddressAction(globalMessageList);
 
                         //handle guest and registering customer emails
                         if (!window.checkoutConfig.quoteData.customer_id) {
@@ -258,6 +264,9 @@ define(
 
                 // Making sure it using current flow
                 var url = mageUrl.build("afterpay/payment/process");
+				
+				//Update billing address of the quote
+				setBillingAddressAction(globalMessageList);
                 
                 $.ajax({
                     url: url,

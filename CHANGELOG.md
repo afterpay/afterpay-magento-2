@@ -1,5 +1,27 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.1.4
+
+_Fri 26 Jun 2020_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Community Edition (CE) version 2.3.5-p1
+- Magento Enterprise Edition (EE) version 2.3.5-p1
+
+### Highlights
+
+- Improved reliability of logo display on cart page for high resolution mobile screens.
+- Improved billing and shipping address validation at checkout.
+- Improved Restricted Categories feature to better support multiple store views.
+- Further improved compatibility with offline refunds.
+- Added preliminary Sandbox support for transactions in CAD.
+- Added a fix to prevent duplicate order emails.
+
+---
+
 ## Version 3.1.3
 
 _Wed 20 May 2020_

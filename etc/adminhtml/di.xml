@@ -11,4 +11,5 @@
     <type name="Magento\Config\Model\Config">
         <plugin name="updateOrderTotalLimitAfterpay" type="Afterpay\Afterpay\Model\Config\Save\Plugin" />
     </type>
+	<preference for="Magento\Catalog\Helper\Category" type="Afterpay\Afterpay\Helper\Category" />
 </config>

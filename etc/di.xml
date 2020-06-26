@@ -20,7 +20,7 @@
                     <item name="label" xsi:type="string">Production</item>
                     <item name="api_url" xsi:type="string">https://api.afterpay.com/</item>
                     <item name="web_url" xsi:type="string">https://portal.afterpay.com/</item>
-                </item>
+                </item>                
             </argument>
         </arguments>
     </type>

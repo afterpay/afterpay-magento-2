@@ -174,13 +174,13 @@ class Payovertime
 
         if ($type=='api_url') {
             if ($apiMode == 'Sandbox') {
-                if ($currency == 'USD') {
+                if ($currency == 'USD' || $currency == 'CAD') {
                     $url = 'https://api.us-sandbox.afterpay.com/';
                 } else {
                     $url = 'https://api-sandbox.afterpay.com/';
                 }
             } elseif ($apiMode == 'Production') {
-                if ($currency == 'USD') {
+                if ($currency == 'USD'  || $currency == 'CAD') {
                     $url = 'https://api.us.afterpay.com/';
                 } else {
                     $url = 'https://api.afterpay.com/';

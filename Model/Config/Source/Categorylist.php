@@ -8,14 +8,20 @@ class Categorylist implements ArrayInterface
     protected $_categoryHelper;
     protected $categoryRepository;
     protected $categoryList;
+    protected $_request;
+    protected $_storeManager;
 
     public function __construct(
-        \Magento\Catalog\Helper\Category $catalogCategory,
-        \Magento\Catalog\Model\CategoryRepository $categoryRepository
+        \Afterpay\Afterpay\Helper\Category $catalogCategory,
+        \Magento\Catalog\Model\CategoryRepository $categoryRepository,
+		\Magento\Framework\App\Request\Http $request,
+		\Magento\Store\Model\StoreManagerInterface $storeManager
         )
     {
         $this->_categoryHelper = $catalogCategory;
         $this->categoryRepository = $categoryRepository;
+        $this->_request  = $request;
+        $this->_storeManager  = $storeManager;
     }
 
     /*
@@ -24,7 +30,18 @@ class Categorylist implements ArrayInterface
 
     public function getStoreCategories($sorted = false, $asCollection = false, $toLoad = true)
     {
-        return $this->_categoryHelper->getStoreCategories($sorted , $asCollection, $toLoad);
+		$storeId = (int) $this->_request->getParam('store', 0);
+        if (!isset($storeId) || empty($storeId)){
+            $storeId=$this->_storeManager->getStore()->getId();
+            $websiteId = (int) $this->_request->getParam('website', 0);
+            
+            if(isset($websiteId) && !empty($websiteId)){
+                $storeId = $this->_storeManager->getWebsite($websiteId)->getDefaultStore()->getId();
+            }
+        }
+		
+		return $this->_categoryHelper->getStoreCategories($sorted , $asCollection, $toLoad,$storeId);
+		
     }
 
     /*  
@@ -63,9 +80,11 @@ class Categorylist implements ArrayInterface
     public function renderCategories($_categories)
     {
         foreach ($_categories as $category){
-            $i = 0; 
-            $this->categoryList[$category->getEntityId()] = __($category->getName());   // Main categories
-            $list = $this->renderSubCat($category,$i);
+			if($category->getEntityId()!= '1'){
+				$i = 0; 
+				$this->categoryList[$category->getEntityId()] = __($category->getName());   // Main categories
+				$list = $this->renderSubCat($category,$i);
+			}
         }
 
         return $this->categoryList;     

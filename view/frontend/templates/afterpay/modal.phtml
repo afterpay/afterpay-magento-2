@@ -30,7 +30,7 @@ if(!$enable_cbt){
 			var enable_cbt=<?php echo $enable_cbt;?>;
 			var width=$(window).width();
 			
-			if(storeCurrency=="USD" && !$("#afterpay-modal-container").length){
+			if((storeCurrency=="USD" || storeCurrency=="CAD") && !$("#afterpay-modal-container").length){
 			$('head').append('<link rel="stylesheet" href="https://static.afterpay.com/modal/us.css" type="text/css" src_type="url"/>');
 			 $.ajax({
 				url: 'https://static.afterpay.com/modal/us.html',
@@ -76,8 +76,18 @@ if(!$enable_cbt){
 
             // register the click to be popup
             $( ".afterpay-modal-popup-trigger-us" ).on( "click", function() {
+                
                 if($("#afterpay-modal-container").length!=0){
 					var popup_us = modal(options, $('#afterpay-modal-content'));
+					$('#afterpay-modal-content').show();
+					$('#afterpay-modal-content').modal('openModal');
+				}
+            });
+
+            // Register the click to be popup the modal for Canada 
+            $( ".afterpay-modal-popup-trigger-ca" ).on( "click", function() {
+                if($("#afterpay-modal-container").length!=0){
+					var popup_ca = modal(options, $('#afterpay-modal-content'));
 					$('#afterpay-modal-content').show();
 					$('#afterpay-modal-content').modal('openModal');
 				}

@@ -306,16 +306,6 @@ class Response extends \Magento\Framework\App\Action\Action
 
                                 $this->_createTransaction($order, $response,$payment);
 								
-								//email sending mechanism
-								$redirectUrl = $quote->getPayment()->getOrderPlaceRedirectUrl();
-								if (!$redirectUrl && $order->getCanSendNewEmailFlag()) {
-									try {
-										$this->_orderSender->send($order);
-									} catch (\Exception $e) {
-										$this->_helper->debug("Transaction Email Sending Error: " . json_encode($e));
-									}
-								}
-
 								$this->messageManager->addSuccess("Afterpay Transaction Completed");
 
 								$redirect = 'checkout/onepage/success';

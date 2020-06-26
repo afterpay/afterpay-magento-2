@@ -54,7 +54,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * For dependency injection
      */
-    protected $supportedCurrencyCodes = ['AUD','NZD','USD'];
+    protected $supportedCurrencyCodes = ['AUD','NZD','USD','CAD'];
     protected $afterPayPaymentTypeCode = self::AFTERPAY_PAYMENT_TYPE_CODE;
 
     protected $logger;

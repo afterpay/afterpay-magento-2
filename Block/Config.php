@@ -59,7 +59,7 @@ class Config extends Template
      */
 	public function checkCurrency()
     {
-		$supportedCurrency=['AUD','NZD','USD'];
+		$supportedCurrency=['AUD','NZD','USD','CAD'];
 		if(in_array($this->_payOverTime->getCurrencyCode(),$supportedCurrency)){
 			return true;
 		}
