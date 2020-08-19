@@ -1,5 +1,26 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.2.0
+
+_Wed 19 Aug 2020_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Enterprise Edition (EE) version 2.3.5-p1
+
+### Highlights
+
+- Added live support for transactions in Canadian Dollars (CAD).
+- Improved Checkout button on cart page as part of re-brand.
+- Improved Payment method display on checkout page as part of re-brand.
+- Added a workaround to resolve the "Email has a wrong format" error, which prevented creation of the Magento order, and sometimes resulted in an automated refund of the Afterpay payment.
+- Improved compatibility with third party "custom order number" modules while saving admin configuration.
+- Added plugin assets in Content Security Policy (CSP) whitelist.
+
+---
+
 ## Version 3.1.4
 
 _Fri 26 Jun 2020_

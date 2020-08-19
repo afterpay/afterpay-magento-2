@@ -14,14 +14,8 @@
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
         <label data-bind="attr: {'for': getCode()}" class="label">
             <!-- Afterpay Logo -->
-            <span data-bind="style: { display: getOptionalTermsText() < 0 ? 'inline' : 'none'}">
-                <!-- ko i18n: 'Installments by ' --><!-- /ko -->
-            </span>
             <img src="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png" srcset="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png 1x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@2x.png 2x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@3x.png 3x" class="payment-icon" alt="Afterpay" height="40"/>
             <!-- Afterpay Logo -->
-            <span data-bind="style: { display: getOptionalTermsText() > 0 ? 'inline' : 'none'}">
-                <!-- ko i18n: 'Interest-free payments.' --><!-- /ko -->
-            </span>
         </label>
     </div>
     <div class="payment-method-content" id="afterpaypayovertime">

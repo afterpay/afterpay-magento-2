@@ -89,26 +89,34 @@ define(
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayCheckoutText = '';
-                if (afterpay.currencyCode == 'AUD') {
-                afterpayCheckoutText = 'Four interest-free payments totalling';
-                } else if (afterpay.currencyCode == 'NZD') {
-                afterpayCheckoutText = 'Four interest-free payments totalling';
-                } else if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
-                afterpayCheckoutText = '4 interest-free installments of';
+                switch(afterpay.currencyCode){
+	                case 'USD':
+	                	afterpayCheckoutText = '4 interest-free installments of';
+	                	break;
+	                case 'CAD':
+	                	afterpayCheckoutText = '4 interest-free instalments of';
+	                	break;
+	                default:
+	                	afterpayCheckoutText = 'Four interest-free payments totalling';	                	  	
                 }
-                
+                                
                 return afterpayCheckoutText;
             }, 
 			getFirstInstalmentText: function () {
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayFirstInstalmentText = '';
-                if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
-					afterpayFirstInstalmentText = 'Due today';
-                } 
-				else {
-					afterpayFirstInstalmentText = 'First instalment';
+                
+                switch(afterpay.currencyCode){
+	                case 'USD':
+	                case 'CAD':
+	                	afterpayFirstInstalmentText = 'Due today';
+	                	break;
+	                default:
+	                	afterpayFirstInstalmentText = 'First instalment';
+	                	                	
                 }
+               
                 
                 return afterpayFirstInstalmentText;
             },
@@ -116,35 +124,31 @@ define(
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayTermsText = '';
-                if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
-					afterpayTermsText = 'You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.';
-                } 
-				else {
-					afterpayTermsText = 'You will be redirected to the Afterpay website when you proceed to checkout.';
+               
+                switch(afterpay.currencyCode){
+	                case 'USD':
+	                case 'CAD':
+	                	afterpayTermsText = 'You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.';
+	                	break;
+	                default:	
+	                	afterpayTermsText = 'You will be redirected to the Afterpay website when you proceed to checkout.';
                 }
                 
                 return afterpayTermsText;
-            },
-
-            getOptionalTermsText: function () {
-
-                var afterpay = window.checkoutConfig.payment.afterpay;
-                var afterpayCheckoutTermsText = '';
-                if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
-                return -1;
-                }
-                
-                return 1;
             },
 			getTermsLink: function () {
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayCheckoutTermsLink = '';
-                if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD') {
-					afterpayCheckoutTermsLink="https://www.afterpay.com/purchase-payment-agreement";
-                }
-				else{
-					afterpayCheckoutTermsLink="https://www.afterpay.com/terms/";
+                switch(afterpay.currencyCode){
+	                case 'USD':
+	                	afterpayCheckoutTermsLink="https://www.afterpay.com/purchase-payment-agreement";
+						break;
+	                case 'CAD':
+						afterpayCheckoutTermsLink="https://www.afterpay.com/en-CA/instalment-agreement";
+						break;
+	                default:
+						afterpayCheckoutTermsLink="https://www.afterpay.com/terms/";
 				}
                 
                 return afterpayCheckoutTermsLink;
@@ -178,19 +182,12 @@ define(
                     var data = $("#co-shipping-form").serialize();
                     var email = window.checkoutConfig.customerData.email;
                     var ajaxRedirected = false;
+                  
                     //CountryCode Object to pass in initialize function.
-                    var countryCode = {};
-                    if (afterpay.currencyCode == 'AUD') {
-                    countryCode = {countryCode: "AU"};
-                    } else if (afterpay.currencyCode == 'NZD') {
-                    countryCode = {countryCode: "NZ"};
-                    } else if (afterpay.currencyCode == 'USD') {
-                    countryCode = {countryCode: "US"};
-                    }else if (afterpay.currencyCode == 'CAD') {
-                    countryCode = {countryCode: "CA"};
-                    }
+                    var countryCurrencyMapping ={AUD:"AU", NZD:"NZ", USD:"US",CAD:"CA"};
+                    var countryCode = (afterpay.currencyCode in countryCurrencyMapping)? {countryCode: countryCurrencyMapping[afterpay.currencyCode]}:{};
 					
-					//Update billing address of the quote
+                    //Update billing address of the quote
 					setBillingAddressAction(globalMessageList);
 
                         //handle guest and registering customer emails

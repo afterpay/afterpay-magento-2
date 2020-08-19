@@ -31,16 +31,17 @@ if(!$enable_cbt){
 			var width=$(window).width();
 			
 			if((storeCurrency=="USD" || storeCurrency=="CAD") && !$("#afterpay-modal-container").length){
-			$('head').append('<link rel="stylesheet" href="https://static.afterpay.com/modal/us.css" type="text/css" src_type="url"/>');
-			 $.ajax({
-				url: 'https://static.afterpay.com/modal/us.html',
-				complete: function(jqXHR, textStatus) {
-				  if (jqXHR.status == 200) {
-					$('#maincontent')
-					  .append(jqXHR.responseText);
-					}
-				}
-			 });	
+    			var filename=(storeCurrency=="CAD")?"ca":"us";
+    			$('head').append('<link rel="stylesheet" href="https://static.afterpay.com/modal/'+filename+'.css" type="text/css" src_type="url"/>');
+    			 $.ajax({
+    				url: 'https://static.afterpay.com/modal/'+filename+'.html',
+    				complete: function(jqXHR, textStatus) {
+    				  if (jqXHR.status == 200) {
+    					$('#maincontent')
+    					  .append(jqXHR.responseText);
+    					}
+    				}
+    			 });	
 			}
 			
 			var options = {
@@ -68,30 +69,27 @@ if(!$enable_cbt){
 				}
 			}
 
-            // register the click to be popup
+            // register the click to be popup #image
             $( ".afterpay-modal-popup-trigger" ).on( "click", function() {
                 $('#afterpay-modal-popup').show();
                 $('#afterpay-modal-popup').modal('openModal');
             });
 
-            // register the click to be popup
-            $( ".afterpay-modal-popup-trigger-us" ).on( "click", function() {
+            // register the click to be popup #html 
+            // Add classname suffix based on currency
+            var suffix=(storeCurrency=="CAD")?"ca":"us";
+            $( ".afterpay-modal-popup-trigger-"+suffix ).on( "click", function() {
                 
                 if($("#afterpay-modal-container").length!=0){
-					var popup_us = modal(options, $('#afterpay-modal-content'));
+                    
+					modal(options, $('#afterpay-modal-content'));					
 					$('#afterpay-modal-content').show();
 					$('#afterpay-modal-content').modal('openModal');
+					
 				}
             });
 
-            // Register the click to be popup the modal for Canada 
-            $( ".afterpay-modal-popup-trigger-ca" ).on( "click", function() {
-                if($("#afterpay-modal-container").length!=0){
-					var popup_ca = modal(options, $('#afterpay-modal-content'));
-					$('#afterpay-modal-content').show();
-					$('#afterpay-modal-content').modal('openModal');
-				}
-            });
+            
 		}
 	);
 </script>

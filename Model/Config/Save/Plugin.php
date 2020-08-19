@@ -56,7 +56,7 @@ class Plugin
     ) {
         
         //first saving run to eliminate possibilities of conflicting config results
-        $proceed();
+        $returnValue=$proceed();
 
         if (class_exists('\Afterpay\Afterpay\Model\Payovertime')) {
 
@@ -94,7 +94,7 @@ class Plugin
 
 								$subject->setGroups($configRequest);
 
-								return $proceed();
+								$returnValue=$proceed();
 							} else {
 								$this->messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.');
 								
@@ -108,6 +108,6 @@ class Plugin
             }
         }
 
-        return true;
+        return $returnValue;
     }
 }

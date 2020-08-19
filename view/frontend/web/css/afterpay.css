@@ -137,3 +137,28 @@
 	height:40px;
 	width:auto;
 }
+
+.afterpay.primary {
+  background-image: none;
+  background: #000;
+  border: 1px solid #000;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-block;
+  
+}
+.afterpay.primary:focus,
+.afterpay.primary:active,
+.afterpay.primary:hover  {
+  background: #000;
+  border: 1px solid #000;
+  color: #ffffff;
+}
+
+.afterpay.primary.disabled,
+.afterpay.primary[disabled],
+fieldset[disabled] .afterpay.primary {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
