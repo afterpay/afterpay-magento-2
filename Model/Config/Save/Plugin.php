@@ -62,7 +62,7 @@ class Plugin
 
             try {
                 $configRequest = $subject->getGroups();
-                $this->requested = array_key_exists(\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE, $configRequest);
+                $this->requested = is_array($configRequest) && array_key_exists(\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE, $configRequest);
 				
 				if ($this->requested) {
 					$config_array=$configRequest[\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE]['groups'][\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '_basic']['fields'][\Afterpay\Afterpay\Model\Config\Payovertime::ACTIVE];
