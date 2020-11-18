@@ -177,7 +177,7 @@ class AfterpayOrderTokenV2
         } 
 		
         if (count($errors)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__(implode($errors, ' ; ')));
+            throw new \Magento\Framework\Exception\LocalizedException(__(implode(' ; ', $errors)));
         } else {
             return true;
         }
