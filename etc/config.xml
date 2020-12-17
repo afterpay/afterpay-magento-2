@@ -15,11 +15,13 @@
                 <title>Afterpay</title>
                 <api_mode>sandbox</api_mode>
                 <model>Afterpay\Afterpay\Model\Payovertime</model>
+                <enable_for_product_page>1</enable_for_product_page>
+                <enable_for_cart_page>1</enable_for_cart_page>
                 <payment_action>authorize_capture</payment_action>
                 <merchant_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <allowspecific>1</allowspecific>
                 <specificcountry>AU</specificcountry>
-                <http_header_support>0</http_header_support>
+                <http_header_support>0</http_header_support>                
             </afterpaypayovertime>
         </payment>
     </default>

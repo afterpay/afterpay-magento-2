@@ -23,7 +23,7 @@ class Payovertime
      * constant data for static
      */
     const ACTIVE                 = 'active';
-    const API_MODE_XML_NODE       = 'api_mode';
+    const API_MODE_XML_NODE      = 'api_mode';
     const API_URL_XML_NODE       = 'api_url';
     const WEB_URL_XML_NODE       = 'web_url';
     const MERCHANT_ID_XML_NODE   = 'merchant_id';
@@ -34,6 +34,8 @@ class Payovertime
     const MAX_TOTAL_LIMIT        = 'max_order_total';
     const HTTP_HEADER_SUPPORT    = 'http_header_support';
     const EXCLUDE_CATEGORY       = 'exclude_category';
+    const ENABLE_FOR_PRODUCT_PAGE= "enable_product_page";
+    const ENABLE_FOR_CART_PAGE   = "enable_cart_page";
 
     /**
      * @var ApiMode
@@ -314,7 +316,7 @@ class Payovertime
      */
     public function isDebugEnabled()
     {
-        return (bool)(int)$this->_getConfigData(self::DEBUG_MODE);
+        return (bool)$this->_getConfigData(self::DEBUG_MODE);
     }
 
     /**
@@ -359,5 +361,21 @@ class Payovertime
     {
         $result = preg_replace("/[^a-zA-Z0-9]+/", "", $string);
         return $result;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isEnabledForProductDisplayPage()
+    {
+        return (bool)$this->_getConfigData(self::ENABLE_FOR_PRODUCT_PAGE);
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isEnabledForCartPage()
+    {
+        return (bool)$this->_getConfigData(self::ENABLE_FOR_CART_PAGE);
     }
 }

@@ -121,6 +121,20 @@
 						<can_be_empty>1</can_be_empty>
 						<comment><![CDATA[Please select the "direct category" of the product instead of the parent category.]]></comment>
 					</field>
+					
+					<!-- Enabled for product page  -->
+                    <field id="enable_for_product_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled for Product Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpaypayovertime/enable_product_page</config_path>
+                    </field>
+                    
+                    <!-- Enabled for cart page  -->
+                    <field id="enable_for_cart_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled for Cart Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpaypayovertime/enable_cart_page</config_path>
+                    </field>
 
 					<!-- Cross Border Trade -->
                     <field id="enable_cbt" translate="label" type="select" sortOrder="102" showInDefault="1" showInWebsite="1" showInStore="0">

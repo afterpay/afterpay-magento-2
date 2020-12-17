@@ -96,7 +96,7 @@ class Button extends Template
     public function canShow()
     {
 		 // check if payment is active
-        if (!$this->_getPaymentIsActive()) {
+        if (!$this->_getPaymentIsActive() || !$this->afterpayConfig->isEnabledForCartPage()) {
             return false;
         }
 		else{
