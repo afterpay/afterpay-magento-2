@@ -15,11 +15,13 @@
                     <item name="label" xsi:type="string">Sandbox</item>
                     <item name="api_url" xsi:type="string">https://api-sandbox.afterpay.com/</item>
                     <item name="web_url" xsi:type="string">https://portal.sandbox.afterpay.com/</item>
+                    <item name="js_lib_url" xsi:type="string">https://js.sandbox.afterpay.com/</item>
                 </item>
                 <item name="production" xsi:type="array">
                     <item name="label" xsi:type="string">Production</item>
                     <item name="api_url" xsi:type="string">https://api.afterpay.com/</item>
                     <item name="web_url" xsi:type="string">https://portal.afterpay.com/</item>
+                    <item name="js_lib_url" xsi:type="string">https://js.afterpay.com/</item>
                 </item>                
             </argument>
         </arguments>

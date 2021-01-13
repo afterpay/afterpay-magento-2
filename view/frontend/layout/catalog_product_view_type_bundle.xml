@@ -9,6 +9,6 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-		<move element="afterpay.price.installments" destination="product.info.main" before="customize.button"/>
+		<move element="afterpay.price.installments" destination="bundle.summary" after="product.info.addto.bundle"/>
     </body>
 </page>

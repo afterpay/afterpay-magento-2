@@ -122,14 +122,20 @@
 						<comment><![CDATA[Please select the "direct category" of the product instead of the parent category.]]></comment>
 					</field>
 
-					<!-- Cross Border Trade -->
-                    <field id="enable_cbt" translate="label" type="select" sortOrder="102" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Cross Border Trade (CBT) Enabled</label>
+					<!-- Enabled for product page  -->
+                    <field id="enable_for_product_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled for Product Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/afterpaypayovertime/enable_cbt</config_path>
-						<comment><![CDATA[Select "Yes" only if your Afterpay account is enabled for CBT. This option is dependent on your commercial contract. This will change the Afterpay artwork presented to consumers to promote CBT.]]></comment>
+                        <config_path>payment/afterpaypayovertime/enable_for_product_page</config_path>
                     </field>
-					
+                    
+                    <!-- Enabled for cart page  -->
+                    <field id="enable_for_cart_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled for Cart Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpaypayovertime/enable_for_cart_page</config_path>
+                    </field>
+
 					 <!-- Payment Flow -->
                     <field id="payment_flow" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment Flow</label>

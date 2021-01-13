@@ -1,5 +1,30 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.3.0
+
+_Wed 13 Jan 2021_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Enterprise Edition (EE) version 2.4.1
+- Magento Enterprise Edition (EE) version 2.3.5-p1 
+
+### Highlights
+
+- Implemented the JS Library for asset placement on PDP and Cart page.
+- Added new admin options to enable/disable display of Afterpay/Clearpay assets on PDP and Cart page.
+- Moved the Afterpay/Clearpay PDP assets for “Bundle” products.
+- Improved Cross Border Trade (CBT) configuration to update automatically in sync with the nominated Merchant account.
+- Improved support for multi-currency configurations.
+- Improved compatibility with PHP 7.4.
+- Improved compatibility with third-party "Fraud Prevention" modules while saving admin configuration.
+- Improved visual quality of UI assets.
+- Improved support for refunding unshipped items in Deferred Payment Flow.
+
+---
+
 ## Version 3.2.0
 
 _Wed 19 Aug 2020_

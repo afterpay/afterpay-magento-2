@@ -167,7 +167,7 @@ class Response extends \Magento\Framework\App\Action\Action
                     } elseif ($merchant_order_id != $response_check['merchantReference']) {
                         // Check order id
                         throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment. Invalid Merchant Reference'));
-                    } elseif (round($quote->getGrandTotal(), 2) != round($response_check['amount']['amount'], 2)) {
+                    } elseif (round($quote->getBaseGrandTotal(), 2) != round($response_check['amount']['amount'], 2)) {
                         // Check the order amount
                         throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment. Invalid Amount'));
                     }

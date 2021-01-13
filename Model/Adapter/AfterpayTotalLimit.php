@@ -50,8 +50,9 @@ class AfterpayTotalLimit
      */
     public function getLimit($override = [])
     {
+        $queryString=array("include"=>"cbt");
         /** @var \Afterpay\Afterpay\Model\Config\Payovertime $url */
-        $url = $this->afterpayConfig->getApiUrl('v2/configuration'); //V2
+        $url = $this->afterpayConfig->getApiUrl('v2/configuration',$queryString); //V2
 
         // calling API
         try {

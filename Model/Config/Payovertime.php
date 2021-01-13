@@ -23,9 +23,10 @@ class Payovertime
      * constant data for static
      */
     const ACTIVE                 = 'active';
-    const API_MODE_XML_NODE       = 'api_mode';
+    const API_MODE_XML_NODE      = 'api_mode';
     const API_URL_XML_NODE       = 'api_url';
     const WEB_URL_XML_NODE       = 'web_url';
+    const JSLib_URL_XML_NODE     = 'js_lib_url';
     const MERCHANT_ID_XML_NODE   = 'merchant_id';
     const MERCHANT_KEY_XML_NODE  = 'merchant_key';
     const PAYMENT_ACTION         = 'payment_action';
@@ -34,6 +35,10 @@ class Payovertime
     const MAX_TOTAL_LIMIT        = 'max_order_total';
     const HTTP_HEADER_SUPPORT    = 'http_header_support';
     const EXCLUDE_CATEGORY       = 'exclude_category';
+    const ENABLE_CBT             = 'enable_cbt';
+    const CBT_COUNTRY            = 'cbt_country';
+    const ENABLE_FOR_PRODUCT_PAGE= "enable_for_product_page";
+    const ENABLE_FOR_CART_PAGE   = "enable_for_cart_page";
 
     /**
      * @var ApiMode
@@ -93,6 +98,18 @@ class Payovertime
         return $this->_getRequestedUrl(self::WEB_URL_XML_NODE, $path, $query, $override);
     }
 
+    /**
+     * Get JS Library url based on configuration
+     *
+     * @param string $path
+     * @param array $query
+     * @param array $override
+     * @return bool|string
+     */
+    public function getJSLibUrl($path = '', $query = [], $override = [])
+    {
+        return $this->_getRequestedUrl(self::JSLib_URL_XML_NODE, $path, $query, $override);
+    }
     /**
      * Calculated the url to generate api/web url
      *
@@ -155,6 +172,9 @@ class Payovertime
         $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
         $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
 
+        $store = $storeManager->getStore();
+        $currency = $store->getCurrentCurrencyCode();
+        
         //In case of multiple websites, find the currency for the selected store based on the website ID.
         if (!empty($websiteId)) {
             $websites = $storeManager->getWebsites();
@@ -167,11 +187,9 @@ class Payovertime
                     }
                 }
             }
-        } else {
-            $store = $storeManager->getStore();
-            $currency = $store->getCurrentCurrencyCode();
-        }
+        } 
 
+        $url ="";
         if ($type=='api_url') {
             if ($apiMode == 'Sandbox') {
                 if ($currency == 'USD' || $currency == 'CAD') {
@@ -193,6 +211,15 @@ class Payovertime
                 $url = 'https://portal.sandbox.afterpay.com/';
             } elseif ($apiMode == 'Production') {
                 $url = 'https://portal.afterpay.com/';
+            }
+        }
+        
+        // get JS Library URL
+        if ($type=='js_lib_url') {
+            if ($apiMode == 'Sandbox') {
+                $url = 'https://js.sandbox.afterpay.com/';
+            } elseif ($apiMode == 'Production') {
+                $url = 'https://js.afterpay.com/';
             }
         }
         return $url;
@@ -326,19 +353,19 @@ class Payovertime
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getMaxOrderLimit()
     {
-        return (int)$this->_getConfigData(self::MAX_TOTAL_LIMIT);
+        return (float)$this->_getConfigData(self::MAX_TOTAL_LIMIT);
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getMinOrderLimit()
     {
-        return (int)$this->_getConfigData(self::MIN_TOTAL_LIMIT);
+        return (float)$this->_getConfigData(self::MIN_TOTAL_LIMIT);
     }
 
 	/**
@@ -359,5 +386,21 @@ class Payovertime
     {
         $result = preg_replace("/[^a-zA-Z0-9]+/", "", $string);
         return $result;
+    }
+  
+    /**
+     * @return bool
+     */
+    public function isEnabledForProductDisplayPage()
+    {
+        return (bool)$this->_getConfigData(self::ENABLE_FOR_PRODUCT_PAGE);
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isEnabledForCartPage()
+    {
+        return (bool)$this->_getConfigData(self::ENABLE_FOR_CART_PAGE);
     }
 }

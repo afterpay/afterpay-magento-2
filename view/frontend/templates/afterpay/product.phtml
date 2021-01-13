@@ -5,27 +5,37 @@
  * @author Afterpay
  * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
-?>
-<?php 
-$product_type=$block->getTypeOfProduct();
-$display="";
-//Check currency and if Afterpay is enabled
-if($block->canShow() && $product_type!="grouped") : 
-if(!$block->isProductEligible()){
-	$display="display:none";
+$product_type = $block->getTypeOfProduct();
+
+if($block->isPaymentMethodActive() && $block->isDisplayOnProductPage() && $product_type != "grouped" && $block->canUseCurrency()){
+    $afterpay_eligible = "true";
+    if (($block->canShow() === false)) {
+        $afterpay_eligible = "false";
+    }
+    $min_limit=$block->getMinOrderLimit();
+    $show_lower_limit="true";
+    if((float)$min_limit<1){
+        $show_lower_limit="false";
+    }
+    ?>
+    <script
+    	src="<?= $block->escapeUrl($block->getAfterpayJsLibUrl());?>"
+    	data-min="<?= /* @noEscape */ $min_limit; ?>"
+    	data-max="<?= /* @noEscape */ $block->getMaxOrderLimit(); ?>" async></script>
+    <?php
+    $store_currency = $block->getCurrentCurrency();
+    $data_locale = $block->getCurrentLocale();
+    $data_amount = $block->getFinalAmount();
+    $enable_cbt = $this->helper('Afterpay\Afterpay\Helper\Data')->getConfig('payment/afterpaypayovertime/enable_cbt');
+    $data_enable_cbt = ! empty($enable_cbt) ? "true" : "false";
+    ?>
+    <afterpay-placement
+    	data-locale="<?= /* @noEscape */  $data_locale;?>"
+    	data-currency="<?= /* @noEscape */ $store_currency;?>"
+    	data-amount="<?= /* @noEscape */ $data_amount; ?>"
+    	data-is-eligible="<?= /* @noEscape */ $afterpay_eligible;?>"
+    	data-cbt-enabled="<?= /* @noEscape */ $data_enable_cbt;?>"
+    	data-show-lower-limit="<?= /* @noEscape */  $show_lower_limit;?>"></afterpay-placement>
+<?php
 }
 ?>
-	<div maxLimit="<?php echo $block->getMaxOrderLimit(); ?>" minLimit="<?php echo $block->getMinOrderLimit(); ?>" product_type="<?php echo $product_type; ?>" style="position: relative; font-style: italic; line-height: 1.4;margin-bottom:5px;<?php echo $display;?>" class="afterpay-installments afterpay-installments-amount">
-	<?php $assets_product_page = $block->getInstalmentText(); 
-	echo $assets_product_page['snippet1'];
-	?>
-	<span class="afterpay_instalment_price"><?php echo $block->getInstallmentsAmount(); ?></span>
-	<br/>
-	<?php
-	$assets_product_snippet2  = $assets_product_page['snippet2'];
-	$assets_product_snippet2 = str_replace(array('[modal-href]'), 
-	                    array('javascript:void(0)'), $assets_product_snippet2);
-	echo $assets_product_snippet2;
-	?>
-	</div>
-<?php endif; ?>

@@ -148,7 +148,7 @@ class AfterpayPayment
         try {
             $response = $this->afterpayApiCall->send(
                 $url,
-                [],
+                "",
                 \Magento\Framework\HTTP\ZendClient::POST,
                 $override
             );

@@ -7,15 +7,15 @@
  */
 namespace Afterpay\Afterpay\Block\Cart;
 
-use Magento\Framework\View\Element\Template;
 use Magento\Checkout\Model\Session as CheckoutSession;
-use Magento\Directory\Model\Currency as Currency;
 use Afterpay\Afterpay\Model\Config\Payovertime as AfterpayConfig;
 use Afterpay\Afterpay\Model\Payovertime as AfterpayPayovertime;
 use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\Component\ComponentRegistrar as ComponentRegistrar;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\Locale\Resolver as Resolver;
 
-class Button extends Template
+
+class Button extends \Afterpay\Afterpay\Block\JsConfig
 {
     /**
      * @var AfterpayConfig
@@ -23,35 +23,32 @@ class Button extends Template
     protected $afterpayConfig;
     protected $afterpayPayovertime;
     protected $checkoutSession;
-    protected $currency;
     protected $customerSession;
-    protected $componentRegistrar;
 
     /**
      * Button constructor.
-     * @param Template\Context $context
+     * @param Context $context
      * @param AfterpayConfig $afterpayConfig
+     * @param AfterpayPayovertime $afterpayPayovertime
      * @param CheckoutSession $checkoutSession
-     * @param Currency $currency
+     * @param CustomerSession $customerSession
      * @param array $data
+     * @param Resolver $localeResolver
      */
     public function __construct(
-        Template\Context $context,
+        Context $context,
         AfterpayConfig $afterpayConfig,
         AfterpayPayovertime $afterpayPayovertime,
         CheckoutSession $checkoutSession,
-        Currency $currency,
         CustomerSession $customerSession,
-        ComponentRegistrar $componentRegistrar,
-        array $data
+        array $data=[],
+        Resolver $localeResolver
     ) {
         $this->afterpayConfig = $afterpayConfig;
         $this->afterpayPayovertime = $afterpayPayovertime;
         $this->checkoutSession = $checkoutSession;
-        $this->currency = $currency;
         $this->customerSession = $customerSession;
-        $this->componentRegistrar = $componentRegistrar;
-        parent::__construct($context, $data);
+        parent::__construct($afterpayConfig,$context, $localeResolver,$data);
     }
 
     /**
@@ -61,35 +58,7 @@ class Button extends Template
     {
         return $this->afterpayConfig->isActive();
     }
-
-    /**
-     * @return float
-     */
-    public function getInstallmentsTotal()
-    {
-        $quote = $this->checkoutSession->getQuote();
-
-        if ($grandTotal = $quote->getGrandTotal()) {
-            return $grandTotal / 4;
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public function getInstallmentsTotalHtml()
-    {
-        return $this->getCurrency()->getCurrencySymbol() . number_format($this->getInstallmentsTotal(), 2);
-    }
-
-    /**
-     * @return Currency
-     */
-    protected function getCurrency()
-    {
-        return $this->currency;
-    }
-
+    
     /**
      * @return bool
      */
@@ -108,7 +77,7 @@ class Button extends Template
 				$grandTotal =$quote->getGrandTotal();
 				$excluded_categories=$this->afterpayConfig->getExcludedCategories();
 				
-				if($this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode()) && $this->afterpayConfig->getMaxOrderLimit() >= $grandTotal && $this->afterpayConfig->getMinOrderLimit() <= $grandTotal){
+				if($this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode()) ){ 
 					
 					if($excluded_categories !=""){
 						$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
@@ -139,46 +108,31 @@ class Button extends Template
 			}
 		}
     }
-
+    
     /**
-     * @return boolean
+     * @return string
      */
+    public function getFinalAmount()
+    {
+           
+        $grandTotal = $this->checkoutSession->getQuote()->getGrandTotal();
+       
+        return !empty($grandTotal)?number_format($grandTotal, 2,".",""):"0.00";
+        
+    }
+    /* 
+     * @return boolean
+    */
     public function canUseCurrency()
     {
+        $canUse=false;
         //Check for Supported currency
         if($this->afterpayConfig->getCurrencyCode())
         {
-            return $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode());
-        } else {
-            return false;
+            $canUse= $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode());
         }
-    }
-
-    /**
-     * Calculate region specific Instalment Text for Cart page
-     * @return string
-     */
-    public function getCartPageText()
-    {
-        $currencyCode = $this->afterpayConfig->getCurrencyCode();
-        $assetsPath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Afterpay_Afterpay');
-        $assets_cart_page = [];
-
-        if(file_exists($assetsPath.'/assets.ini'))
-        {
-            $assets = parse_ini_file($assetsPath.'/assets.ini',true);
-            if(isset($assets[$currencyCode]['cart_page1']))
-            {
-                $assets_cart_page['snippet1'] = $assets[$currencyCode]['cart_page1'];
-                $assets_cart_page['snippet2'] = $assets[$currencyCode]['cart_page2'];
-                $assets_cart_page['snippet2'] = str_replace(array('[modal-href]'), 
-                    array('javascript:void(0)'), $assets_cart_page['snippet2']);
-            }
-			else{
-				$assets_cart_page['snippet1'] = '';
-				$assets_cart_page['snippet2'] = '';
-			}			
-        } 
-        return $assets_cart_page;
+        
+        return $canUse;
+        
     }
 }

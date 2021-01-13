@@ -5,20 +5,43 @@
  * @author Afterpay
  * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
-?>
-<?php if ($block->canShow()) : ?>
-	    <div class='payment-method-note afterpay-checkout-note' style='text-align: left; margin-bottom: 1.5rem; font-size: 13px;'><h3 style="font-size: 1.5rem"><span style="color: #00a4e4;">
-	    <?php $assets_cart_page = $block->getCartPageText(); 
-		echo $assets_cart_page['snippet1'];
-		?>
-		<span class="afterpay_instalment_price"> <?php echo $block->getInstallmentsTotalHtml();?></span>
-		<?php
-		echo $assets_cart_page['snippet2'];
-		?>
-	    </div>
 
+if($block->isPaymentMethodActive() &&  $block->isDisplayOnCartPage() && $block->canUseCurrency() ){
+    $afterpay_eligible = "true";
+    if (($block->canShow() === false)) {
+        $afterpay_eligible = "false";
+    }
+      
+    $min_limit=$block->getMinOrderLimit();
+    $max_limit=$block->getMaxOrderLimit();
+    $show_lower_limit="true";
+    if((float)$min_limit<1){
+        $show_lower_limit="false";
+    }
+ ?> <script
+    	src="<?= $block->escapeUrl($block->getAfterpayJsLibUrl());?>"
+    	data-min="<?= /* @noEscape */ $min_limit; ?>"
+    	data-max="<?= /* @noEscape */ $max_limit; ?>" async></script>
+ <?php 
+    $store_currency = $block->getCurrentCurrency();
+    $data_locale = $block->getCurrentLocale();
+    $data_amount = $block->getFinalAmount();
+    $enable_cbt = $this->helper('Afterpay\Afterpay\Helper\Data')->getConfig('payment/afterpaypayovertime/enable_cbt');
+    $data_enable_cbt = ! empty($enable_cbt) ? "true" : "false";
+?>
+ <afterpay-placement
+    	data-locale="<?= /* @noEscape */  $data_locale;?>"
+    	data-currency="<?= /* @noEscape */ $store_currency;?>"
+    	data-amount="<?= /* @noEscape */ $data_amount; ?>"    	
+    	data-cbt-enabled="<?= /* @noEscape */ $data_enable_cbt;?>"
+    	data-show-lower-limit="<?= /* @noEscape */  $show_lower_limit;?>"
+    	data-cart-is-eligible="<?= /* @noEscape */ $afterpay_eligible;?>"
+    	data-intro-text="Pay in"></afterpay-placement>
+<?php if($data_amount>=$min_limit && $data_amount<=$max_limit && $afterpay_eligible!="false" ){?>
 	    <!--    Button buy now-->
 	    <button type="button" data-role="proceed-to-checkout" onclick="window.location.href='<?php echo $block->getUrl('checkout', ['_secure' => true]);?>'" title="<?php echo __('Buy now, pay later') ?>" class="afterpay primary btn-afterpay-checkout">
 	        <img src="https://static.afterpay.com/integration/logo-afterpay-white-149x31.png" alt="<?php echo __('Buy now, pay later'); ?>" srcset="https://static.afterpay.com/integration/logo-afterpay-white-149x31.png 1x,https://static.afterpay.com/integration/logo-afterpay-white-149x31@2x.png 2x,https://static.afterpay.com/integration/logo-afterpay-white-149x31@3x.png 3x" height="31"/>
 	    </button>
-<?php endif; ?>
+<?php 
+    }
+} ?>

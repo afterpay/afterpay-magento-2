@@ -177,7 +177,7 @@ class AfterpayOrderTokenV2
         } 
 		
         if (count($errors)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__(implode($errors, ' ; ')));
+            throw new \Magento\Framework\Exception\LocalizedException(__(implode(' ; ', $errors)));
         } else {
             return true;
         }
@@ -236,7 +236,7 @@ class AfterpayOrderTokenV2
                     'imageUrl' =>  $imageHelper->init($product, 'product_page_image_small')->setImageFile($product->getFile())->getUrl(),
                     'quantity' => (int)$item->getQty(),
                     'price'    => [
-                        'amount'   => round((float)$item->getPriceInclTax(), $precision),
+                        'amount'   => round((float)$item->getBasePriceInclTax(), $precision),
                         'currency' => (string)$data['store_currency_code']
                     ],
 					'categories' => [$categories]
@@ -245,18 +245,18 @@ class AfterpayOrderTokenV2
         }
         if ($object->getShippingInclTax()) {
             $params['shippingAmount'] = [
-                'amount'   => round((float)$object->getShippingInclTax(), $precision), // with tax
+                'amount'   => round((float)$object->getBaseShippingInclTax(), $precision), // with tax
                 'currency' => (string)$data['store_currency_code']
             ];
         }
         if (isset($data['discount_amount'])) {
             $params['discounts']['displayName'] = 'Discount';
             $params['orderDetail']['amount']     = [
-                'amount'   => round((float)$data['discount_amount'], $precision),
+                'amount'   => round((float)$data['base_discount_amount'], $precision),
                 'currency' => (string)$data['store_currency_code']
             ];
         }
-        $taxAmount = array_key_exists('tax_amount', $data) ? $data['tax_amount'] : $shippingAddress->getTaxAmount();
+        $taxAmount = array_key_exists('base_tax_amount', $data) ? $data['base_tax_amount'] : $shippingAddress->getBaseTaxAmount();
         $params['taxAmount'] = [
             'amount'   => isset($taxAmount) ? round((float)$taxAmount, $precision) : 0,
             'currency' => (string)$data['store_currency_code']
@@ -290,7 +290,7 @@ class AfterpayOrderTokenV2
             'phoneNumber'   => (string)$billingAddress->getTelephone(),
         ];
         $params['amount'] = [
-            'amount'   => round((float)$object->getGrandTotal(), $precision),
+            'amount'   => round((float)$object->getBaseGrandTotal(), $precision),
             'currency' => (string)$data['store_currency_code'],
         ];
 
