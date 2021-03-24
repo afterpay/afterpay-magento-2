@@ -112,9 +112,9 @@ class Call
 
 
         if (!empty($override['website_id'])) {
-            $url = $this->getWebsiteUrl($override['website_id']);
+            $storeUrl = $this->getWebsiteUrl($override['website_id']);
         } else {
-            $url = $this->getWebsiteUrl();
+            $storeUrl  = $this->getWebsiteUrl();
         }
 
         // set configurations
@@ -122,7 +122,7 @@ class Call
             [
                 'timeout'           => 80,
                 'maxredirects'      => 0,
-                'useragent'         => 'AfterpayMagento2Plugin ' . $this->helper->getModuleVersion() . ' (' . $description . ' ' . $version . ')' . ' PHPVersion: PHP/' . phpversion() . ' MerchantID: ' . trim($this->afterpayConfig->getMerchantId($override) . ' URL: ' . $url)
+                'useragent'         => 'AfterpayMagento2Plugin ' . $this->helper->getModuleVersion() . ' (' . $description . ' ' . $version . ')' . ' PHPVersion: PHP/' . phpversion() . ' MerchantID: ' . trim($this->afterpayConfig->getMerchantId($override) . ' URL: ' . $storeUrl)
             ]
         );
 
@@ -133,7 +133,8 @@ class Call
             'url' => $url,
             'body' => $this->obfuscateCustomerData($body)
         ];
-        $this->helper->debug($this->jsonHelper->jsonEncode($requestLog));
+      
+        $this->helper->debug('Request', $requestLog);
 
         // do the request with catch
         try {
@@ -158,7 +159,7 @@ class Call
                 'httpStatusCode' => $response->getStatus(),
                 'body' => $this->obfuscateCustomerData($responseBody)
             ];
-			$this->helper->debug($this->jsonHelper->jsonEncode($responseLog));
+            $this->helper->debug('Response', $responseLog);
 			
         } catch (\Exception $e) {
             $this->helper->debug($e->getMessage());

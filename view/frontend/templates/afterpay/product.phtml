@@ -5,9 +5,10 @@
  * @author Afterpay
  * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
+/** @var \Afterpay\Afterpay\Block\Catalog\Installments $block */
 $product_type = $block->getTypeOfProduct();
-
-if($block->isPaymentMethodActive() && $block->isDisplayOnProductPage() && $product_type != "grouped" && $block->canUseCurrency()){
+$data_amount = $block->getFinalAmount();
+if($block->isPaymentMethodActive() && $block->isDisplayOnProductPage() && $product_type != "grouped" && $block->canUseCurrency() && $data_amount>0){
     $afterpay_eligible = "true";
     if (($block->canShow() === false)) {
         $afterpay_eligible = "false";
@@ -25,7 +26,7 @@ if($block->isPaymentMethodActive() && $block->isDisplayOnProductPage() && $produ
     <?php
     $store_currency = $block->getCurrentCurrency();
     $data_locale = $block->getCurrentLocale();
-    $data_amount = $block->getFinalAmount();
+
     $enable_cbt = $this->helper('Afterpay\Afterpay\Helper\Data')->getConfig('payment/afterpaypayovertime/enable_cbt');
     $data_enable_cbt = ! empty($enable_cbt) ? "true" : "false";
     ?>

@@ -132,8 +132,14 @@
                     <!-- Enabled for cart page  -->
                     <field id="enable_for_cart_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enabled for Cart Page</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <source_model>Afterpay\Afterpay\Model\Config\Source\CartMode</source_model>
                         <config_path>payment/afterpaypayovertime/enable_for_cart_page</config_path>
+                    </field>
+                    
+                       <!-- merchant key -->
+                    <field id="express_checkout_key" translate="label" type="text" sortOrder="50" showInDefault="50" showInWebsite="1" showInStore="0">
+                        <label>Express Checkout Public Key</label>                        
+                        <config_path>payment/afterpaypayovertime/express_checkout_key</config_path>
                     </field>
 
 					 <!-- Payment Flow -->

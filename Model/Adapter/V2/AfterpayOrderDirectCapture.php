@@ -58,9 +58,9 @@ class AfterpayOrderDirectCapture
      * @return mixed|\Zend_Http_Response
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function generate($token, $merchant_order_id)
+    public function generate($token, $merchant_order_id,$orderAmount=null)
     {
-        $requestData = $this->_buildDirectCaptureRequest($token, $merchant_order_id);
+        $requestData = $this->_buildDirectCaptureRequest($token, $merchant_order_id,$orderAmount);
 
         try {
             $response = $this->afterpayApiCall->send(
@@ -84,10 +84,13 @@ class AfterpayOrderDirectCapture
      * @param $merchant_order_id
      * @return array
      */
-    protected function _buildDirectCaptureRequest($token, $merchant_order_id)
+    protected function _buildDirectCaptureRequest($token, $merchant_order_id,$orderAmount=null)
     {
         $params['merchantReference'] = $merchant_order_id;
         $params['token'] = $token;
+        if(!is_null($orderAmount)){
+            $params['amount'] = $orderAmount;
+        }
 
         return $params;
     }

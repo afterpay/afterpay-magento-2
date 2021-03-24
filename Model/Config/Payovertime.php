@@ -39,6 +39,7 @@ class Payovertime
     const CBT_COUNTRY            = 'cbt_country';
     const ENABLE_FOR_PRODUCT_PAGE= "enable_for_product_page";
     const ENABLE_FOR_CART_PAGE   = "enable_for_cart_page";
+    const EXPRESS_CHECKOUT_KEY   =  "express_checkout_key";
 
     /**
      * @var ApiMode
@@ -397,10 +398,34 @@ class Payovertime
     }
     
     /**
-     * @return bool
+     * @return int
      */
     public function isEnabledForCartPage()
     {
-        return (bool)$this->_getConfigData(self::ENABLE_FOR_CART_PAGE);
+        return $this->_getConfigData(self::ENABLE_FOR_CART_PAGE);
     }
+        
+    /**
+     * Calculated the currency code
+     *
+     * @return $text
+     */
+    public function getCurrentCountryCode()
+    {
+        $websiteId=$this->getWebsiteId();;
+        $countryCode = $this->scopeConfig->getValue('general/country/default', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES,$websiteId);
+        return $countryCode;
+    }
+    
+    /**
+     * Get config for express checkout key
+     *
+     * @return string
+     */
+    public function getExpressCheckoutKey()
+    {
+        return $this->_getConfigData(self::EXPRESS_CHECKOUT_KEY);
+    }
+    
+   
 }

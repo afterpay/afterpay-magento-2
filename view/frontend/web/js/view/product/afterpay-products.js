@@ -8,10 +8,10 @@ require(
 		"Magento_Catalog/js/price-utils"
 	],
 	function ( $, priceUtils, quote ) {
- 
+
 		$(document).ready(function($) {
-			setFinalAmount();		
-					
+			setFinalAmount();
+
 			$('body').on('click change', $('form#product_addtocart_form'), function (e) {
 				setFinalAmount();
 			});
@@ -23,17 +23,14 @@ require(
 		});
 
 		function setFinalAmount(){
-		
-			if($("[data-price-type=finalPrice]:first").text()!=""){
-				var price_raw = $("[data-price-type=finalPrice]:first").text();
-			}
-			else{
-				var price_raw = $('span.price-final_price > span.price-wrapper > span.price:first').text();
-			}
-			
+
+            let price_raw = $(".page-main [data-price-type=finalPrice]:first").text() || '';
+            if (!price_raw) price_raw = $('.page-main .product-info-price .price-final_price .price-wrapper:not([data-price-type="oldPrice"]) span.price:first').text();
+
+
 			var price = price_raw.match(/[\d\.]+/g);
-			
-			var product_variant_price=parseFloat($('span.price-final_price > span[data-price-type="finalPrice"]').attr('data-price-amount'));
+
+			var product_variant_price=parseFloat($('.page-main .product-info-price span.price-final_price > span[data-price-type="finalPrice"]').attr('data-price-amount'));
 			if(price != null){
 				if (price[1]) {
 					product_variant_price = price[0]+price[1];
@@ -41,11 +38,11 @@ require(
 					product_variant_price = price[0];
 				}
 			}
-			
+
 			$('afterpay-placement').attr('data-amount',product_variant_price);
-			
+
 		}
-		
+
 	}
 );
 

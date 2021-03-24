@@ -25,7 +25,7 @@ class Info extends \Magento\Payment\Block\Info
         $info = $this->getInfo();
 
         // load the data available on additional informations
-        if ($this->_appState->getAreaCode() === \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE
+        if ($this->getArea() === \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE
             && $info->getAdditionalInformation()
         ) {
             foreach ($info->getAdditionalInformation() as $field => $value) {

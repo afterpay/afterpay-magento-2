@@ -72,7 +72,13 @@ class JsConfig extends \Magento\Framework\View\Element\Template
      */
     public function getCurrentLocale()
     {
-        return $this->localeResolver->getLocale(); // eg. fr_CA
+        $currentLocale=$this->localeResolver->getLocale();
+        $country_code=$this->_payOverTime->getCurrentCountryCode();
+        if(!empty($country_code) && stripos($currentLocale,$country_code)=== false){
+            $currentLocale="en_".strtoupper($country_code);
+        }
+        
+        return $currentLocale; // eg. fr_CA
     }
     
     /**
@@ -124,15 +130,21 @@ class JsConfig extends \Magento\Framework\View\Element\Template
     /**
      * check if payment is active for cart page
      *
-     * @return bool
+     * @return int
      */
     public function isDisplayOnCartPage()
     {
-        $isEnabledForCartPage=true;
-        if (!$this->_payOverTime->isEnabledForCartPage()) {
-            $isEnabledForCartPage= false;
-        }
-        return  $isEnabledForCartPage;
+        return $this->_payOverTime->isEnabledForCartPage();
     }
     
+    /**
+     * Get Express Checkout JS URL 
+     *
+     * @return bool|string
+     */
+    public function getAfterpayECJsUrl()
+    {
+        $express_checkout_key=$this->_payOverTime->getExpressCheckoutKey();
+        return $this->_payOverTime->getWebUrl('afterpay.js',array("merchant_key"=>!empty($express_checkout_key)?$express_checkout_key:""));
+    }
 }
