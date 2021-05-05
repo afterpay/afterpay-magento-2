@@ -94,6 +94,12 @@
                         <comment><![CDATA[Check limit configuration from Afterpay API.]]></comment>
                     </field>
 
+					<!-- CBT countries -->
+                    <field id="cbt_country" translate="label" type="label" sortOrder="49" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Cross-Border Trade</label>
+                        <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\cbtLabel</frontend_model>
+                    </field>
+
                     <!-- Debug mode -->
                     <field id="debug" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Debug</label>

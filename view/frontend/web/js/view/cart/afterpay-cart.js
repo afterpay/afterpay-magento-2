@@ -18,7 +18,7 @@ require(
 
 			 //CountryCode Object to pass in initialize function.
 	         var countryCurrencyMapping ={AUD:"AU", NZD:"NZ", USD:"US",CAD:"CA"};
-	         var countryCode = (afterpayData.currencyCode in countryCurrencyMapping)? countryCurrencyMapping[afterpayData.currencyCode]:'';
+	         var countryCode = (afterpayData.baseCurrencyCode in countryCurrencyMapping)? countryCurrencyMapping[afterpayData.baseCurrencyCode]:'';
 			 var isShippingRequired= (!quote.isVirtual())?true:false;
 		if( $("#afterpay-express-button").length && countryCode!=""){
 			 AfterPay.initializeForPopup({
@@ -54,13 +54,16 @@ require(
 
 		            },
 		            onComplete: function (orderData) {
-		            	$("body").trigger('processStart');
+		            	
 		            	 if (orderData.data.status == 'SUCCESS') {
 
 			            	$.ajax({
 			                    url: mageUrl.build("afterpay/payment/express")+'?action=confirm',
 			                    method: 'POST',
 			                    data: orderData.data,
+			                    beforeSend: function(){
+			                    	$("body").trigger('processStart');
+			                    },
 			                    success: function(result){
 			                    	$("body").trigger('processStop');
 			                    	if (result.success) {
@@ -71,10 +74,13 @@ require(
 
 			                    		window.location.href = mageUrl.build("checkout/onepage/success");
 			                    	}
-			                    }
+			                    },
+			                    complete: function(){
+			                    	$("body").trigger('processStop');
+			                      }
 			                });
 		            	 }
-		            	 $("body").trigger('processStop');
+		            	 
 
 		            },
 		          pickup: false,

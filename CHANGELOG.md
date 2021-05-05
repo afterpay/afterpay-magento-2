@@ -1,5 +1,25 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.4.1
+
+_Wed 05 May 2021_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Enterprise Edition (EE) version 2.4.2
+
+### Highlights
+
+- Improved support for Cross Border Trade (CBT).
+- Improved handling of exceptions at Checkout.
+- Improved JS configurations.
+- Improved support for native Terms and Conditions.
+- Improved support for local currency formatting on product detail pages.
+
+---
+
 ## Version 3.4.0
 
 _Wed 24 Mar 2021_

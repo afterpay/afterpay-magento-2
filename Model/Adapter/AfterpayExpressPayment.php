@@ -193,7 +193,7 @@ class AfterpayExpressPayment
     public function isCartUpdated($quoteData, $responseItems)
     {
         $isCartupdated = false;
-        $quoteItems = $quoteData->getAllItems();
+        $quoteItems = $quoteData->getAllVisibleItems();
         if ($quoteData->getItemsCount()!= count($responseItems)) {
             $isCartupdated = true;
             $this->_helper->debug('Cart Items count does not match. Quote Count : '.$quoteData->getItemsCount().' & Response count : '.count($responseItems));

@@ -54,7 +54,7 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * For dependency injection
      */
-    protected $supportedContryCurrencyCodes = array('AU'=>'AUD','NZ'=>'NZD','US'=>'USD','CA'=>'CAD');
+    protected $supportedContryCurrencyCodes = array('AU'=>'AUD','NZ'=>'NZD','US'=>'USD','CA'=>'CAD','GB'=>'GBP');
     protected $afterPayPaymentTypeCode = self::AFTERPAY_PAYMENT_TYPE_CODE;
 
     protected $logger;
@@ -321,14 +321,14 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
     public function canUseForCurrency($currencyCode)
     {
         $canUseForCurrency= false;
-        
+        $storeCurrencyCode=$this->getStoreCurrencyCode();
         if (in_array($currencyCode, $this->supportedContryCurrencyCodes) ) {
             
-            $canUseForCurrency=parent::canUseForCurrency($currencyCode);
-            //Currency Check for Cross Border trade
-            if(!empty($this->getConfigData('enable_cbt'))){
+            if ($currencyCode==$storeCurrencyCode ) {
+                $canUseForCurrency=parent::canUseForCurrency($currencyCode);
+            }else if(!empty($this->getConfigData('enable_cbt')) && !empty($this->getConfigData('cbt_country'))){
+                //Currency Check for Cross Border trade
                 $specifiedCountires=explode(",",$this->getConfigData('cbt_country'));
-                $canUseForCurrency=false;
                 foreach($specifiedCountires AS $country){
                     if(isset($this->supportedContryCurrencyCodes[$country]) && ($currencyCode==$this->supportedContryCurrencyCodes[$country])){
                         $canUseForCurrency=parent::canUseForCurrency($currencyCode);
@@ -407,5 +407,17 @@ class Payovertime extends \Magento\Payment\Model\Method\AbstractMethod
 
         // return to the parent
         return parent::fetchTransactionInfo($payment, $transactionId);
+    }
+    /**
+     * Calculated the merchant's store currency code
+     *
+     * @return $text
+     */
+    public function getStoreCurrencyCode()
+    {
+        $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
+        $storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
+        $store = $storeManager->getStore();
+        return $store->getBaseCurrencyCode();
     }
 }

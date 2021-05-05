@@ -426,6 +426,24 @@ class Payovertime
     {
         return $this->_getConfigData(self::EXPRESS_CHECKOUT_KEY);
     }
+	/**
+     * Get cbt enabled/disabled
+     *
+     * @return int
+     */
+    public function isCbtEnabled()
+    {
+        return $this->_getConfigData(self::ENABLE_CBT);
+    } 
+	
+	/* Get cbt countries
+     *
+     * @return string
+     */
+    public function getCbtCountry()
+    {
+        return $this->_getConfigData(self::CBT_COUNTRY);
+    }
     
    
 }

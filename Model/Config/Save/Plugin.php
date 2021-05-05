@@ -119,14 +119,9 @@ class Plugin
 								}
 								
 								$countryName="";
-								if($enable_cbt=="1"){								   
-								    $countryName = $this->_scopeConfig->getValue('general/country/default', $scope,$scopeId);
-								     if(isset($response['CBT']['countries']) && !empty($response['CBT']['countries'])){
-								         if(is_array($response['CBT']['countries'])){
-								             $countryName .=",".implode(",",$response['CBT']['countries']);
-								         }
-								     }								    
-								}								
+								if($enable_cbt=="1" && !empty($response['CBT']['countries']) && is_array($response['CBT']['countries'])){
+								    $countryName =implode(",",$response['CBT']['countries']);
+								}
 								
 								
 								

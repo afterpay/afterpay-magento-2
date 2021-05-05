@@ -20,14 +20,19 @@ class ConfigProvider implements ConfigProviderInterface
      * @var Config\Payovertime
      */
     protected $afterpayConfig;
+    /**
+     * @var Payovertime
+     */
+    protected $afterpayPayovertime;
 
     /**
      * ConfigProvider constructor.
      * @param Config\Payovertime $config
      */
-    public function __construct(\Afterpay\Afterpay\Model\Config\Payovertime $config)
+    public function __construct(\Afterpay\Afterpay\Model\Config\Payovertime $config,\Afterpay\Afterpay\Model\Payovertime $afterpayPayovertime)
     {
         $this->afterpayConfig = $config;
+        $this->afterpayPayovertime = $afterpayPayovertime;
     }
 
     /**
@@ -51,6 +56,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'paymentAction'     => $this->afterpayConfig->getPaymentAction(),
                     'termsConditionUrl' => self::TERMS_CONDITION_LINK,
                     'currencyCode'     => $this->afterpayConfig->getCurrencyCode(),
+                    'baseCurrencyCode'     => $this->afterpayPayovertime->getStoreCurrencyCode(),
                 ],
             ],
         ]);
