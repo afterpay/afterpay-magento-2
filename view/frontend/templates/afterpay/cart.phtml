@@ -3,11 +3,12 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ * @copyright 2016-2021 Afterpay https://www.afterpay.com
  */
+/** @var Afterpay\Afterpay\Block\Cart\Button $block*/
 $cartDisplayMode = (int) $block->isDisplayOnCartPage();
 $data_amount = $block->getFinalAmount();
-if ($block->isPaymentMethodActive() && $cartDisplayMode != \Afterpay\Afterpay\Model\Config\Source\CartMode::DISABLED && $block->canUseCurrency() && $data_amount>0) {
+if ($block->isPaymentMethodActive()  && $block->canUseCurrency() && $data_amount>0) {
     $afterpay_eligible = "true";
     if (($block->canShow() === false)) {
         $afterpay_eligible = "false";
@@ -19,19 +20,23 @@ if ($block->isPaymentMethodActive() && $cartDisplayMode != \Afterpay\Afterpay\Mo
     if ((float) $min_limit < 1) {
         $show_lower_limit = "false";
     }
+
+    if($cartDisplayMode != \Afterpay\Afterpay\Model\Config\Source\CartMode::DISABLED){
+      if(!$block->isDisplayECOnMiniCart()){
 ?>
 <script src="<?= $block->escapeUrl($block->getAfterpayECJsUrl());?>" async></script>
-<script src="<?= $block->escapeUrl($block->getAfterpayJsLibUrl());?>"
+<?php }?>
+    <script src="<?= $block->escapeUrl($block->getAfterpayJsLibUrl());?>"
 	data-min="<?= /* @noEscape */ $min_limit; ?>"
 	data-max="<?= /* @noEscape */ $max_limit; ?>" async></script>
 <?php
     $store_currency = $block->getCurrentCurrency();
     $data_locale = $block->getCurrentLocale();
-   
+
     $enable_cbt = $this->helper('Afterpay\Afterpay\Helper\Data')->getConfig('payment/afterpaypayovertime/enable_cbt');
     $data_enable_cbt = ! empty($enable_cbt) ? "true" : "false";
 ?>
-<afterpay-placement 
+<afterpay-placement
 		data-locale="<?= /* @noEscape */  $data_locale;?>"
     	data-currency="<?= /* @noEscape */ $store_currency;?>"
     	data-amount="<?= /* @noEscape */ $data_amount; ?>"
@@ -39,17 +44,37 @@ if ($block->isPaymentMethodActive() && $cartDisplayMode != \Afterpay\Afterpay\Mo
     	data-show-lower-limit="<?= /* @noEscape */  $show_lower_limit;?>"
     	data-cart-is-eligible="<?= /* @noEscape */ $afterpay_eligible;?>"
     	data-intro-text="Pay in"></afterpay-placement>
+    <script type="text/x-magento-init">
+        {
+            "*": {
+                "Afterpay_Afterpay/js/view/cart/afterpay-cart": {}
+            }
+        }
+    </script>
+
 
 <?php
+    }
 if ($data_amount >= $min_limit && $data_amount <= $max_limit && $afterpay_eligible != "false" ) {
-        if ($cartDisplayMode == \Afterpay\Afterpay\Model\Config\Source\CartMode::EXPRESS_CHECKOUT) {
+        if ($cartDisplayMode == \Afterpay\Afterpay\Model\Config\Source\CartMode::EXPRESS_CHECKOUT || $block->isDisplayEConCartPage() ) {
 ?>
-<button id="afterpay-express-button" data-afterpay-entry-point="cart" class="afterpay primary express-button">
-	<img id="afterpay-express-start"
-		src="https://static.afterpay.com/button/checkout-with-afterpay/white-on-black.svg"
-		alt="Checkout with Afterpay" />
-</button>
-<?php }else{?>
+        <button id="afterpay-cart-express-button" data-afterpay-entry-point="cart" class="afterpay primary express-button">
+            <img id="afterpay-express-start"
+                src="https://static.afterpay.com/button/checkout-with-afterpay/white-on-black.svg"
+                alt="Checkout with Afterpay" />
+        </button>
+            <script type="text/x-magento-init">
+        {
+            "*": {
+                "Afterpay_Afterpay/js/view/express/afterpay-express": {
+                    "afterpayConfig":<?php echo $block->getAfterpayConfigs(); ?>,
+                    "isCartVirtual":"<?php echo $block->isQuoteVirtual(); ?>"
+                }
+            }
+        }
+        </script>
+
+<?php }else if($cartDisplayMode != \Afterpay\Afterpay\Model\Config\Source\CartMode::DISABLED){?>
 <!--    Button buy now-->
 <button type="button" data-role="proceed-to-checkout" onclick="window.location.href='<?php echo $block->getUrl('checkout', ['_secure' => true]);?>'" title="<?php echo __('Buy now, pay later') ?>"
 	class="afterpay primary btn-afterpay-checkout">
@@ -63,3 +88,4 @@ if ($data_amount >= $min_limit && $data_amount <= $max_limit && $afterpay_eligib
     }
 }
 ?>
+

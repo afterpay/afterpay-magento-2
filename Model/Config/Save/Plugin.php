@@ -60,7 +60,7 @@ class Plugin
         \Magento\Config\Model\Config $subject,
         \Closure $proceed
     ) {
-        
+
         //first saving run to eliminate possibilities of conflicting config results
         $returnValue=$proceed();
 
@@ -70,12 +70,12 @@ class Plugin
                 $configRequest = $subject->getGroups();
             if(!empty($configRequest) && is_array($configRequest)){
                 $this->requested = array_key_exists(\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE, $configRequest);
-				
+
 				if ($this->requested) {
 					$config_array=$configRequest[\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE]['groups'][\Afterpay\Afterpay\Model\Payovertime::METHOD_CODE . '_basic']['fields'][\Afterpay\Afterpay\Model\Config\Payovertime::ACTIVE];
-					
+
 					if(array_key_exists('value',$config_array)){
-						
+
 						if($config_array['value'] == '1'){
 							$response = $this->afterpayTotalLimit->getLimit();
 							$response = $this->jsonHelper->jsonDecode($response->getBody());
@@ -84,7 +84,7 @@ class Plugin
 								// default min and max if not provided
 								$minTotal = "0";
 								$maxTotal = "0";
-								
+
 								// understand the response from the API
 								$minTotal = array_key_exists('minimumAmount',$response) && isset($response['minimumAmount']['amount']) ? $response['minimumAmount']['amount'] : "0";
 								$maxTotal = array_key_exists('maximumAmount',$response) && isset($response['maximumAmount']['amount']) ? $response['maximumAmount']['amount'] : "0";
@@ -101,12 +101,12 @@ class Plugin
 
 								// Check for Cross Border Trade(CBT)
 								$enable_cbt = (array_key_exists('CBT',$response) && isset($response['CBT']['enabled']) && ($response['CBT']['enabled']===true)) ? "1" : "0";
-								
+
 								// Get current Store Id
 								$storeId=(int) $this->request->getParam('store', 0);
 								// Get current Website Id
 								$websiteId = (int) $this->request->getParam('website', 0);
-								
+
 								// Set current scope
 								$scope='default';
 								$scopeId=0;
@@ -117,23 +117,23 @@ class Plugin
 								    $scope=ScopeInterface::SCOPE_STORE;
 								    $scopeId=$storeId;
 								}
-								
+
 								$countryName="";
 								if($enable_cbt=="1" && !empty($response['CBT']['countries']) && is_array($response['CBT']['countries'])){
 								    $countryName =implode(",",$response['CBT']['countries']);
 								}
-								
-								
-								
+
+
+
 								// Save Cross Border Trade(CBT) details on config request
-								$this->configWriter->save("payment/afterpaypayovertime/".\Afterpay\Afterpay\Model\Config\Payovertime::ENABLE_CBT, $enable_cbt, $scope, $scopeId); 
-								$this->configWriter->save("payment/afterpaypayovertime/".\Afterpay\Afterpay\Model\Config\Payovertime::CBT_COUNTRY, $countryName, $scope, $scopeId); 
-							
+								$this->configWriter->save("payment/afterpaypayovertime/".\Afterpay\Afterpay\Model\Config\Payovertime::ENABLE_CBT, $enable_cbt, $scope, $scopeId);
+								$this->configWriter->save("payment/afterpaypayovertime/".\Afterpay\Afterpay\Model\Config\Payovertime::CBT_COUNTRY, $countryName, $scope, $scopeId);
+
 								$subject->setGroups($configRequest);
 								$returnValue=$proceed();
 							} else {
 								$this->messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.');
-								
+
 							}
 						}
 					}

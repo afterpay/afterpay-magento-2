@@ -15,4 +15,7 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Checkout\CustomerData\AbstractItem">
+        <plugin name="afterpay_additional_attributes" type="Afterpay\Afterpay\Plugin\Checkout\CustomerData\Cart" />
+    </type>
 </config>

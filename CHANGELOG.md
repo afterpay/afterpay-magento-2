@@ -1,5 +1,26 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.4.2
+
+_Wed 16 June 2021_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Enterprise Edition (EE) version 2.4.2
+
+### Highlights
+
+- Extended Express Checkout to support Product Detail Pages (PDP) and mini-cart.
+- Introduced a separate section for Express Checkout in the Admin Panel.
+- Removed the requirement to provide a key for Express Checkout in the Admin Panel.
+- Improved handing of invalid customer addresses.
+- Improved error handling in Express Checkout.
+- Improved JS configurations.
+
+---
+
 ## Version 3.4.1
 
 _Wed 05 May 2021_

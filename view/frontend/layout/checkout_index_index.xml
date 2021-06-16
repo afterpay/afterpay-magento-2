@@ -8,10 +8,7 @@
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <head>
-        <css src="Afterpay_Afterpay::css/afterpay.css"/>
-    </head>
-    <body>
+   <body>
         <referenceBlock name="head.additional">
             <block class="Afterpay\Afterpay\Block\Config" name="afterpay.config" template="Afterpay_Afterpay::config.phtml" />
         </referenceBlock>
@@ -53,5 +50,6 @@
                 </argument>
             </arguments>
         </referenceBlock>
+       <referenceBlock name = "afterpay.minicart.buynow" remove="true" />
     </body>
 </page>

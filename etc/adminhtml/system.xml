@@ -19,12 +19,12 @@
                 <group id="afterpaypayovertime_basic" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Basic Settings]]></label>
 
-                    
+
                     <field id="plugin_version" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Afterpay Plugin Version</label>
                         <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\Label</frontend_model>
                     </field>
-                    
+
 
                     <!-- active -->
                     <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -129,26 +129,23 @@
 					</field>
 
 					<!-- Enabled for product page  -->
-                    <field id="enable_for_product_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Enabled for Product Page</label>
+                    <field id="enable_for_product_page" translate="label tooltip" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display on Product Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/afterpaypayovertime/enable_for_product_page</config_path>
-                    </field>
-                    
-                    <!-- Enabled for cart page  -->
-                    <field id="enable_for_cart_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Enabled for Cart Page</label>
-                        <source_model>Afterpay\Afterpay\Model\Config\Source\CartMode</source_model>
-                        <config_path>payment/afterpaypayovertime/enable_for_cart_page</config_path>
-                    </field>
-                    
-                       <!-- merchant key -->
-                    <field id="express_checkout_key" translate="label" type="text" sortOrder="50" showInDefault="50" showInWebsite="1" showInStore="0">
-                        <label>Express Checkout Public Key</label>                        
-                        <config_path>payment/afterpaypayovertime/express_checkout_key</config_path>
+                        <tooltip>Show/Hide Afterpay installments message on Product Display page </tooltip>
+
                     </field>
 
-					 <!-- Payment Flow -->
+                    <!-- Enabled for cart page  -->
+                    <field id="enable_for_cart_page" translate="label tooltip" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display on Cart Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpaypayovertime/enable_for_cart_page</config_path>
+                        <tooltip>Show/Hide Afterpay installments message on Cart page </tooltip>
+                    </field>
+
+                    <!-- Payment Flow -->
                     <field id="payment_flow" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment Flow</label>
                         <source_model>Afterpay\Afterpay\Model\Source\PaymentFlow</source_model>
@@ -156,8 +153,30 @@
 						<comment><![CDATA[Find out more about the payment flows <a href="https://afterpay-online.readme.io/v2/reference#payment-flows" target="_blank">here</a>]]></comment>
                     </field>
                 </group>
+            <group id="afterpaypayovertime_expresscheckout" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label><![CDATA[Express Checkout Settings]]></label>
+                <!-- Enabled for product page  -->
+                <field id="express_checkout_product_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enabled for Product Page</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/afterpaypayovertime/express_checkout_product_page</config_path>
+                </field>
 
-                <group id="afterpaypayovertime_countryspecific" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <!-- Enabled for cart page  -->
+                <field id="express_checkout_cart_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enabled for Cart Page</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/afterpaypayovertime/express_checkout_cart_page</config_path>
+                </field>
+
+                <!-- Enabled for mini-cart page  -->
+                <field id="express_checkout_minicart_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enabled for Mini-Cart Page</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/afterpaypayovertime/express_checkout_minicart_page</config_path>
+                </field>
+            </group>
+             <group id="afterpaypayovertime_countryspecific" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Country Specific Settings]]></label>
                     <!-- country enable -->
                     <field id="allowspecific" translate="label" type="allowspecific" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">

@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ * @copyright 2016-2021 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Block\Catalog;
 
@@ -11,8 +11,10 @@ use Afterpay\Afterpay\Block\JsConfig;
 use Afterpay\Afterpay\Model\Config\Payovertime as AfterpayConfig;
 use Afterpay\Afterpay\Model\Payovertime as AfterpayPayovertime;
 use Magento\Framework\Locale\Resolver as Resolver;
+use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
 use Magento\Framework\Registry as Registry;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Checkout\Model\Session as CheckoutSession;
 
 class Installments extends JsConfig
 {
@@ -35,20 +37,32 @@ class Installments extends JsConfig
      * @var Resolver
      */
     private $localeResolver;
+    /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
+    /**
+     * @var JsonHelper
+     */
+    protected $_jsonHelper;
 
     /**
      * @param Context $context
      * @param Registry $registry
      * @param AfterpayConfig $afterpayConfig
      * @param AfterpayPayovertime $afterpayPayovertime
+     * @param JsonHelper $jsonHelper
      * @param array $data
      * @param Resolver $localeResolver
+     * @param CheckoutSession $checkoutSession
      */
     public function __construct(
         Context $context,
         Registry $registry,
         AfterpayConfig $afterpayConfig,
         AfterpayPayovertime $afterpayPayovertime,
+        CheckoutSession $checkoutSession,
+        JsonHelper $jsonHelper,
         array $data,
         Resolver $localeResolver
     ) {
@@ -56,7 +70,8 @@ class Installments extends JsConfig
         $this->afterpayConfig = $afterpayConfig;
         $this->afterpayPayovertime = $afterpayPayovertime;
         $this->localeResolver = $localeResolver;
-        parent::__construct($afterpayConfig, $context, $localeResolver, $data);
+        $this->checkoutSession = $checkoutSession;
+        parent::__construct($afterpayConfig, $afterpayPayovertime,$context, $localeResolver,$jsonHelper, $data);
     }
 
     /**
@@ -65,14 +80,16 @@ class Installments extends JsConfig
     public function canShow(): bool
     {
         // check if payment is active
+        $product = $this->registry->registry('product');
+
         if ($this->_getPaymentIsActive() &&
             $this->afterpayConfig->getCurrencyCode() &&
-            $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode())
+            $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode() &&
+            $product->isSalable())
         ) {
             $excluded_categories = $this->afterpayConfig->getExcludedCategories();
             if ($excluded_categories != "") {
                 $excluded_categories_array = explode(",", $excluded_categories);
-                $product = $this->registry->registry('product');
                 $categoryids = $product->getCategoryIds();
                 foreach ($categoryids as $k) {
                     if (in_array($k, $excluded_categories_array)) {
@@ -122,5 +139,23 @@ class Installments extends JsConfig
         }
 
         return $canUse;
+    }
+    /**
+     * @return boolean
+     */
+    public function isProductVirtual()
+    {
+        $isVirtual=false;
+
+        $product = $this->registry->registry('product');
+
+        if ($product->getIsVirtual()) {
+            $isVirtual=true;
+            if ($this->checkoutSession->hasQuote()) {
+                $isVirtual=$this->checkoutSession->getQuote()->isVirtual();
+            }
+        }
+
+        return $isVirtual;
     }
 }

@@ -8,10 +8,6 @@
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <head>
-        <css src="Afterpay_Afterpay::css/afterpay.css"/>
-		<link src="Afterpay_Afterpay::js/view/cart/afterpay-cart.js"/>
-    </head>
     <body>
         <referenceContainer name="checkout.cart.methods">
             <block class="Afterpay\Afterpay\Block\Cart\Button" name="afterpay.cart.buynow" after="checkout.cart.shortcut.buttons" template="Afterpay_Afterpay::afterpay/cart.phtml" />

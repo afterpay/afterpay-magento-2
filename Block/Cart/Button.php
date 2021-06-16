@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ * @copyright 2016-2021 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Block\Cart;
 
@@ -13,6 +13,7 @@ use Afterpay\Afterpay\Model\Payovertime as AfterpayPayovertime;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\Locale\Resolver as Resolver;
+use Magento\Framework\Serialize\Serializer\Json as JsonHelper;
 
 
 class Button extends \Afterpay\Afterpay\Block\JsConfig
@@ -24,6 +25,10 @@ class Button extends \Afterpay\Afterpay\Block\JsConfig
     protected $afterpayPayovertime;
     protected $checkoutSession;
     protected $customerSession;
+    /**
+     * @var JsonHelper
+     */
+    protected $_jsonHelper;
 
     /**
      * Button constructor.
@@ -32,6 +37,7 @@ class Button extends \Afterpay\Afterpay\Block\JsConfig
      * @param AfterpayPayovertime $afterpayPayovertime
      * @param CheckoutSession $checkoutSession
      * @param CustomerSession $customerSession
+     * @param JsonHelper $jsonHelper
      * @param array $data
      * @param Resolver $localeResolver
      */
@@ -41,6 +47,7 @@ class Button extends \Afterpay\Afterpay\Block\JsConfig
         AfterpayPayovertime $afterpayPayovertime,
         CheckoutSession $checkoutSession,
         CustomerSession $customerSession,
+        JsonHelper $jsonHelper,
         array $data=[],
         Resolver $localeResolver
     ) {
@@ -48,7 +55,8 @@ class Button extends \Afterpay\Afterpay\Block\JsConfig
         $this->afterpayPayovertime = $afterpayPayovertime;
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
-        parent::__construct($afterpayConfig,$context, $localeResolver,$data);
+        parent::__construct($afterpayConfig,$afterpayPayovertime,$context, $localeResolver,$jsonHelper,$data);
+
     }
 
     /**
@@ -58,37 +66,37 @@ class Button extends \Afterpay\Afterpay\Block\JsConfig
     {
         return $this->afterpayConfig->isActive();
     }
-    
+
     /**
      * @return bool
      */
     public function canShow()
     {
-		 // check if payment is active
+        // check if payment is active
         if (!$this->_getPaymentIsActive()) {
             return false;
         }
 		else{
 			//Check for Supported currency
 			if($this->afterpayConfig->getCurrencyCode()){
-				
+
 				$quote = $this->checkoutSession->getQuote();
 				// get grand total (final amount need to be paid)
 				$grandTotal =$quote->getGrandTotal();
 				$excluded_categories=$this->afterpayConfig->getExcludedCategories();
-				
-				if($this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode()) ){ 
-					
+
+				if($this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode()) ){
+
 					if($excluded_categories !=""){
 						$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 						$productRepository = $objectManager->get('\Magento\Catalog\Model\ProductRepository');
 						$excluded_categories_array =  explode(",",$excluded_categories);
-						
+
 						foreach ($quote->getAllVisibleItems() as $item) {
 							$productid = $item->getProductId();
 							$product=$productRepository->getById($productid);
 							$categoryids = $product->getCategoryIds();
-							
+
 							foreach($categoryids as $k)
 							{
 								if(in_array($k,$excluded_categories_array)){
@@ -102,25 +110,25 @@ class Button extends \Afterpay\Afterpay\Block\JsConfig
 				else{
 					return false;
 				}
-			} 
+			}
 			else {
 				return false;
 			}
 		}
     }
-    
+
     /**
      * @return string
      */
     public function getFinalAmount()
     {
-           
+
         $grandTotal = $this->checkoutSession->getQuote()->getGrandTotal();
-       
+
         return !empty($grandTotal)?number_format($grandTotal, 2,".",""):"0.00";
-        
+
     }
-    /* 
+    /*
      * @return boolean
     */
     public function canUseCurrency()
@@ -131,8 +139,27 @@ class Button extends \Afterpay\Afterpay\Block\JsConfig
         {
             $canUse= $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode());
         }
-        
+
         return $canUse;
-        
+
+    }
+    /*
+    * @return boolean
+    */
+    public function isWithinLimits()
+    {
+        $isWithinLimits=false;
+        $grandTotal = $this->checkoutSession->getQuote()->getGrandTotal();
+        if($grandTotal > 0 && $this->afterpayConfig->getMaxOrderLimit() >= $grandTotal && $this->afterpayConfig->getMinOrderLimit() <= $grandTotal){
+            $isWithinLimits = true;
+        }
+        return $isWithinLimits;
+    }
+    /*
+    * @return boolean
+    **/
+    public function isQuoteVirtual()
+    {
+        return $this->checkoutSession->getQuote()->isVirtual();
     }
 }

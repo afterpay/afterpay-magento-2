@@ -1,0 +1,40 @@
+<?php
+/**
+ * Magento 2 extensions for Afterpay Payment
+ *
+ * @author Afterpay
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ */
+if($block->isPaymentMethodActive() ){
+$displayExpress = "";
+if (!$block->canUseCurrency() || !$block->canShow() || !$block->isWithinLimits()) {
+    $displayExpress = 'style="display:none;"';
+}
+
+?>
+<script src="<?= $block->escapeUrl($block->getAfterpayECJsUrl());?>" async></script>
+<button id="afterpay-minicart-express-button" data-afterpay-entry-point="mini-cart" class="afterpay primary express-button minicart" <?php echo $displayExpress?>>
+    <img id="afterpay-express-start"
+         src="https://static.afterpay.com/button/checkout-with-afterpay/white-on-black.svg"
+         alt="Checkout with Afterpay" />
+</button>
+<script type="text/x-magento-init">
+{
+    "*": {
+		"Afterpay_Afterpay/js/view/cart/afterpay-minicart": {
+		     "afterpayConfig":<?php echo $block->getAfterpayConfigs(); ?>
+		}
+	}
+}
+</script>
+<script type="text/x-magento-init">
+        {
+            "*": {
+                "Afterpay_Afterpay/js/view/express/afterpay-express": {
+                    "afterpayConfig":<?php echo $block->getAfterpayConfigs(); ?>,
+                    "isMinicartVirtual":"<?php echo $block->isQuoteVirtual(); ?>"
+                }
+            }
+        }
+</script>
+<?php } ?>

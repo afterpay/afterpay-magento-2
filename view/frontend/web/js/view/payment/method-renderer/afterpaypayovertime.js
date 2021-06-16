@@ -49,7 +49,7 @@ define(
                 var total = quote.getCalculatedTotal();
                 var format = window.checkoutConfig.priceFormat.pattern
 				var afterpay = window.checkoutConfig.payment.afterpay;
-				
+
                 storage.get(resourceUrlManager.getUrlForCartTotals(quote), false)
                 .done(
                     function (response) {
@@ -60,8 +60,8 @@ define(
 
                         $(".afterpay_instalments_amount").text(format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)));
                         $(".afterpay_instalments_amount_last").text(format.replace(/%s/g, installmentFeeLast.toFixed(window.checkoutConfig.priceFormat.precision)));
-						
-						
+
+
 						if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD' ) {
 							 $(".afterpay_total_amount").text(format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)));
 							return format.replace(/%s/g, installmentFee);
@@ -69,7 +69,7 @@ define(
 							 $(".afterpay_total_amount").text(format.replace(/%s/g, amount.toFixed(window.checkoutConfig.priceFormat.precision)));
 							return format.replace(/%s/g, amount);
 						}
-                       
+
                     }
                 )
                 .fail(
@@ -97,16 +97,16 @@ define(
 	                	afterpayCheckoutText = '4 interest-free instalments of';
 	                	break;
 	                default:
-	                	afterpayCheckoutText = 'Four interest-free payments totalling';	                	  	
+	                	afterpayCheckoutText = 'Four interest-free payments totalling';
                 }
-                                
+
                 return afterpayCheckoutText;
-            }, 
+            },
 			getFirstInstalmentText: function () {
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayFirstInstalmentText = '';
-                
+
                 switch(afterpay.currencyCode){
 	                case 'USD':
 	                case 'CAD':
@@ -114,26 +114,26 @@ define(
 	                	break;
 	                default:
 	                	afterpayFirstInstalmentText = 'First instalment';
-	                	                	
+
                 }
-               
-                
+
+
                 return afterpayFirstInstalmentText;
             },
 			getTermsText: function () {
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayTermsText = '';
-               
+
                 switch(afterpay.currencyCode){
 	                case 'USD':
 	                case 'CAD':
 	                	afterpayTermsText = 'You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.';
 	                	break;
-	                default:	
+	                default:
 	                	afterpayTermsText = 'You will be redirected to the Afterpay website when you proceed to checkout.';
                 }
-                
+
                 return afterpayTermsText;
             },
 			getTermsLink: function () {
@@ -150,7 +150,7 @@ define(
 	                default:
 						afterpayCheckoutTermsLink="https://www.afterpay.com/terms/";
 				}
-                
+
                 return afterpayCheckoutTermsLink;
             },
 
@@ -182,14 +182,15 @@ define(
                     var data = $("#co-shipping-form").serialize();
                     var email = window.checkoutConfig.customerData.email;
                     var ajaxRedirected = false;
-                  
+
                     //CountryCode Object to pass in initialize function.
                     var countryCurrencyMapping ={AUD:"AU", NZD:"NZ", USD:"US",CAD:"CA"};
                     var countryCode = (afterpay.baseCurrencyCode in countryCurrencyMapping)? {countryCode: countryCurrencyMapping[afterpay.baseCurrencyCode]}:{};
-					
-                    //Update billing address of the quote
-					setBillingAddressAction(globalMessageList);
 
+                    //Update billing address of the quote
+                    const setBillingAddressActionResult = setBillingAddressAction(globalMessageList);
+
+                    setBillingAddressActionResult.done(function () {
                         //handle guest and registering customer emails
                         if (!window.checkoutConfig.quoteData.customer_id) {
                             email = document.getElementById("customer-email").value;
@@ -246,6 +247,9 @@ define(
                             customerData.invalidate(['cart']);
                             $('body').trigger('processStop');
                         });
+                    }).fail(function () {
+						window.scrollTo({top: 0, behavior: 'smooth'});
+                    });
                 }
             },
 
@@ -255,16 +259,16 @@ define(
              * @param response
              */
             afterPlaceOrder: function () {
-                
+
                 // start afterpay payment is here
                 var afterpay = window.checkoutConfig.payment.afterpay;
 
                 // Making sure it using current flow
                 var url = mageUrl.build("afterpay/payment/process");
-				
+
 				//Update billing address of the quote
 				setBillingAddressAction(globalMessageList);
-                
+
                 $.ajax({
                     url: url,
                     method:'post',
