@@ -5,11 +5,9 @@
 define(
     [
         "jquery",
-        "Magento_Catalog/js/price-utils",
-        'mage/url',
-        'Magento_Customer/js/customer-data'
+        'Afterpay_Afterpay/js/view/express/button'
     ],
-    function ( $, priceUtils, mageUrl,customerData) {
+    function ($, expressBtn) {
 
         return function (config) {
 
@@ -43,8 +41,12 @@ define(
                     $('afterpay-placement').attr('data-amount', (Math.round((parseFloat(price) + epsilon) * 100) / 100).toFixed(2));
                 }
                 if(config.isECenabled==1) {
-                    if ((config.afterpayConfig.paymentActive == true && price <= config.afterpayConfig.maxLimit && price >= config.afterpayConfig.minLimit && price > 0)) {
-
+                    if (config.afterpayConfig.paymentActive &&
+                        price <= config.afterpayConfig.maxLimit &&
+                        price >= config.afterpayConfig.minLimit &&
+                        price > 0 &&
+                        expressBtn.canDisplayOnPDP(config.isProductVirtual)
+                    ) {
                         $("#afterpay-pdp-express-button").show();
                     } else {
                         $("#afterpay-pdp-express-button").hide();

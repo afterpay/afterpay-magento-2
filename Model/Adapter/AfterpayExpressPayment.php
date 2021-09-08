@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ * @copyright 2016-2021 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Adapter;
 
@@ -13,7 +13,6 @@ use Afterpay\Afterpay\Model\Adapter\V2\AfterpayOrderTokenV2 as AfterpayOrderToke
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Afterpay\Afterpay\Helper\Data as Helper;
 use Magento\Quote\Model\ResourceModel\Quote as QuoteRepository;
-use Magento\Quote\Model\Cart\ShippingMethodConverter as Converter;
 
 class AfterpayExpressPayment
 {
@@ -31,8 +30,6 @@ class AfterpayExpressPayment
 
     protected $_quoteRepository;
 
-    protected $_totalsCollector;
-
     protected $_paymentCapture;
 
     protected $_transactionRepository;
@@ -44,22 +41,10 @@ class AfterpayExpressPayment
     protected $_paymentRepository;
 
     /**
-     * Shipping method converter
-     *
-     * @var \Magento\Quote\Model\Cart\ShippingMethodConverter
-     */
-    protected $_converter;
-
-    /**
      * @var Payovertime $_payOverTime
      */
     protected $_payOverTime;
-    /**
-     * Response constructor.
-     *
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     */
+
     public function __construct(
         CheckoutSession $checkoutSession,
         \Magento\Sales\Model\OrderRepository $orderRepository,
@@ -68,8 +53,6 @@ class AfterpayExpressPayment
         JsonHelper $jsonHelper,
         Helper $helper,
         QuoteRepository $quoteRepository,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
-        Converter $converter,
         \Afterpay\Afterpay\Model\Adapter\V2\AfterpayOrderPaymentCapture $paymentCapture,
         \Magento\Sales\Model\Order\Payment\Transaction\Repository $transactionRepository,
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -85,8 +68,6 @@ class AfterpayExpressPayment
         $this->_jsonHelper = $jsonHelper;
         $this->_helper = $helper;
         $this->_quoteRepository = $quoteRepository;
-        $this->_totalsCollector = $totalsCollector;
-        $this->_converter = $converter;
         $this->_paymentCapture = $paymentCapture;
         $this->_transactionRepository = $transactionRepository;
         $this->_objectManager = $objectManager;
@@ -142,34 +123,6 @@ class AfterpayExpressPayment
 
         return $region->loadByCode($stateCode, $countryCode)->getId();
     }
-
-    /**
-     * Get list of available shipping methods
-     *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @return \Magento\Quote\Api\Data\ShippingMethodInterface[]
-     */
-
-    public function getShippingDetails($quote)
-    {
-        $output = [];
-        if (! $quote->isVirtual()) {
-            $shippingAddress = $quote->getShippingAddress();
-            $shippingAddress->setCollectShippingRates(true);
-
-            $this->_totalsCollector->collectAddressTotals($quote, $shippingAddress);
-            $shippingRates = $shippingAddress->getGroupedAllShippingRates();
-            foreach ($shippingRates as $carrierRates) {
-                foreach ($carrierRates as $rate) {
-                    $output[] = $this->_converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
-                }
-            }
-        }
-        return $output;
-
-    }
-
-
 
     /**
      * Format amount upto 2 decimal
@@ -239,6 +192,11 @@ class AfterpayExpressPayment
         $customerSession = $this->_objectManager->get('Magento\Customer\Model\Session');
         $customerRepository = $this->_objectManager->get('Magento\Customer\Api\CustomerRepositoryInterface');
 
+        //Set Street Data
+        $line1 = !empty($data['shipping']['line1']) ? $data['shipping']['line1'] : " ";
+        $line2 = !empty($data['shipping']['line2']) ? ", " . $data['shipping']['line2'] : "";
+        $setStreetAddress= $line1 . $line2;
+
         if ($customerSession->isLoggedIn()) {
             $customerId = $customerSession->getCustomer()->getId();
             $customer = $customerRepository->getById($customerId);
@@ -267,10 +225,7 @@ class AfterpayExpressPayment
             ->setLastname($lastName)
             ->setEmail($data['consumer']['email'])
             ->setTelephone($data['shipping']['phoneNumber'])
-            ->setStreet(array(
-                $data['shipping']['line1'],
-                isset($data['shipping']['line2']) ? $data['shipping']['line2'] : null
-            ))
+            ->setStreet($setStreetAddress)
             ->setCity($data['shipping']['area1'])
             ->setRegion($data['shipping']['region'])
             ->setRegionId($this->getRegionId($data['shipping']['region'], $data['shipping']['countryCode']))
@@ -287,10 +242,7 @@ class AfterpayExpressPayment
             ->setLastname($lastName)
             ->setEmail($data['consumer']['email'])
             ->setTelephone($data['shipping']['phoneNumber'])
-            ->setStreet(array(
-                $data['shipping']['line1'],
-                isset($data['shipping']['line2']) ? $data['shipping']['line2'] : null
-            ))
+            ->setStreet($setStreetAddress)
             ->setCity($data['shipping']['area1'])
             ->setRegion($data['shipping']['region'])
             ->setRegionId($this->getRegionId($data['shipping']['region'], $data['shipping']['countryCode']))

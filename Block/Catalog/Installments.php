@@ -114,6 +114,14 @@ class Installments extends JsConfig
     }
 
     /**
+     * @return \Magento\Catalog\Model\Product|null
+     */
+    public function getProduct()
+    {
+        return $this->registry->registry('product');
+    }
+
+    /**
      * @return string
      */
     public function getFinalAmount()

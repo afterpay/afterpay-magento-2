@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ * @copyright 2016-2021 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model\Adapter\V2;
 
@@ -98,7 +98,6 @@ class AfterpayOrderTokenV2
             $requestData = $this->_buildOrderTokenRequest($object, $override);
         }
         $targetUrl = $this->_afterpayConfig->getApiUrl('v2/checkouts/', null, $override);       
-        $this->_helper->debug("Request :",$requestData);
         if(isset($override["mode"]) && ($override["mode"]==$this->expressCheckout)){
             $this->handleExpressValidation($requestData);
         }else{

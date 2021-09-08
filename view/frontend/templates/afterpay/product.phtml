@@ -61,7 +61,8 @@ if ($block->isPaymentMethodActive() && $product_type != "grouped" && $block->can
                     "afterpayConfig":<?php echo $block->getAfterpayConfigs(); ?>,
                     "productPriceFormat":<?php echo $productPriceFormat; ?>,
                     "isECenabled":<?php echo $isECenabled;?>,
-                    "isDisplay":<?php echo $isDisplay;?>
+                    "isDisplay":<?php echo $isDisplay;?>,
+                    "isProductVirtual":"<?= $block->getProduct()->isVirtual(); ?>"
                 }
             }
         }

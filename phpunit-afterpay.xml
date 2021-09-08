@@ -4,7 +4,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ * @copyright 2016-2021 Afterpay https://www.afterpay.com
  */
 -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

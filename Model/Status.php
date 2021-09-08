@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ * @copyright 2016-2021 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Model;
 

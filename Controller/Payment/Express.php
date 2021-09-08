@@ -3,7 +3,7 @@
  * Magento 2 extensions for Afterpay
  *
  * @author Afterpay
- * @copyright 2016-2020 Afterpay https://www.afterpay.com
+ * @copyright 2016-2021 Afterpay https://www.afterpay.com
  */
 namespace Afterpay\Afterpay\Controller\Payment;
 
@@ -63,7 +63,8 @@ class Express extends \Magento\Framework\App\Action\Action
     
     protected $_timezone;
 
-   
+    private \Afterpay\Afterpay\Model\ExpressPayment\ShippingListProvider $shippingListProvider;
+
     /**
      * Response constructor.
      *
@@ -71,42 +72,44 @@ class Express extends \Magento\Framework\App\Action\Action
      * @param \Magento\Checkout\Model\Session $checkoutSession
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context, 
+        \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        CheckoutSession $checkoutSession,  
-        QuoteFactory $quoteFactory, 
-        AfterpayConfig $afterpayConfig, 
-        AfterpayOrderTokenV2 $afterpayOrderTokenV2, 
-        TokenCheck $tokenCheck, 
-        JsonHelper $jsonHelper, 
-        Helper $helper, 
-        QuoteRepository $quoteRepository, 
-        JsonResultFactory $jsonResultFactory, 
-        QuoteValidator $quoteValidator, 
+        CheckoutSession $checkoutSession,
+        QuoteFactory $quoteFactory,
+        AfterpayConfig $afterpayConfig,
+        AfterpayOrderTokenV2 $afterpayOrderTokenV2,
+        TokenCheck $tokenCheck,
+        JsonHelper $jsonHelper,
+        Helper $helper,
+        QuoteRepository $quoteRepository,
+        JsonResultFactory $jsonResultFactory,
+        QuoteValidator $quoteValidator,
         \Afterpay\Afterpay\Model\Adapter\V2\AfterpayOrderDirectCapture $directCapture,
         \Afterpay\Afterpay\Model\Adapter\V2\AfterpayOrderAuthRequest $authRequest,
-        \Afterpay\Afterpay\Model\Adapter\AfterpayPayment $afterpayApiPayment, 
+        \Afterpay\Afterpay\Model\Adapter\AfterpayPayment $afterpayApiPayment,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         ExpressPayment $expressPayment,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone)
-    {
-        $this->_checkoutSession = $checkoutSession;        
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone,
+        \Afterpay\Afterpay\Model\ExpressPayment\ShippingListProvider $shippingListProvider
+    ) {
+        $this->_checkoutSession = $checkoutSession;
         $this->_objectManager = $objectManager;
         $this->_quoteFactory = $quoteFactory;
         $this->_afterpayConfig = $afterpayConfig;
         $this->_afterpayOrderTokenV2 = $afterpayOrderTokenV2;
         $this->_tokenCheck = $tokenCheck;
         $this->_jsonHelper = $jsonHelper;
-        $this->_helper = $helper;        
+        $this->_helper = $helper;
         $this->_quoteRepository = $quoteRepository;
         $this->_jsonResultFactory = $jsonResultFactory;
-        $this->_quoteValidator = $quoteValidator; 
+        $this->_quoteValidator = $quoteValidator;
         $this->_directCapture = $directCapture;
         $this->_authRequest = $authRequest;
         $this->_afterpayApiPayment = $afterpayApiPayment;
         $this->_quoteManagement = $quoteManagement;
-        $this->_expressPayment=$expressPayment;        
+        $this->_expressPayment=$expressPayment;
         $this->_timezone = $timezone;
+        $this->shippingListProvider = $shippingListProvider;
 
         parent::__construct($context);
     }
@@ -244,42 +247,8 @@ class Express extends \Magento\Framework\App\Action\Action
             $this->_checkoutSession->replaceQuote($quote);
         }
 
-        $shippingData = $this->_expressPayment->getShippingDetails($quote);
-        $shippingList = array();
-        if (! empty($shippingData)) {
-            foreach ($shippingData as $rateData) {
-                $shippingAmount = $rateData->getBaseAmount();
-                $taxAmount = $shippingAddress->getBaseTaxAmount();
-                $orderAmount = $quote->getBaseSubtotalWithDiscount() + $shippingAmount + $taxAmount;
-                if($this->_expressPayment->isValidOrderAmount($orderAmount)){
-                    $carrierCode = $rateData->getCarrierCode();
-                    $methodCode = $rateData->getMethodCode();
-                    $shippingOptions['id'] = $carrierCode . "_" . $methodCode;
-                    $shippingOptions['name'] = $rateData->getCarrierTitle();
-                    $shippingOptions['description'] = $rateData->getCarrierTitle();
-    
-                    
-                    $shippingOptions['shippingAmount'] = array(
-                        'amount' => $this->_expressPayment->formatAmount($shippingAmount),
-                        'currency' => $quote->getStoreCurrencyCode()
-                    );
-    
-                   
-                    $shippingOptions['taxAmount'] = array(
-                        'amount' => $this->_expressPayment->formatAmount($taxAmount),
-                        'currency' => $quote->getBaseCurrencyCode()
-                    );
-    
-                   
-                    $shippingOptions['orderAmount'] = array(
-                        'amount' => $this->_expressPayment->formatAmount($orderAmount),
-                        'currency' => $quote->getBaseCurrencyCode()
-                    );
-    
-                    $shippingList[] = $shippingOptions;
-                }
-            }
-        }
+        $shippingList = $this->shippingListProvider->provide($quote);
+
         $this->_helper->debug("Shipping Estimation Rates", $shippingList);
         if (! empty($shippingList)) {
             $result = $result = $this->_jsonResultFactory->create()->setData([

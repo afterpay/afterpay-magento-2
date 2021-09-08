@@ -55,7 +55,7 @@ if ($block->isPaymentMethodActive()  && $block->canUseCurrency() && $data_amount
 
 <?php
     }
-if ($data_amount >= $min_limit && $data_amount <= $max_limit && $afterpay_eligible != "false" ) {
+if ($data_amount >= $min_limit && $data_amount <= $max_limit && $afterpay_eligible != "false" && !$block->isQuoteVirtual()) {
         if ($cartDisplayMode == \Afterpay\Afterpay\Model\Config\Source\CartMode::EXPRESS_CHECKOUT || $block->isDisplayEConCartPage() ) {
 ?>
         <button id="afterpay-cart-express-button" data-afterpay-entry-point="cart" class="afterpay primary express-button">

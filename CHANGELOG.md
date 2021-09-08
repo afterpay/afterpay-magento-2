@@ -1,5 +1,24 @@
 # Afterpay Magento 2 Extension Changelog
 
+## Version 3.4.3
+
+_Wed 08 Sep 2021_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Community Edition (CE) version 2.4.3
+- Magento Enterprise Edition (EE) version 2.4.2
+
+### Highlights
+
+- Disabled Express Checkout for virtual products.
+- Improved the asset cache handling.
+- Improved customer email address validation to allow symbols such as “+”.
+- Improved debug logging.
+
+---
 ## Version 3.4.2
 
 _Wed 16 June 2021_
