@@ -5,9 +5,10 @@
 define(
     [
         "jquery",
-        'Afterpay_Afterpay/js/view/express/button'
+        'Afterpay_Afterpay/js/view/express/button',
+        'Magento_Customer/js/customer-data'
     ],
-    function ($, expressBtn) {
+    function ($, expressBtn, customerData) {
 
         return function (config) {
 
@@ -26,7 +27,21 @@ define(
 
 
             });
-
+            function setExpressCheckout(config, price, expressBtn)
+            {
+                if(config.isECenabled==1) {
+                    if (config.afterpayConfig.paymentActive &&
+                        price <= config.afterpayConfig.maxLimit &&
+                        price >= config.afterpayConfig.minLimit &&
+                        price > 0 &&
+                        expressBtn.canDisplayOnPDP(config.isProductVirtual)
+                    ) {
+                        $("#afterpay-pdp-express-button").show();
+                    } else {
+                        $("#afterpay-pdp-express-button").hide();
+                    }
+                }
+            }
             function setFinalAmount() {
 
                     let price_raw = $(".page-main [data-price-type=finalPrice]:first").text() || '';
@@ -40,21 +55,11 @@ define(
                     const epsilon = Number.EPSILON ||  Math.pow(2, -52);
                     $('afterpay-placement').attr('data-amount', (Math.round((parseFloat(price) + epsilon) * 100) / 100).toFixed(2));
                 }
-                if(config.isECenabled==1) {
-                    if (config.afterpayConfig.paymentActive &&
-                        price <= config.afterpayConfig.maxLimit &&
-                        price >= config.afterpayConfig.minLimit &&
-                        price > 0 &&
-                        expressBtn.canDisplayOnPDP(config.isProductVirtual)
-                    ) {
-                        $("#afterpay-pdp-express-button").show();
-                    } else {
-                        $("#afterpay-pdp-express-button").hide();
-                    }
-                }
-
-
-
+                var cart = customerData.get('cart');
+                setExpressCheckout(config, price, expressBtn);
+                cart.subscribe(function () {
+                    setExpressCheckout(config, price, expressBtn);
+                });
             }
 
             //Function to convert currency to number

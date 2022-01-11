@@ -9,10 +9,10 @@ define([
         },
 
         canDisplayOnPDP: function (isProductVirtual) {
-            if (isProductVirtual) {
-                return this._isCartEmpty() ? false : !this._isCartVirtual();
+            if (this._isCartEmpty()) {
+                return !isProductVirtual;
             }
-            return true;
+            return (!isProductVirtual || !this._isCartVirtual()) && !this._doesCartHaveRestricted()  ;
         },
 
         _isCartEmpty: function () {
@@ -32,6 +32,16 @@ define([
                 }
             });
             return cartItems.length === virtualProductsInCart;
+        },
+
+        _doesCartHaveRestricted: function () {
+            if (this._isCartEmpty()) {
+                return false;
+            }
+            const cartItems = customerData.get('cart')().items;
+            return cartItems.reduce(function (hasRestricted, item) {
+                return hasRestricted || item.afterpay_restricted;
+            }, false);
         }
     }
 });

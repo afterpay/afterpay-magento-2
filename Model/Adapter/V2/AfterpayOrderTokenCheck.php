@@ -26,6 +26,7 @@ class AfterpayOrderTokenCheck
     protected $storeManagerInterface;
     protected $jsonHelper;
     protected $helper;
+    protected $isTokenChecked = false;
 
     /**
      * AfterpayOrderTokenCheck constructor.
@@ -59,20 +60,34 @@ class AfterpayOrderTokenCheck
      */
     public function generate($token = null)
     {
-        try {
-            $response = $this->afterpayApiCall->send(
-                $this->afterpayConfig->getApiUrl('v2/checkouts/' . $token),
-                [],
-                \Magento\Framework\HTTP\ZendClient::GET
-            );
-        } catch (\Exception $e) {
-            $response = $this->objectManagerInterface->create('Afterpay\Afterpay\Model\Payovertime');
-            $response->setBody($this->jsonHelper->jsonEncode([
-                'error' => 1,
-                'message' => $e->getMessage()
-            ]));
+        if(empty($token)){
+            $this->helper->debug("Token Exception: Token is missing." );
+            throw new \Magento\Framework\Exception\LocalizedException(__('There is an issue when processing the payment. Invalid Token'));
+        }else {
+            try {
+                $response = $this->afterpayApiCall->send(
+                    $this->afterpayConfig->getApiUrl('v2/checkouts/' . $token),
+                    [],
+                    \Magento\Framework\HTTP\ZendClient::GET
+                );
+            } catch (\Exception $e) {
+                $this->helper->debug("Token Exception: " . $e->getMessage());
+                throw new \Magento\Framework\Exception\LocalizedException(__('There is an issue when processing the payment. Invalid Token'));
+            }
         }
-
         return $response;
     }
+
+    public function setIsTokenChecked(bool $isTokenChecked)
+    {
+        $this->isTokenChecked = $isTokenChecked;
+        return $this;
+    }
+
+
+    public function getIsTokenChecked()
+    {
+        return $this->isTokenChecked;
+    }
+
 }

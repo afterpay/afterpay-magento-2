@@ -13,6 +13,7 @@
 		<policy id="connect-src">
             <values>
                 <value id="afterpay-cdn-connect" type="host">static.afterpay.com</value>
+                <value id="afterpay-sandbox-cdn-connect" type="host">static.sandbox.afterpay.com</value>
                 <value id="afterpay-sandbox-jslib-connect" type="host">js.sandbox.afterpay.com</value>
                 <value id="afterpay-production-jslib-connect" type="host">js.afterpay.com</value>
             </values>
@@ -27,6 +28,12 @@
 		<policy id="img-src">
             <values>
                  <value id="afterpay-cdn-base" type="host">https://static.afterpay.com</value>
+                <value id="afterpay-assets" type="host">https://site-assets.afterpay.com/</value>
+            </values>
+        </policy>
+        <policy id="font-src">
+            <values>
+                <value id="data" type="host">data:</value>
             </values>
         </policy>
     </policies>

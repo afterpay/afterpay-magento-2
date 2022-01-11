@@ -4,23 +4,40 @@
  * Magento 2 extensions for Afterpay Payment
  *
  * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
+ * @copyright 2016-2020 Afterpay https://www.afterpay.com
  */
 
 namespace Afterpay\Afterpay\Model\ExpressPayment;
 
+use Afterpay\Afterpay\Model\Adapter\AfterpayExpressPayment;
+use Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory;
+use Magento\Checkout\Api\TotalsInformationManagementInterface;
+use Magento\Quote\Api\ShipmentEstimationInterface;
+
 class ShippingListProvider
 {
-    private \Magento\Checkout\Api\TotalsInformationManagementInterface $totalsInformationManagement;
-    private \Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory $totalsInformationFactory;
-    private \Afterpay\Afterpay\Model\Adapter\AfterpayExpressPayment $afterpayExpressPayment;
-    private \Magento\Quote\Api\ShipmentEstimationInterface $shipmentEstimation;
+    /**
+     * @var TotalsInformationManagementInterface
+     */
+    private $totalsInformationManagement;
+    /**
+     * @var TotalsInformationInterfaceFactory
+     */
+    private $totalsInformationFactory;
+    /**
+     * @var AfterpayExpressPayment
+     */
+    private $afterpayExpressPayment;
+    /**
+     * @var ShipmentEstimationInterface
+     */
+    private $shipmentEstimation;
 
     public function __construct(
-        \Magento\Checkout\Api\TotalsInformationManagementInterface $totalsInformationManagement,
-        \Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory $totalsInformationFactory,
-        \Afterpay\Afterpay\Model\Adapter\AfterpayExpressPayment $afterpayExpressPayment,
-        \Magento\Quote\Api\ShipmentEstimationInterface $shipmentEstimation
+        TotalsInformationManagementInterface $totalsInformationManagement,
+        TotalsInformationInterfaceFactory $totalsInformationFactory,
+        AfterpayExpressPayment $afterpayExpressPayment,
+        ShipmentEstimationInterface $shipmentEstimation
     ) {
         $this->totalsInformationManagement = $totalsInformationManagement;
         $this->totalsInformationFactory = $totalsInformationFactory;
@@ -36,6 +53,9 @@ class ShippingListProvider
         );
         $shippingList = [];
         foreach ($shippingMethods as $shippingMethod) {
+            if (!$shippingMethod->getAvailable()) {
+                continue;
+            }
 
             /** @var \Magento\Checkout\Api\Data\TotalsInformationInterface $totalsInformation */
             $totalsInformation = $this->totalsInformationFactory->create()

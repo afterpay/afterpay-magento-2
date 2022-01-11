@@ -30,7 +30,7 @@ class Express extends \Magento\Framework\App\Action\Action
 {
 
     protected $_objectManager;
-    
+
     protected $_checkoutSession;
 
     protected $_quoteFactory;
@@ -58,12 +58,12 @@ class Express extends \Magento\Framework\App\Action\Action
     protected $_afterpayApiPayment;
 
     protected $_quoteManagement;
-    
+
     protected $_expressPayment;
-    
+
     protected $_timezone;
 
-    private \Afterpay\Afterpay\Model\ExpressPayment\ShippingListProvider $shippingListProvider;
+    protected $shippingListProvider;
 
     /**
      * Response constructor.
@@ -225,10 +225,10 @@ class Express extends \Magento\Framework\App\Action\Action
                 // if $customerData["name"] contains only one word
                 $firstName = $lastName;
             } else {
-               
+
                 $firstName = implode(' ', $fullName);
             }
-            
+
             $shippingAddress->setFirstName($firstName);
             $shippingAddress->setLastName($lastName);
             $shippingAddress->setStreet(array(
@@ -269,8 +269,8 @@ class Express extends \Magento\Framework\App\Action\Action
         }
         return $result;
     }
-    
-   
+
+
     /**
      * Place the order
      */
@@ -299,7 +299,7 @@ class Express extends \Magento\Framework\App\Action\Action
                     /**
                      * Validation to check between session and post request
                      */
-                    if (! $orderData || ! empty($orderData['errorCode'])) {
+                    if (! $orderData || !empty($orderData['errorCode'])) {
                         // Check the order token being use
                         throw new \Magento\Framework\Exception\LocalizedException(__('There are issues when processing your payment. Invalid Token'));
                     } elseif ($this->_expressPayment->isCartUpdated($quote, $orderData['items'])) {
@@ -336,6 +336,8 @@ class Express extends \Magento\Framework\App\Action\Action
 
                     switch ($paymentResponse['status']) {
                         case \Afterpay\Afterpay\Model\Response::RESPONSE_STATUS_APPROVED:
+                            $this->_tokenCheck->setIsTokenChecked(true);
+
                             $payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_ORDERID, $paymentResponse['id']);
 
                             $payment->setAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::PAYMENT_STATUS, $paymentResponse['paymentState']);
@@ -489,8 +491,5 @@ class Express extends \Magento\Framework\App\Action\Action
         }
         return $result;
     }
-    
-    
 
-    
 }

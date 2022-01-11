@@ -3,7 +3,7 @@
 	"license" : "OSL-3.0",
 	"type" : "magento2-module",
 	"description" : "Magento 2 Afterpay Payment Module",
-	"version" : "3.4.3",
+	"version" : "3.4.4",
 	"authors" : [{
 			"name" : "Afterpay",
 			"homepage" : "https://www.afterpay.com"
