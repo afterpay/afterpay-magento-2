@@ -9,9 +9,9 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 
 class CreateAfterpayCheckout implements \Magento\Framework\GraphQl\Query\ResolverInterface
 {
-    private \Afterpay\Afterpay\Model\Config $config;
-    private \Afterpay\Afterpay\Api\CheckoutManagementInterface $afterpayCheckoutManagement;
-    private \Afterpay\Afterpay\Api\Data\RedirectPathInterfaceFactory $redirectPathFactory;
+    private $config;
+    private $afterpayCheckoutManagement;
+    private $redirectPathFactory;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Config $config,

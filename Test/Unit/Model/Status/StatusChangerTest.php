@@ -7,7 +7,7 @@ use Afterpay\Afterpay\Model\PaymentStateInterface;
 
 class StatusChangerTest extends \PHPUnit\Framework\TestCase
 {
-    private \Afterpay\Afterpay\Model\Order\CreditMemo\CreditMemoProcessor $creditMemoProcessor;
+    private $creditMemoProcessor;
     /**
      * @var \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate|\PHPUnit\Framework\MockObject\MockObject
      */

@@ -28,9 +28,9 @@ class Config
     const XML_PATH_ALLOWED_MERCHANT_COUNTRIES  = 'payment/afterpay/allowed_merchant_countries';
     const XML_PATH_PAYPAL_MERCHANT_COUNTRY  = 'paypal/general/merchant_country';
 
-    private \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig;
-    private \Magento\Framework\App\Config\Storage\WriterInterface $writer;
-    private \Magento\Framework\App\ResourceConnection $resourceConnection;
+    private $scopeConfig;
+    private $writer;
+    private $resourceConnection;
 
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,

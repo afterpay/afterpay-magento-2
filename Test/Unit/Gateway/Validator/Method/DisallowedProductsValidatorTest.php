@@ -11,7 +11,7 @@ class DisallowedProductsValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $resultInterfaceFactoryStub =
             $this->getMockBuilder(\Magento\Payment\Gateway\Validator\ResultInterfaceFactory::class)
-                ->onlyMethods(['create'])
+                ->setMethods(['create'])
                 ->disableOriginalConstructor()
                 ->getMockForAbstractClass();
         $quoteStub = $this->createMock(\Magento\Quote\Api\Data\CartInterface::class);
@@ -35,7 +35,7 @@ class DisallowedProductsValidatorTest extends \PHPUnit\Framework\TestCase
         $quoteItemsStubs = [];
         foreach ($quoteProductIds as $quoteProductId) {
             $itemStub = $this->getMockBuilder(\Magento\Quote\Model\Quote\Item::class)
-                ->addMethods(['getProductId'])
+                ->setMethods(['getProductId'])
                 ->disableOriginalConstructor()
                 ->getMock();
             $itemStub->method('getProductId')

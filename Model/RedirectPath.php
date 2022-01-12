@@ -4,10 +4,10 @@ namespace Afterpay\Afterpay\Model;
 
 class RedirectPath implements \Afterpay\Afterpay\Api\Data\RedirectPathInterface
 {
-    private string $confirmPath;
-    private string $cancelPath;
+    private $confirmPath;
+    private $cancelPath;
 
-    public function setConfirmPath(string $path): self
+    public function setConfirmPath(string $path): \Afterpay\Afterpay\Api\Data\RedirectPathInterface
     {
         $this->confirmPath = $path;
         return $this;
@@ -18,7 +18,7 @@ class RedirectPath implements \Afterpay\Afterpay\Api\Data\RedirectPathInterface
         return $this->confirmPath;
     }
 
-    public function setCancelPath(string $path): self
+    public function setCancelPath(string $path): \Afterpay\Afterpay\Api\Data\RedirectPathInterface
     {
         $this->cancelPath = $path;
         return $this;

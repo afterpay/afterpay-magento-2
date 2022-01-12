@@ -6,7 +6,7 @@ class AdaptPayments implements \Magento\Framework\Setup\Patch\DataPatchInterface
 {
     private const METHOD_CODE = 'afterpaypayovertime';
 
-    private \Magento\Sales\Setup\SalesSetup $salesSetup;
+    private $salesSetup;
 
     public function __construct(
         \Magento\Sales\Setup\SalesSetup $salesSetup

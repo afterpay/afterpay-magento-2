@@ -2,13 +2,15 @@
 
 namespace Afterpay\Afterpay\Model;
 
-class Checkout implements \Afterpay\Afterpay\Api\Data\CheckoutInterface
-{
-    private string $afterpayToken;
-    private string $afterpayAuthTokenExpires;
-    private string $afterpayRedirectCheckoutUrl;
+use Afterpay\Afterpay\Api\Data\CheckoutInterface;
 
-    public function setAfterpayToken(string $token): self
+class Checkout implements CheckoutInterface
+{
+    private $afterpayToken;
+    private $afterpayAuthTokenExpires;
+    private $afterpayRedirectCheckoutUrl;
+
+    public function setAfterpayToken(string $token): CheckoutInterface
     {
         $this->afterpayToken = $token;
         return $this;
@@ -19,7 +21,7 @@ class Checkout implements \Afterpay\Afterpay\Api\Data\CheckoutInterface
         return $this->afterpayToken;
     }
 
-    public function setAfterpayAuthTokenExpires(string $authTokenExpires): self
+    public function setAfterpayAuthTokenExpires(string $authTokenExpires): CheckoutInterface
     {
         $this->afterpayAuthTokenExpires = $authTokenExpires;
         return $this;
@@ -30,7 +32,7 @@ class Checkout implements \Afterpay\Afterpay\Api\Data\CheckoutInterface
         return $this->afterpayAuthTokenExpires;
     }
 
-    public function setAfterpayRedirectCheckoutUrl(string $redirectCheckoutUrl): self
+    public function setAfterpayRedirectCheckoutUrl(string $redirectCheckoutUrl): CheckoutInterface
     {
         $this->afterpayRedirectCheckoutUrl = $redirectCheckoutUrl;
         return $this;

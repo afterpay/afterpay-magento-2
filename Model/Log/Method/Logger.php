@@ -6,7 +6,7 @@ namespace Afterpay\Afterpay\Model\Log\Method;
 
 class Logger extends \Magento\Payment\Model\Method\Logger
 {
-    private bool $forceDebug = false;
+    private $forceDebug = false;
 
     public function setForceDebug(bool $forceDebug): self
     {

@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Test\Unit\Model\Shipment\Express;
 
 class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
 {
-    private \Afterpay\Afterpay\Model\Shipment\Express\CreateShippingOption $createShippingOption;
+    private $createShippingOption;
     /**
      * @var \Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory|\PHPUnit\Framework\MockObject\MockObject
      */

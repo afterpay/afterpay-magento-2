@@ -8,7 +8,7 @@ class UrlBuilder
     const TYPE_JS_LIB = 'js_lib_url';
     const TYPE_WEB_JS_LIB = 'web_url';
 
-    private UrlBuilder\UrlFactory $urlFactory;
+    private $urlFactory;
 
     public function __construct(
         UrlBuilder\UrlFactory $urlFactory

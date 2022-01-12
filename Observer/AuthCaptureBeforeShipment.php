@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Observer;
 
 class AuthCaptureBeforeShipment implements \Magento\Framework\Event\ObserverInterface
 {
-    private \Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor $shipmentCaptureProcessor;
+    private $shipmentCaptureProcessor;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor $shipmentCaptureProcessor

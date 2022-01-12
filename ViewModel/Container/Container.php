@@ -11,9 +11,9 @@ class Container implements \Magento\Framework\View\Element\Block\ArgumentInterfa
         'extra_info'
     ];
 
-    protected \Afterpay\Afterpay\Model\Config $config;
-    protected \Magento\Framework\Serialize\SerializerInterface $serializer;
-    protected \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider $notAllowedProductsProvider;
+    protected $config;
+    protected $serializer;
+    protected $notAllowedProductsProvider;
 
     public function __construct(
         \Magento\Framework\Serialize\SerializerInterface $serializer,

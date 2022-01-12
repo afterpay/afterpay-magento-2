@@ -14,8 +14,8 @@ class ShippingAddressUpdater
         'state',
         'phoneNumber'
     ];
-    private \Magento\Quote\Api\CartRepositoryInterface $quoteRepository;
-    private \Magento\Directory\Model\Region $region;
+    private $quoteRepository;
+    private $region;
 
     public function __construct(
         \Magento\Directory\Model\Region $region,

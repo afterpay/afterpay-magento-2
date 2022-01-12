@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Test\Unit\Model\Url\UrlBuilder;
 
 class UrlFactoryTest extends \PHPUnit\Framework\TestCase
 {
-    private \Afterpay\Afterpay\Model\Url\UrlBuilder\UrlFactory $urlFactory;
+    private $urlFactory;
 
     /** @var \Afterpay\Afterpay\Model\Config|\PHPUnit\Framework\MockObject\MockObject */
     private $configMock;

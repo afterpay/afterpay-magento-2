@@ -4,11 +4,11 @@ namespace Afterpay\Afterpay\Gateway\Http\Client;
 
 class Client implements \Magento\Payment\Gateway\Http\ClientInterface
 {
-    protected \Magento\Framework\HTTP\ClientInterface $client;
-    protected \Magento\Framework\Serialize\SerializerInterface $serializer;
-    private \Psr\Log\LoggerInterface $logger;
-    private \Magento\Payment\Model\Method\Logger $debugLogger;
-    private \Magento\Framework\App\RequestInterface $request;
+    protected $client;
+    protected $serializer;
+    private $logger;
+    private $debugLogger;
+    private $request;
 
     public function __construct(
         \Magento\Framework\HTTP\ClientInterface $client,

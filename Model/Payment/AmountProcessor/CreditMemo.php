@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Model\Payment\AmountProcessor;
 
 class CreditMemo
 {
-    private \Afterpay\Afterpay\Model\Order\OrderItemProvider $orderItemProvider;
+    private $orderItemProvider;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Order\OrderItemProvider $orderItemProvider

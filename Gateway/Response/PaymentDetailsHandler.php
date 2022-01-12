@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Gateway\Response;
 
 class PaymentDetailsHandler implements \Magento\Payment\Gateway\Response\HandlerInterface
 {
-    private \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate $authExpiryDate;
+    private $authExpiryDate;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate $authExpiryDate

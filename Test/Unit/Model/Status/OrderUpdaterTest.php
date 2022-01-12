@@ -7,8 +7,8 @@ use Afterpay\Afterpay\Model\PaymentStateInterface;
 
 class OrderUpdaterTest extends \PHPUnit\Framework\TestCase
 {
-    private \Afterpay\Afterpay\Model\Order\CreditMemo\OrderUpdater $orderUpdater;
-    private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository;
+    private $orderUpdater;
+    private $orderRepository;
 
     public function setUp(): void
     {

@@ -4,10 +4,10 @@ namespace Afterpay\Afterpay\Controller\Adminhtml\MerchantConfiguration;
 
 class Update implements \Magento\Framework\App\Action\HttpPostActionInterface
 {
-    private \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory;
-    private \Magento\Framework\Message\ManagerInterface $messageManager;
-    private \Magento\Framework\App\RequestInterface $request;
-    private \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand;
+    private $resultJsonFactory;
+    private $messageManager;
+    private $request;
+    private $merchantConfigurationCommand;
 
     public function __construct(
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,

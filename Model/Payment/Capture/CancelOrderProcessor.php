@@ -6,9 +6,9 @@ use Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface;
 
 class CancelOrderProcessor
 {
-    private \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory;
-    private \Magento\Payment\Gateway\CommandInterface $refundCommand;
-    private \Magento\Payment\Gateway\CommandInterface $voidCommand;
+    private $paymentDataObjectFactory;
+    private $refundCommand;
+    private $voidCommand;
 
     public function __construct(
         \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory,

@@ -6,7 +6,7 @@ use Magento\Payment\Model\Method\Logger;
 
 class LoggerTest extends \PHPUnit\Framework\TestCase
 {
-    protected \Afterpay\Afterpay\Model\Log\Method\Logger $logger;
+    protected $logger;
 
     /** @var \Magento\Framework\Logger\Monolog|\PHPUnit\Framework\MockObject\MockObject */
     protected $monolog;

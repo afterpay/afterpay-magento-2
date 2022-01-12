@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Observer\Adminhtml;
 
 class ConfigSaveAfter implements \Magento\Framework\Event\ObserverInterface
 {
-    private \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand;
-    private \Magento\Framework\Message\ManagerInterface $messageManager;
+    private $merchantConfigurationCommand;
+    private $messageManager;
 
     const AFTERPAY_CONFIGS = [
         \Afterpay\Afterpay\Model\Config::XML_PATH_API_MODE,
@@ -40,18 +40,22 @@ class ConfigSaveAfter implements \Magento\Framework\Event\ObserverInterface
             if ($websiteId === '' && $store === '') {
                 $websiteId = 0;
             }
-            $messageAction = fn () => null;
+            $messageAction = function () {};
             if ($websiteId !== '') {
                 try {
                     $this->merchantConfigurationCommand->execute([
                         'websiteId' => (int)$observer->getData('website')
                     ]);
                 } catch (\Magento\Payment\Gateway\Command\CommandException $e) {
-                    $messageAction = fn () => $this->messageManager->addWarningMessage($e->getMessage());
+                    $messageAction = function () use ($e) {
+                        $this->messageManager->addWarningMessage($e->getMessage());
+                    };
                 } catch (\Exception $e) {
-                    $messageAction = fn () => $this->messageManager->addErrorMessage(
-                        (string)__('Afterpay merchant configuration fetching is failed. See logs.')
-                    );
+                    $messageAction = function () {
+                        $this->messageManager->addErrorMessage(
+                            (string)__('Afterpay merchant configuration fetching is failed. See logs.')
+                        );
+                    };
                 }
             }
             if ($isAfterpayConfigChanged) {

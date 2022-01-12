@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Model\Order;
 
 class OrderItem implements OrderItemInterface
 {
-    private float $refundedQty = 0;
-    private float $voidedQty = 0;
+    private $refundedQty = 0;
+    private $voidedQty = 0;
 
     public function getAfterpayRefundedQty(): float
     {

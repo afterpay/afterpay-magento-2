@@ -247,12 +247,16 @@
             </argument>
         </arguments>
     </type>
-    <type name="Magento\Payment\Model\MethodList">
+
+    <type name="Afterpay\Afterpay\Plugin\Model\Checks\SpecificationFactory">
         <arguments>
             <argument name="additionalChecks" xsi:type="array">
                 <item name="quote_items" xsi:type="string">quote_items</item>
             </argument>
         </arguments>
+    </type>
+    <type name="Magento\Payment\Model\Checks\SpecificationFactory">
+        <plugin name="afterpay_add_additional_checks" type="Afterpay\Afterpay\Plugin\Model\Checks\SpecificationFactory" />
     </type>
 
     <virtualType name="Afterpay\Afterpay\Logger" type="Magento\Framework\Logger\Monolog">

@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Model\ResourceModel;
 
 class NotAllowedProductsProvider
 {
-    private \Afterpay\Afterpay\Model\Config $config;
-    private \Magento\Framework\DB\Adapter\AdapterInterface $connection;
+    private $config;
+    private $connection;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Config $config,

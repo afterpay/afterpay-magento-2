@@ -6,9 +6,9 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
 {
     use \Magento\Payment\Helper\Formatter;
 
-    private \Magento\Framework\UrlInterface $url;
-    private \Magento\Catalog\Api\ProductRepositoryInterface $productRepository;
-    private \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder;
+    private $url;
+    private $productRepository;
+    private $searchCriteriaBuilder;
 
     public function __construct(
         \Magento\Framework\UrlInterface $url,
@@ -114,7 +114,10 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
         /** @var \Magento\Catalog\Model\ResourceModel\AbstractCollection $categoryCollection */
         $categoryCollection = $item->getProduct()->getCategoryCollection();
         $itemCategories = $categoryCollection->addAttributeToSelect('name')->getItems();
-        return array_map(static fn ($cat) => $cat->getData('name'), $itemCategories);
+        return array_map(
+            function ($cat) {return $cat->getData('name');},
+            $itemCategories
+        );
     }
 
     /**
@@ -125,8 +128,11 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
     {
         $itemsImages = [];
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('entity_id', array_map(static fn ($item) => $item->getProduct()->getId(), $items), 'in')
-            ->create();
+            ->addFilter(
+                'entity_id',
+                array_map(function ($item) {return $item->getProduct()->getId();}, $items),
+                'in'
+            )->create();
         $products = $this->productRepository->getList($searchCriteria)->getItems();
 
         foreach ($items as $item) {

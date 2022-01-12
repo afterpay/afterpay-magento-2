@@ -10,7 +10,7 @@ class CommandPoolProxyTest extends \PHPUnit\Framework\TestCase
     public function testCaptureCommand(string $paymentFlow, string $expectedCommand): void
     {
         $afterpayConfigMock = $this->getMockBuilder(\Afterpay\Afterpay\Model\Config::class)
-            ->onlyMethods(['getPaymentFlow'])
+            ->setMethods(['getPaymentFlow'])
             ->disableOriginalConstructor()
             ->getMock();
 

@@ -7,11 +7,11 @@ use Afterpay\Afterpay\Model\PaymentStateInterface;
 
 class CreditMemoProcessor
 {
-    private \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate $expiryDate;
-    private \Afterpay\Afterpay\Model\Order\CreditMemo\CreditMemoInitiator $creditMemoInitiator;
-    private \Magento\Sales\Api\CreditmemoManagementInterface $creditmemoManagement;
-    private OrderUpdater $orderUpdater;
-    private PaymentUpdater $paymentUpdater;
+    private $expiryDate;
+    private $creditMemoInitiator;
+    private $creditmemoManagement;
+    private $orderUpdater;
+    private $paymentUpdater;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate $expiryDate,

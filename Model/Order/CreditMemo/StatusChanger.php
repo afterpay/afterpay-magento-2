@@ -4,9 +4,9 @@ namespace Afterpay\Afterpay\Model\Order\CreditMemo;
 
 class StatusChanger
 {
-    private OrdersRetriever $ordersRetriever;
-    private CreditMemoProcessor $creditMemoProcessor;
-    private \Psr\Log\LoggerInterface $logger;
+    private $ordersRetriever;
+    private $creditMemoProcessor;
+    private $logger;
 
     public function __construct(
         OrdersRetriever $ordersRetriever,

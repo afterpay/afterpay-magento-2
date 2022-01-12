@@ -16,13 +16,13 @@ class TransferFactory implements \Magento\Payment\Gateway\Http\TransferFactoryIn
         'afterpayToken'
     ];
 
-    private \Magento\Payment\Gateway\Http\TransferBuilder $transferBuilder;
-    private \Afterpay\Afterpay\Model\Config $config;
-    private \Magento\Store\Model\StoreManagerInterface $storeManager;
-    private TransferFactory\UserAgentProvider $userAgentProvider;
-    private UrlBuilder $urlBuilder;
-    private string $uriPath;
-    private string $method;
+    private $transferBuilder;
+    private $config;
+    private $storeManager;
+    private $userAgentProvider;
+    private $urlBuilder;
+    private $uriPath;
+    private $method;
 
     public function __construct(
         \Magento\Payment\Gateway\Http\TransferBuilder $transferBuilder,

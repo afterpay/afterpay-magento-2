@@ -9,11 +9,11 @@ class GetMerchantConfigurationCommandWrapper implements \Magento\Payment\Gateway
 {
     const DEFAULT_WEBSITE_ID = 0;
 
-    private \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand;
-    private \Afterpay\Afterpay\Model\Config $afterpayConfig;
-    private \Magento\Framework\App\Config\ReinitableConfigInterface $appConfig;
-    private \Afterpay\Afterpay\Model\Log\Method\Logger $debugLogger;
-    private \Psr\Log\LoggerInterface $logger;
+    private $merchantConfigurationCommand;
+    private $afterpayConfig;
+    private $appConfig;
+    private $debugLogger;
+    private $logger;
 
     public function __construct(
         \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand,

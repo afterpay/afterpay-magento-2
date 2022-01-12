@@ -7,10 +7,10 @@ use Afterpay\Afterpay\Model\PaymentStateInterface;
 
 class CaptureProcessor
 {
-    private \Magento\Payment\Gateway\CommandInterface $authCaptureCommand;
-    private \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory;
-    private \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate $authExpiryDate;
-    private \Afterpay\Afterpay\Model\Payment\AmountProcessor\Shipment $shipmentAmountProcessor;
+    private $authCaptureCommand;
+    private $paymentDataObjectFactory;
+    private $authExpiryDate;
+    private $shipmentAmountProcessor;
 
     public function __construct(
         \Magento\Payment\Gateway\CommandInterface $authCaptureCommand,

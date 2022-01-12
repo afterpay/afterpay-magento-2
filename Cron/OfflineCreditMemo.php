@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Cron;
 
 class OfflineCreditMemo
 {
-    private \Afterpay\Afterpay\Model\Order\CreditMemo\StatusChanger $statusChanger;
+    private $statusChanger;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Order\CreditMemo\StatusChanger $statusChanger

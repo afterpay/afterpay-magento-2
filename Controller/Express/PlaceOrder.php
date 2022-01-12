@@ -6,13 +6,13 @@ class PlaceOrder implements \Magento\Framework\App\Action\HttpPostActionInterfac
 {
     const CANCELLED_STATUS = 'CANCELLED';
 
-    private \Magento\Framework\App\RequestInterface $request;
-    private \Magento\Framework\Message\ManagerInterface $messageManager;
-    private \Magento\Checkout\Model\Session $checkoutSession;
-    private \Magento\Framework\Controller\Result\JsonFactory $jsonFactory;
-    private \Magento\Framework\UrlInterface $url;
-    private \Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor $placeOrderProcessor;
-    private \Magento\Payment\Gateway\CommandInterface $syncCheckoutDataCommand;
+    private $request;
+    private $messageManager;
+    private $checkoutSession;
+    private $jsonFactory;
+    private $url;
+    private $placeOrderProcessor;
+    private $syncCheckoutDataCommand;
 
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,

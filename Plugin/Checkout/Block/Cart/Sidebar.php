@@ -6,9 +6,9 @@ namespace Afterpay\Afterpay\Plugin\Checkout\Block\Cart;
 
 class Sidebar
 {
-    private \Afterpay\Afterpay\ViewModel\Container\Cta\Cta $ctaContainerViewModel;
-    private \Afterpay\Afterpay\Model\Config $config;
-    private \Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\ExpressCheckout $expressCheckoutViewModel;
+    private $ctaContainerViewModel;
+    private $config;
+    private $expressCheckoutViewModel;
 
     public function __construct(
         \Afterpay\Afterpay\ViewModel\Container\Cta\Cta $ctaContainerViewModel,

@@ -4,9 +4,9 @@ namespace Afterpay\Afterpay\Gateway\Response;
 
 class CaptureVirtualProductsHandler implements \Magento\Payment\Gateway\Response\HandlerInterface
 {
-    private \Magento\Payment\Gateway\CommandInterface $authCaptureCommand;
-    private \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory;
-    private \Afterpay\Afterpay\Model\Payment\AmountProcessor\Order $orderAmountProcessor;
+    private $authCaptureCommand;
+    private $paymentDataObjectFactory;
+    private $orderAmountProcessor;
 
     public function __construct(
         \Magento\Payment\Gateway\CommandInterface $authCaptureCommand,
@@ -31,7 +31,7 @@ class CaptureVirtualProductsHandler implements \Magento\Payment\Gateway\Response
 
         $itemsToCapture = array_filter(
             $payment->getOrder()->getAllItems(),
-            static fn ($item) => !$item->getParentItem() && $item->getIsVirtual()
+            function ($item) {return !$item->getParentItem() && $item->getIsVirtual();}
         );
 
         if (count($itemsToCapture)) {

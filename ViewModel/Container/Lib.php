@@ -6,9 +6,9 @@ namespace Afterpay\Afterpay\ViewModel\Container;
 
 class Lib implements \Magento\Framework\View\Element\Block\ArgumentInterface
 {
-    protected \Afterpay\Afterpay\Model\Config $config;
-    private \Afterpay\Afterpay\Model\Url\Lib\LibUrlProvider $libUrlProvider;
-    private ?string $containerConfigPath;
+    protected $config;
+    private $libUrlProvider;
+    private $containerConfigPath;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Config $config,

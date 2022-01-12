@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Model\CheckoutManagement;
 
 class ExpressCheckoutValidator implements \Afterpay\Afterpay\Model\Spi\CheckoutValidatorInterface
 {
-    private \Afterpay\Afterpay\Model\Config $config;
+    private $config;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Config $config

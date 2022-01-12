@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Gateway\Validator\Method;
 
 class NotAllowedProductsValidator extends \Magento\Payment\Gateway\Validator\AbstractValidator
 {
-    private \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider $notAllowedProductsProvider;
+    private $notAllowedProductsProvider;
 
     public function __construct(
         \Magento\Payment\Gateway\Validator\ResultInterfaceFactory $resultFactory,

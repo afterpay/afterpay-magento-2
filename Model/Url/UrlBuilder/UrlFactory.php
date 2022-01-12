@@ -4,9 +4,9 @@ namespace Afterpay\Afterpay\Model\Url\UrlBuilder;
 
 class UrlFactory
 {
-    private \Afterpay\Afterpay\Model\Config $config;
-    private \Magento\Store\Model\StoreManagerInterface $storeManager;
-    private array $environments;
+    private $config;
+    private $storeManager;
+    private $environments;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Config $config,

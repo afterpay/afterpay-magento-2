@@ -6,7 +6,7 @@ use Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate;
 
 class ExpiryDateTest extends \PHPUnit\Framework\TestCase
 {
-    protected ExpiryDate $expiryDate;
+    protected $expiryDate;
 
     /** @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface|mixed|\PHPUnit\Framework\MockObject\MockObject */
     protected $timezone;

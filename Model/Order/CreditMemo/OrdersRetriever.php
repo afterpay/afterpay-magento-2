@@ -6,10 +6,10 @@ use Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface;
 
 class OrdersRetriever
 {
-    private \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory;
-    private \Magento\Framework\App\ResourceConnection $resourceConnection;
-    private \Magento\Framework\Serialize\SerializerInterface $serializer;
-    private \Psr\Log\LoggerInterface $logger;
+    private $orderCollectionFactory;
+    private $resourceConnection;
+    private $serializer;
+    private $logger;
 
     public function __construct(
         \Magento\Framework\Serialize\SerializerInterface $serializer,

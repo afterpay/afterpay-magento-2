@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Model\Order\CreditMemo;
 
 class CreditMemoInitiator
 {
-    private \Magento\Sales\Model\Order\CreditmemoFactory $creditmemoFactory;
+    private $creditmemoFactory;
 
     public function __construct(
         \Magento\Sales\Model\Order\CreditmemoFactory $creditmemoFactory

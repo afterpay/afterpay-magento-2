@@ -8,11 +8,11 @@ use Magento\Quote\Model\Quote;
 
 class PlaceOrderProcessor
 {
-    private \Magento\Quote\Api\CartManagementInterface $cartManagement;
-    private \Afterpay\Afterpay\Model\Payment\Capture\CancelOrderProcessor $cancelOrderProcessor;
-    private \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage $quotePaidStorage;
-    private \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory;
-    private \Psr\Log\LoggerInterface $logger;
+    private $cartManagement;
+    private $cancelOrderProcessor;
+    private $quotePaidStorage;
+    private $paymentDataObjectFactory;
+    private $logger;
 
     public function __construct(
         \Magento\Quote\Api\CartManagementInterface $cartManagement,

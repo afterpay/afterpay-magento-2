@@ -4,9 +4,9 @@ namespace Afterpay\Afterpay\Model\Order\CreditMemo;
 
 class PaymentUpdater
 {
-    private \Magento\Payment\Gateway\CommandInterface $getPaymentDataCommand;
-    private \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory;
-    private \Magento\Sales\Api\OrderPaymentRepositoryInterface $orderPaymentRepository;
+    private $getPaymentDataCommand;
+    private $paymentDataObjectFactory;
+    private $orderPaymentRepository;
 
     public function __construct(
         \Magento\Payment\Gateway\CommandInterface $getPaymentDataCommand,

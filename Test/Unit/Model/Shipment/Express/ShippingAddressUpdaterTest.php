@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Test\Unit\Model\Shipment\Express;
 
 class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
 {
-    private \Afterpay\Afterpay\Model\Shipment\Express\ShippingAddressUpdater $shippingAddressUpdater;
+    private $shippingAddressUpdater;
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
      */

@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Model\Url\Lib;
 
 abstract class LibUrlProvider
 {
-    protected \Afterpay\Afterpay\Model\Url\UrlBuilder $urlBuilder;
-    protected bool $isLibGotten = false;
+    protected $urlBuilder;
+    protected $isLibGotten = false;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Url\UrlBuilder $urlBuilder

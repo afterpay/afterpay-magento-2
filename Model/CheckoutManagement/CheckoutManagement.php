@@ -7,13 +7,13 @@ use Afterpay\Afterpay\Api\Data\RedirectPathInterface;
 
 class CheckoutManagement implements \Afterpay\Afterpay\Api\CheckoutManagementInterface
 {
-    private \Magento\Payment\Gateway\CommandInterface $checkoutCommand;
-    private \Magento\Payment\Gateway\CommandInterface $expressCheckoutCommand;
-    private \Magento\Quote\Api\CartRepositoryInterface $cartRepository;
-    private \Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId;
-    private \Afterpay\Afterpay\Api\Data\CheckoutInterfaceFactory $checkoutFactory;
-    private ?\Afterpay\Afterpay\Model\Spi\CheckoutValidatorInterface $expressCheckoutValidator;
-    private ?\Afterpay\Afterpay\Model\Spi\CheckoutValidatorInterface $checkoutValidator;
+    private $checkoutCommand;
+    private $expressCheckoutCommand;
+    private $cartRepository;
+    private $maskedQuoteIdToQuoteId;
+    private $checkoutFactory;
+    private $expressCheckoutValidator;
+    private $checkoutValidator;
 
     public function __construct(
         \Magento\Payment\Gateway\CommandInterface $checkoutCommand,

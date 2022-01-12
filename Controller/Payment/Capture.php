@@ -7,12 +7,13 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
     const CHECKOUT_STATUS_CANCELLED = 'CANCELLED';
     const CHECKOUT_STATUS_SUCCESS = 'SUCCESS';
 
-    private \Magento\Framework\App\RequestInterface $request;
-    private \Magento\Checkout\Model\Session $session;
-    private \Magento\Framework\Controller\Result\RedirectFactory $redirectFactory;
-    private \Magento\Framework\Message\ManagerInterface $messageManager;
-    private \Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor $placeOrderProcessor;
-    private \Magento\Payment\Gateway\CommandInterface $validateCheckoutDataCommand;
+    private $request;
+    private $session;
+    private $redirectFactory;
+    private $messageManager;
+    private $placeOrderProcessor;
+    private $validateCheckoutDataCommand;
+    private $storeManager;
 
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,
@@ -20,7 +21,8 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
         \Magento\Framework\Controller\Result\RedirectFactory $redirectFactory,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor $placeOrderProcessor,
-        \Magento\Payment\Gateway\CommandInterface $validateCheckoutDataCommand
+        \Magento\Payment\Gateway\CommandInterface $validateCheckoutDataCommand,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->request = $request;
         $this->session = $session;
@@ -28,6 +30,7 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
         $this->messageManager = $messageManager;
         $this->placeOrderProcessor = $placeOrderProcessor;
         $this->validateCheckoutDataCommand = $validateCheckoutDataCommand;
+        $this->storeManager = $storeManager;
     }
 
     public function execute()
@@ -36,13 +39,17 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
             $this->messageManager->addErrorMessage(
                 (string)__('You have cancelled your Afterpay payment. Please select an alternative payment method.')
             );
-            return $this->redirectFactory->create()->setPath('checkout/cart');
+            return $this->redirectFactory->create()->setPath('checkout/cart', [
+                '_scope' => $this->storeManager->getStore()
+            ]);
         }
         if ($this->request->getParam('status') != self::CHECKOUT_STATUS_SUCCESS) {
             $this->messageManager->addErrorMessage(
                 (string)__('Afterpay payment is failed. Please select an alternative payment method.')
             );
-            return $this->redirectFactory->create()->setPath('checkout/cart');
+            return $this->redirectFactory->create()->setPath('checkout/cart', [
+                '_scope' => $this->storeManager->getStore()
+            ]);
         }
 
         try {
@@ -54,7 +61,9 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
                 ? $e->getMessage()
                 : (string)__('Payment is failed');
             $this->messageManager->addErrorMessage($errorMessage);
-            return $this->redirectFactory->create()->setPath('checkout/cart');
+            return $this->redirectFactory->create()->setPath('checkout/cart', [
+                '_scope' => $this->storeManager->getStore()
+            ]);
         }
 
         $this->messageManager->addSuccessMessage((string)__('Afterpay Transaction Completed'));

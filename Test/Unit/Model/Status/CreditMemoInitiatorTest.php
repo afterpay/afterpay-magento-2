@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Test\Unit\Model\Status;
 
 class CreditMemoInitiatorTest extends \PHPUnit\Framework\TestCase
 {
-    private \Afterpay\Afterpay\Model\Order\CreditMemo\CreditMemoInitiator $creditMemoInitiator;
+    private $creditMemoInitiator;
     /**
      * @var \Magento\Sales\Model\Order\CreditmemoFactory|\PHPUnit\Framework\MockObject\MockObject
      */

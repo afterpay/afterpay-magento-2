@@ -4,11 +4,11 @@ namespace Afterpay\Afterpay\Gateway\Http\TransferFactory;
 
 class UserAgentProvider
 {
-    private \Magento\Framework\Module\ModuleListInterface $moduleList;
-    private \Magento\Framework\App\ProductMetadataInterface $productMetadata;
-    private \Magento\Framework\Util $util;
-    private \Afterpay\Afterpay\Model\Config $config;
-    private \Magento\Store\Model\Store $store;
+    private $moduleList;
+    private $productMetadata;
+    private $util;
+    private $config;
+    private $store;
 
     public function __construct(
         \Magento\Framework\Module\ModuleListInterface $moduleList,

@@ -6,7 +6,7 @@ class ExpiryDate
 {
     const FORMAT = 'Y-m-d H:i T';
 
-    private \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone;
+    private $timezone;
 
     public function __construct(
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone

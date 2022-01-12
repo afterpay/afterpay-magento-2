@@ -4,9 +4,9 @@ namespace Afterpay\Afterpay\Gateway\Response\Checkout;
 
 class CheckoutDataToQuoteHandler implements \Magento\Payment\Gateway\Response\HandlerInterface
 {
-    private \Magento\Checkout\Api\ShippingInformationManagementInterface $shippingInformationManagement;
-    private \Magento\Checkout\Api\Data\ShippingInformationInterfaceFactory $shippingInformationFactory;
-    private \Magento\Quote\Api\Data\AddressInterfaceFactory $addressInterfaceFactory;
+    private $shippingInformationManagement;
+    private $shippingInformationFactory;
+    private $addressInterfaceFactory;
 
     public function __construct(
         \Magento\Checkout\Api\ShippingInformationManagementInterface $shippingInformationManagement,

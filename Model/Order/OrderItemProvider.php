@@ -9,7 +9,7 @@ class OrderItemProvider
     const ITEM_SHIPPED = 'shipped';
     const ITEM_REFUNDED = 'refunded';
 
-    private \Afterpay\Afterpay\Model\Order\OrderItemInterfaceFactory $orderItemFactory;
+    private $orderItemFactory;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Order\OrderItemInterfaceFactory $orderItemFactory

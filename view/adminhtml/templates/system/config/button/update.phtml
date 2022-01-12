@@ -1,10 +1,9 @@
 <?php
 /** @var \Afterpay\Afterpay\Block\Adminhtml\System\Config\Button\LimitUpdate $block */
-/** @var Magento\Framework\Escaper $escaper */
 ?>
 <div class="afterpay-buttons-container">
-    <button id="<?= $escaper->escapeHtml($block->getHtmlId()) ?>">
-        <?= $escaper->escapeHtml($block->getButtonLabel()); ?>
+    <button id="<?= $block->escapeHtml($block->getHtmlId()) ?>">
+        <?= $block->escapeHtml($block->getButtonLabel()); ?>
     </button>
     <div id="limits-spinner">
         <div class="spinner">
@@ -16,7 +15,7 @@
     {
         "#<?= $block->getHtmlId() ?>": {
             "Afterpay_Afterpay/js/limits": {
-                "actionUrl": "<?= $escaper->escapeUrl($block->getUrl($block->getButtonUrl())) ?>",
+                "actionUrl": "<?= $block->escapeUrl($block->getUrl($block->getButtonUrl())) ?>",
                 "spinnerId": "#limits-spinner"
             }
         }

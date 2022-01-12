@@ -6,8 +6,8 @@ use Magento\Store\Model\Store;
 
 class Cta extends \Afterpay\Afterpay\ViewModel\Container\Container
 {
-    private \Magento\Store\Model\StoreManagerInterface $storeManager;
-    private \Magento\Framework\Locale\Resolver $localeResolver;
+    private $storeManager;
+    private $localeResolver;
 
     public function __construct(
         \Magento\Framework\Serialize\SerializerInterface $serializer,

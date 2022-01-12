@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Plugin\Block\Adminhtml\Order\Creditmemo\Create;
 
 class Items
 {
-    private \Magento\Framework\View\LayoutInterface $layout;
+    private $layout;
 
     public function __construct(
         \Magento\Framework\View\LayoutInterface $layout

@@ -4,13 +4,13 @@ namespace Afterpay\Afterpay\Controller\Express;
 
 class GetShippingOptions implements \Magento\Framework\App\Action\HttpPostActionInterface
 {
-    private \Magento\Checkout\Model\Session $checkoutSession;
-    private \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory;
-    private \Magento\Framework\App\RequestInterface $request;
-    private \Afterpay\Afterpay\Model\Shipment\Express\ShippingListProvider $shippingListProvider;
-    private \Afterpay\Afterpay\Model\Shipment\Express\ShippingAddressUpdater $shippingAddressUpdater;
-    private \Psr\Log\LoggerInterface $logger;
-    private \Magento\Framework\Message\ManagerInterface $messageManager;
+    private $checkoutSession;
+    private $jsonResultFactory;
+    private $request;
+    private $shippingListProvider;
+    private $shippingAddressUpdater;
+    private $logger;
+    private $messageManager;
 
     public function __construct(
         \Magento\Framework\App\RequestInterface $request,

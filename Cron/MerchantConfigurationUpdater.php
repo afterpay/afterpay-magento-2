@@ -6,11 +6,11 @@ namespace Afterpay\Afterpay\Cron;
 
 class MerchantConfigurationUpdater
 {
-    private \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand;
-    private \Magento\Store\Model\StoreManagerInterface $storeManager;
-    private \Afterpay\Afterpay\Model\Config $config;
-    private \Psr\Log\LoggerInterface $logger;
-    private \Magento\Framework\App\Cache\TypeListInterface $typeList;
+    private $merchantConfigurationCommand;
+    private $storeManager;
+    private $config;
+    private $logger;
+    private $typeList;
 
     public function __construct(
         \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand,

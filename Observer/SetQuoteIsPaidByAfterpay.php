@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Observer;
 
 class SetQuoteIsPaidByAfterpay implements \Magento\Framework\Event\ObserverInterface
 {
-    private \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage $quotePaidStorage;
+    private $quotePaidStorage;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage $quotePaidStorage

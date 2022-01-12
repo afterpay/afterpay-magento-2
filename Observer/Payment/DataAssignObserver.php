@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Observer\Payment;
 
 class DataAssignObserver extends \Magento\Payment\Observer\AbstractDataAssignObserver
 {
-    private array $additionalInformationList = [
+    private $additionalInformationList = [
         \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_TOKEN,
         \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_AUTH_TOKEN_EXPIRES,
         \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_REDIRECT_CHECKOUT_URL

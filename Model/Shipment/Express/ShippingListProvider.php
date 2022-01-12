@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Model\Shipment\Express;
 
 class ShippingListProvider
 {
-    private \Magento\Quote\Api\ShipmentEstimationInterface $shipmentEstimation;
-    private CreateShippingOption $createShippingOption;
+    private $shipmentEstimation;
+    private $createShippingOption;
 
     public function __construct(
         CreateShippingOption $createShippingOption,

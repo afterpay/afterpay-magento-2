@@ -4,9 +4,9 @@ namespace Afterpay\Afterpay\Model\Config\Source;
 
 class Category implements \Magento\Framework\Data\OptionSourceInterface
 {
-    private \Magento\Store\Model\StoreManagerInterface $storeManager;
-    private \Magento\Framework\App\RequestInterface $request;
-    private \Magento\Catalog\Helper\Category $categoryHelper;
+    private $storeManager;
+    private $request;
+    private $categoryHelper;
 
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,

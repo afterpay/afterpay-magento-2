@@ -4,11 +4,11 @@ namespace Afterpay\Afterpay\Gateway\Command;
 
 class CommandPoolProxy implements \Magento\Payment\Gateway\Command\CommandPoolInterface
 {
-    protected ?\Magento\Payment\Gateway\Command\CommandPoolInterface $commandPool = null;
+    protected $commandPool = null;
 
-    private \Magento\Payment\Gateway\Command\CommandPoolFactory $commandPoolFactory;
-    private \Afterpay\Afterpay\Model\Config $config;
-    private array $commands;
+    private $commandPoolFactory;
+    private $config;
+    private $commands;
 
     public function __construct(
         \Magento\Payment\Gateway\Command\CommandPoolFactory $commandPoolFactory,
