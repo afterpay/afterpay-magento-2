@@ -1,6 +1,6 @@
 {
     "name": "afterpay-global/module-afterpay",
-    "license": "APLv2 (Apache License 2.0)",
+    "license": "Apache-2.0",
     "type": "magento2-module",
     "description": "Magento 2 Afterpay Payment Module",
     "version": "5.0.0",
