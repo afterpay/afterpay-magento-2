@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Afterpay_Afterpay::css/afterpay-express-checkout.css"/>
+    </head>
+    <body>
+        <referenceBlock name="head.components">
+            <block name="afterpay.cta.mini.cart.lib" template="Afterpay_Afterpay::cta/lib.phtml" before="-" >
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\MiniCartLib</argument>
+                </arguments>
+            </block>
+            <block name="afterpay.express.checkout.mini.cart.lib" template="Afterpay_Afterpay::express-checkout/lib.phtml" before="-" >
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\MiniCartLib</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+        <referenceBlock name="minicart">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="minicart_content" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="extra_info" xsi:type="array">
+                                    <item name="children" xsi:type="array">
+                                        <item name="afterpay.cta" xsi:type="array">
+                                            <item name="component" xsi:type="string">afterpayCta</item>
+                                            <item name="template" xsi:type="string">Afterpay_Afterpay/cta/cta</item>
+                                            <item name="sortOrder" xsi:type="string">0</item>
+                                            <item name="config" xsi:type="array">
+                                                <item name="id" xsi:type="string">afterpay-cta-mini-cart</item>
+                                                <item name="modelContainerId" xsi:type="string">afterpay-mini-cart-container</item>
+                                            </item>
+                                            <item name="children" xsi:type="array">
+                                                <item name="afterpay.cta.mini.cart.data.retriever" xsi:type="array">
+                                                    <item name="component" xsi:type="string">Afterpay_Afterpay/js/service/container/cart/mini-cart-data-retriever</item>
+                                                    <item name="config" xsi:type="array">
+                                                        <item name="modelContainerId" xsi:type="string">afterpay-mini-cart-container</item>
+                                                    </item>
+                                                </item>
+                                            </item>
+                                        </item>
+                                        <item name="afterpay.express.checkout" xsi:type="array">
+                                            <item name="component" xsi:type="string">afterpayExpressCheckoutButton</item>
+                                            <item name="template" xsi:type="string">Afterpay_Afterpay/express-checkout/button-minicart</item>
+                                            <item name="sortOrder" xsi:type="string">1</item>
+                                            <item name="config" xsi:type="array">
+                                                <item name="entryPoint" xsi:type="string">mini-cart</item>
+                                                <item name="modelContainerId" xsi:type="string">afterpay-mini-cart-container</item>
+                                            </item>
+                                            <item name="children" xsi:type="array">
+                                                <item name="afterpay.express.checkout.mini.cart.data.retriever" xsi:type="array">
+                                                    <item name="component" xsi:type="string">Afterpay_Afterpay/js/service/container/cart/mini-cart-data-retriever</item>
+                                                    <item name="config" xsi:type="array">
+                                                        <item name="modelContainerId" xsi:type="string">afterpay-mini-cart-container</item>
+                                                    </item>
+                                                </item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

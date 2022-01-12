@@ -1,18 +1,21 @@
 <?php
-/**
- * Magento 2 extensions for Afterpay Payment
- *
- * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
- */
-namespace Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field;
 
-use Magento\Framework\Data\Form\Element\AbstractElement;
+declare(strict_types=1);
+
+namespace Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field;
 
 class Disable extends \Magento\Config\Block\System\Config\Form\Field
 {
-    protected function _getElementHtml(AbstractElement $element)
+    public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
+        /** @phpstan-ignore-next-line */
+        $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
+        return parent::render($element);
+    }
+
+    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    {
+        /** @phpstan-ignore-next-line */
         $element->setDisabled('disabled');
         return $element->getElementHtml();
     }

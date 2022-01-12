@@ -1,16 +1,65 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Magento 2 extensions for Afterpay Payment
- *
- * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
- */
--->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-   <body>
+    <head>
+        <css src="Afterpay_Afterpay::css/afterpay-express-checkout.css"/>
+    </head>
+    <body>
+        <referenceBlock name="head.components">
+            <block name="afterpay.cta.pdp.lib" template="Afterpay_Afterpay::cta/lib.phtml" before="-" >
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\PDPLib</argument>
+                </arguments>
+            </block>
+            <block name="afterpay.express.checkout.pdp.lib" template="Afterpay_Afterpay::express-checkout/lib.phtml" before="-" >
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\PDPLib</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
         <referenceContainer name="product.info.main">
-            <block class="Afterpay\Afterpay\Block\Catalog\Installments" name="afterpay.price.installments" after="product.info.price" template="Afterpay_Afterpay::afterpay/product.phtml" />
+            <block name="afterpay.product.express.checkout" template="Afterpay_Afterpay::express-checkout/button.phtml" after="product.info.price" ifconfig="payment/afterpay/enable_express_checkout_product_page">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\ExpressCheckoutPdp</argument>
+                    <argument name="jsLayout" xsi:type="array">
+                        <item name="components" xsi:type="array">
+                            <item name="afterpay.express.checkout" xsi:type="array">
+                                <item name="component" xsi:type="string">afterpayExpressCheckoutButtonPdp</item>
+                                <item name="template" xsi:type="string">Afterpay_Afterpay/express-checkout/button</item>
+                                <item name="config" xsi:type="array">
+                                    <item name="entryPoint" xsi:type="string">product-page</item>
+                                    <item name="modelContainerId" xsi:type="string">afterpay-pdp-container</item>
+                                    <item name="cartModelContainerId" xsi:type="string">afterpay-mini-cart-container</item>
+                                </item>
+                                <item name="children" xsi:type="array">
+                                    <item name="afterpay.express.checkout.mini.cart.data.retriever" xsi:type="array">
+                                        <item name="component" xsi:type="string">Afterpay_Afterpay/js/service/container/cart/mini-cart-data-retriever</item>
+                                        <item name="config" xsi:type="array">
+                                            <item name="modelContainerId" xsi:type="string">afterpay-mini-cart-container</item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </argument>
+                </arguments>
+            </block>
+            <block name="afterpay.product.cta" template="Afterpay_Afterpay::cta/container.phtml" before="afterpay.product.express.checkout" after="product.info.price" ifconfig="payment/afterpay/enable_cta_product_page">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\Cta</argument>
+                    <argument name="jsLayout" xsi:type="array">
+                        <item name="components" xsi:type="array">
+                            <item name="afterpay.cta" xsi:type="array">
+                                <item name="component" xsi:type="string">afterpayCta</item>
+                                <item name="template" xsi:type="string">Afterpay_Afterpay/cta/cta</item>
+                                <item name="config" xsi:type="array">
+                                    <item name="id" xsi:type="string">afterpay-cta-pdp</item>
+                                    <item name="modelContainerId" xsi:type="string">afterpay-pdp-container</item>
+                                </item>
+                            </item>
+                        </item>
+                    </argument>
+                </arguments>
+            </block>
         </referenceContainer>
     </body>
 </page>

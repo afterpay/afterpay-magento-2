@@ -1,0 +1,104 @@
+#afterpay {
+    .payment-method-note {
+        &.afterpay-checkout-note {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            text-align: center;
+        }
+        .afterpay-checkout-note-header {
+            h3 {
+                color: #00a4e4;
+                text-align: left;
+            }
+        }
+        ul {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            li {
+                width: 24%;
+                display: inline-block;
+            }
+            &.cost {
+                li {
+                    font-size: 1.8rem;
+                    color: #153F72;
+                }
+            }
+            &.icon {
+                .afterpay_checkout_steps {
+                    background-size: 18px 18px;
+                    vertical-align: middle;
+                    display: inline-block;
+                    height: 18px;
+                    width: 18px;
+                }
+                .afterpay_checkout_steps_1 {
+                    background-image: url(https://static.afterpay.com/checkout/circle_1@2x.png);
+                }
+                .afterpay_checkout_steps_2 {
+                    background-image: url(https://static.afterpay.com/checkout/circle_2@2x.png);
+                }
+                .afterpay_checkout_steps_3 {
+                    background-image: url(https://static.afterpay.com/checkout/circle_3@2x.png);
+                }
+                .afterpay_checkout_steps_4 {
+                    background-image: url(https://static.afterpay.com/checkout/Circle_4@2x.png);
+                }
+            }
+        }
+    }
+    .payment-method-content {
+        overflow: hidden;
+        padding-right: 22px;
+    }
+    .payment-icon {
+        height: 40px;
+        width: auto;
+    }
+    .actions-toolbar-wraper {
+        margin-top: 1rem;
+        text-align: left;
+        background-color: #f6f7f9;
+        display: inline-block;
+        padding: 15px;
+        .terms-conditions {
+            width: 65%;
+            float: left;
+        }
+        .actions-toolbar {
+            float: right;
+            .action.primary.checkout {
+                line-height: 2.2rem;
+                padding: 14px 17px;
+                font-size: 1.8rem;
+            }
+        }
+    }
+}
+
+@media only screen and (max-width : 1150px) {
+    #afterpay {
+        .actions-toolbar-wraper {
+            .terms-conditions {
+                width: 57%;
+            }
+        }
+    }
+}
+
+@media only screen and (max-width : 993px) {
+    #afterpay {
+        .actions-toolbar-wraper {
+            .terms-conditions {
+                width: 100%;
+            }
+            .actions-toolbar {
+                width: 100%;
+                margin-top: 1.5rem;
+                .primary, .action.primary.checkout {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}

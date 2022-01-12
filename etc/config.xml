@@ -1,31 +1,25 @@
-<?xml version="1.0"?>
-<!--
-/**
- * Magento 2 extensions for Afterpay Payment
- *
- * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
- */
--->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <afterpaypayovertime>
+            <afterpay>
                 <active>0</active>
                 <title>Afterpay</title>
                 <api_mode>sandbox</api_mode>
-                <model>Afterpay\Afterpay\Model\Payovertime</model>
+                <model>Afterpay\Afterpay\Model\Method\MethodFacade</model>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_capture>1</can_capture>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
                 <payment_action>authorize_capture</payment_action>
-                <merchant_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <paymentInfoKeys>afterpay_token,afterpay_order_id,afterpay_payment_state,afterpay_open_to_capture_amount,afterpay_rollover_discount,afterpay_captured_discount,afterpay_auth_expiry_date</paymentInfoKeys>
+                <merchant_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <allowed_merchant_countries>AU,NZ,US,CA</allowed_merchant_countries>
                 <allowspecific>1</allowspecific>
-                <specificcountry>AU</specificcountry>
-                <http_header_support>0</http_header_support>
-                <enable_for_product_page>1</enable_for_product_page>
-                <enable_for_cart_page>1</enable_for_cart_page>
-                <express_checkout_product_page>0</express_checkout_product_page>
-                <express_checkout_cart_page>0</express_checkout_cart_page>
-                <express_checkout_minicart_page>0</express_checkout_minicart_page>
-            </afterpaypayovertime>
+                <payment_flow>immediate</payment_flow>
+                <debugReplaceKeys>shipping,billing,consumer</debugReplaceKeys>
+            </afterpay>
         </payment>
     </default>
 </config>

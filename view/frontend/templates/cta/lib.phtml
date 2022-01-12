@@ -1,0 +1,14 @@
+<?php
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Magento\Framework\Escaper $escaper */
+/** @var Afterpay\Afterpay\ViewModel\Container\Cta\Lib $viewModel */
+$viewModel = $block->getViewModel();
+?>
+
+<?php if ($viewModel->isContainerEnable() && !$viewModel->getIsLibLoadedAlready()): ?>
+    <script
+        src="<?= $escaper->escapeUrl($viewModel->getAfterpayLib()) ?>"
+        data-min="<?= /* @noEscape */ $viewModel->getMinTotalValue() ?>"
+        data-max="<?= /* @noEscape */ $viewModel->getMaxTotalValue() ?>"
+        async></script>
+<?php endif; ?>

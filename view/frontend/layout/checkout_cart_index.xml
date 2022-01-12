@@ -1,19 +1,72 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Magento 2 extensions for Afterpay Payment
- *
- * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
- */
--->
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Afterpay_Afterpay::css/afterpay-express-checkout.css"/>
+    </head>
     <body>
-        <referenceContainer name="checkout.cart.methods">
-            <block class="Afterpay\Afterpay\Block\Cart\Button" name="afterpay.cart.buynow" after="checkout.cart.shortcut.buttons" template="Afterpay_Afterpay::afterpay/cart.phtml" />
-        </referenceContainer>
-        <referenceContainer name="content">
-            <block class="Magento\Framework\View\Element\Template" name="afterpay.modal.popup" after="-" template="Afterpay_Afterpay::afterpay/modal.phtml" />
+        <referenceBlock name="head.components">
+            <block name="afterpay.cta.cart.lib" template="Afterpay_Afterpay::cta/lib.phtml" before="-" >
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\CartLib</argument>
+                </arguments>
+            </block>
+            <block name="afterpay.express.checkout.cart.lib" template="Afterpay_Afterpay::express-checkout/lib.phtml" before="-" >
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\CartLib</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+        <referenceContainer name="checkout.cart.totals.container">
+            <block name="afterpay.cart.cta" template="Afterpay_Afterpay::cta/container.phtml" after="-" ifconfig="payment/afterpay/enable_cta_cart_page">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\Cta</argument>
+                    <argument name="jsLayout" xsi:type="array">
+                        <item name="components" xsi:type="array">
+                            <item name="afterpay.cta" xsi:type="array">
+                                <item name="component" xsi:type="string">afterpayCta</item>
+                                <item name="template" xsi:type="string">Afterpay_Afterpay/cta/cta</item>
+                                <item name="config" xsi:type="array">
+                                    <item name="id" xsi:type="string">afterpay-cta-cart</item>
+                                    <item name="modelContainerId" xsi:type="string">afterpay-cart-container</item>
+                                </item>
+                                <item name="children" xsi:type="array">
+                                    <item name="afterpay.cta.cart.data.retriever" xsi:type="array">
+                                        <item name="component" xsi:type="string">Afterpay_Afterpay/js/service/container/cart/cart-data-retriever</item>
+                                        <item name="config" xsi:type="array">
+                                            <item name="modelContainerId" xsi:type="string">afterpay-cart-container</item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </argument>
+                </arguments>
+            </block>
+            <block name="afterpay.cart.express.checkout" template="Afterpay_Afterpay::express-checkout/button.phtml" after="-" ifconfig="payment/afterpay/enable_express_checkout_cart_page">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\ExpressCheckout</argument>
+                    <argument name="jsLayout" xsi:type="array">
+                        <item name="components" xsi:type="array">
+                            <item name="afterpay.express.checkout" xsi:type="array">
+                                <item name="component" xsi:type="string">afterpayExpressCheckoutButton</item>
+                                <item name="template" xsi:type="string">Afterpay_Afterpay/express-checkout/button</item>
+                                <item name="config" xsi:type="array">
+                                    <item name="entryPoint" xsi:type="string">cart</item>
+                                    <item name="modelContainerId" xsi:type="string">afterpay-cart-container</item>
+                                </item>
+                                <item name="children" xsi:type="array">
+                                    <item name="afterpay.express.checkout.cart.data.retriever" xsi:type="array">
+                                        <item name="component" xsi:type="string">Afterpay_Afterpay/js/service/container/cart/cart-data-retriever</item>
+                                        <item name="config" xsi:type="array">
+                                            <item name="modelContainerId" xsi:type="string">afterpay-cart-container</item>
+                                        </item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </argument>
+                </arguments>
+            </block>
         </referenceContainer>
     </body>
 </page>

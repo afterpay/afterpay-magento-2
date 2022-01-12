@@ -1,0 +1,27 @@
+type Mutation {
+    createAfterpayCheckout(input: createAfterpayCheckoutInput): createAfterpayCheckoutOutput @resolver(class: "\\Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\CreateAfterpayCheckout") @doc(description:"Creates an Afterpay Checkout.")
+}
+
+input createAfterpayCheckoutInput {
+    cart_id: String!
+    redirect_path: AfterpayRedirectPathInput! @doc(description:"A set of relative URLs that Afterpay uses in response to various actions during the authorization process")
+}
+
+input AfterpayRedirectPathInput @doc(description:"A set of relative URLs that Afterpay will use in response to various actions during the authorization process. Magento prepends the base URL to this value to create a full URL. For example, if the full URL is https://www.example.com/path/to/page.html, the relative URL is path/to/page.html.") {
+    confirm_path: String! @doc(description:"The relative URL of the final confirmation page that Afterpay will redirect to upon payment success. If the full URL to this page is https://www.example.com/afterpay/payment/success, the relative URL is afterpay/payment/success.")
+    cancel_path: String! @doc(description:"The relative URL of the page that Afterpay will redirect to when the buyer cancels the transaction in order to choose a different payment method. If the full URL to this page is https://www.example.com/afterpay/payment/cancel, the relative URL is afterpay/payment/cancel.")
+}
+
+type createAfterpayCheckoutOutput {
+    afterpay_token: String! @doc(description: "Afterpay checkout token to be used to complete payment.")
+    afterpay_expires: String! @doc(description: "The UTC timestamp of when the checkout token will expire, in ISO 8601 format.")
+    afterpay_redirectCheckoutUrl: String! @doc(description: "A URL that can be used to redirect the consumer to the Afterpay screenflow.")
+}
+
+input PaymentMethodInput {
+    afterpay: AfterpayInput @doc(description: "Required input for Afterpay payment")
+}
+
+input AfterpayInput {
+    afterpay_token: String! @doc(description:"Afterpay checkout token returned by the createAfterpayCheckout mutation")
+}

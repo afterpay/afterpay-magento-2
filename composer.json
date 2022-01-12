@@ -1,20 +1,28 @@
 {
-	"name" : "afterpay-global/module-afterpay",
-	"license" : "OSL-3.0",
-	"type" : "magento2-module",
-	"description" : "Magento 2 Afterpay Payment Module",
-	"version" : "3.4.4",
-	"authors" : [{
-			"name" : "Afterpay",
-			"homepage" : "https://www.afterpay.com"
-		}
-	],
-	"autoload" : {
-		"files" : [
-			"registration.php"
-		],
-		"psr-4" : {
-			"Afterpay\\Afterpay\\" : ""
-		}
-	}
+    "name": "afterpay-global/module-afterpay",
+    "license": "APLv2 (Apache License 2.0)",
+    "type": "magento2-module",
+    "description": "Magento 2 Afterpay Payment Module",
+    "version": "5.0.0",
+    "require": {
+        "php": "~7.4.0||~8.0.0",
+        "magento/framework": "^103.0",
+        "magento/module-checkout": "100.4.*",
+        "magento/module-payment": "100.4.*",
+        "magento/module-sales": "103.0.*"
+    },
+    "authors": [
+        {
+            "name": "Afterpay",
+            "homepage": "https://www.afterpay.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Afterpay\\Afterpay\\": ""
+        }
+    }
 }

@@ -1,0 +1,10 @@
+<?php
+/** @var Magento\Framework\Escaper $escaper */
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Afterpay\Afterpay\ViewModel\Container\Lib $viewModel */
+$viewModel = $block->getViewModel();
+?>
+
+<?php if ($viewModel->isContainerEnable() && !$viewModel->getIsLibLoadedAlready()): ?>
+        <script src="<?= $escaper->escapeUrl($viewModel->getAfterpayLib()) ?>" async></script>
+<?php endif; ?>

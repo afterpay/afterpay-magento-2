@@ -3,6 +3,8 @@
     <policies>
         <policy id="script-src">
             <values>
+                <value id="clearpay-sandbox-consumer-portal" type="host">https://portal.sandbox.clearpay.co.uk</value>
+                <value id="clearpay-production-consumer-portal" type="host">https://portal.clearpay.co.uk</value>
                 <value id="afterpay-sandbox-consumer-portal" type="host">https://portal.sandbox.afterpay.com</value>
                 <value id="afterpay-production-consumer-portal" type="host">https://portal.afterpay.com</value>
                 <value id="afterpay-cdn" type="host">https://static.afterpay.com</value>
@@ -27,13 +29,8 @@
     	</policy>
 		<policy id="img-src">
             <values>
-                 <value id="afterpay-cdn-base" type="host">https://static.afterpay.com</value>
+                <value id="afterpay-cdn-base" type="host">https://static.afterpay.com</value>
                 <value id="afterpay-assets" type="host">https://site-assets.afterpay.com/</value>
-            </values>
-        </policy>
-        <policy id="font-src">
-            <values>
-                <value id="data" type="host">data:</value>
             </values>
         </policy>
     </policies>

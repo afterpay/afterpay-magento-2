@@ -1,195 +1,112 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Magento 2 extensions for Afterpay Payment
- *
- * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
- */
--->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-            <group id="afterpaypayovertime" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="afterpay" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Afterpay</label>
-                <comment><![CDATA[<img class="logo" src="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png" srcset="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png 1x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@2x.png 2x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@3x.png 3x" height="31"/><p>Offer interest-free instalment plans at checkout with zero risk. <a href="https://www.afterpay.com.au/for-merchants/" target="_blank">Register here</a></p>]]></comment>
-                <attribute type="expanded">1</attribute>
-                <fieldset_css>complex afterpaypayovertime-section</fieldset_css>
-                <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
-                <group id="afterpaypayovertime_basic" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[Basic Settings]]></label>
-
-
-                    <field id="plugin_version" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Afterpay Plugin Version</label>
-                        <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\Label</frontend_model>
+                <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+                <group id="basic" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Basic Settings</label>
+                    <field id="module_version" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Module Version</label>
+                        <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\Version</frontend_model>
                     </field>
-
-
-                    <!-- active -->
-                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="active" translate="label comment" sortOrder="20" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/afterpaypayovertime/active</config_path>
+                        <config_path>payment/afterpay/active</config_path>
                     </field>
-
-                    <!-- title -->
-                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Title</label>
-                        <config_path>payment/afterpaypayovertime/title</config_path>
-                    </field>
-
-                    <!-- api mode -->
                     <field id="api_mode" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>API Mode</label>
-                        <source_model>Afterpay\Afterpay\Model\Source\ApiMode</source_model>
-                        <config_path>payment/afterpaypayovertime/api_mode</config_path>
+                        <source_model>Afterpay\Afterpay\Model\Config\Source\ApiMode</source_model>
+                        <config_path>payment/afterpay/api_mode</config_path>
                     </field>
-
-                    <!-- merchant id -->
                     <field id="merchant_id" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant ID</label>
-                        <config_path>payment/afterpaypayovertime/merchant_id</config_path>
+                        <config_path>payment/afterpay/merchant_id</config_path>
                     </field>
-
-                    <!-- merchant key -->
                     <field id="merchant_key" translate="label" type="obscure" sortOrder="50" showInDefault="50" showInWebsite="1" showInStore="0">
                         <label>Merchant Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/afterpaypayovertime/merchant_key</config_path>
-                    </field>
-
-                    <!-- payment action -->
-                    <field id="payment_action" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Payment Action</label>
-                        <source_model>Afterpay\Afterpay\Model\Source\PaymentAction</source_model>
-                        <config_path>payment/afterpaypayovertime/payment_action</config_path>
+                        <config_path>payment/afterpay/merchant_key</config_path>
                     </field>
                 </group>
-
-                <group id="afterpaypayovertime_advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[Advanced Settings]]></label>
-
-                    <!-- minimum order total -->
-                    <field id="min_order_total" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                <group id="advanced" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Advanced Settings</label>
+                    <field id="min_order_total" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Minimum Order Total</label>
                         <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\Disable</frontend_model>
-                        <config_path>payment/afterpaypayovertime/min_order_total</config_path>
+                        <config_path>payment/afterpay/min_order_total</config_path>
                     </field>
-
-                    <!-- maximum order total -->
-                    <field id="max_order_total" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="max_order_total" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0" >
                         <label>Maximum Order Total</label>
                         <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\Disable</frontend_model>
-                        <config_path>payment/afterpaypayovertime/max_order_total</config_path>
+                        <config_path>payment/afterpay/max_order_total</config_path>
                     </field>
-
-                    <field id="update_order_limits" translate="button_label"  sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="update_order_limits" translate="button_label comment"  sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label/>
-                        <button_label><![CDATA[Update Limits]]></button_label>
+                        <button_label>Update Merchant Configuration</button_label>
                         <button_url>
-                            <![CDATA[admin/afterpay/updateLimit]]>
+                            <![CDATA[afterpay/merchantconfiguration/update]]>
                         </button_url>
-                        <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Button\Update</frontend_model>
-                        <comment><![CDATA[Check limit configuration from Afterpay API.]]></comment>
+                        <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Button\LimitUpdate</frontend_model>
+                        <comment>Update limit configuration and specific countries from Afterpay API.</comment>
                     </field>
-
-					<!-- CBT countries -->
-                    <field id="cbt_country" translate="label" type="label" sortOrder="49" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Cross-Border Trade</label>
-                        <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\cbtLabel</frontend_model>
-                    </field>
-
-                    <!-- Debug mode -->
-                    <field id="debug" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="debug" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Debug</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/afterpaypayovertime/debug</config_path>
+                        <config_path>payment/afterpay/debug</config_path>
                     </field>
-
-                    <!-- HTTP Version Header Support -->
-                    <field id="http_header_support" translate="label" type="select" sortOrder="101" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>HTTP Version Header Support</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/afterpaypayovertime/http_header_support</config_path>
-                        <comment><![CDATA[Enable when "Invalid header line detected" error is encountered.]]></comment>
-                    </field>
-
-                    <!-- sort order -->
-                    <field id="sort_order" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Sort Order</label>
-                        <config_path>payment/afterpaypayovertime/sort_order</config_path>
-                    </field>
-					<field id="exclude_category" translate="label" type="multiselect" sortOrder="102" showInDefault="1" showInWebsite="1" showInStore="1">
-						<label>Exclude Category</label>
-						<source_model>Afterpay\Afterpay\Model\Config\Source\Categorylist</source_model>
-						<config_path>payment/afterpaypayovertime/exclude_category</config_path>
-						<can_be_empty>1</can_be_empty>
-						<comment><![CDATA[Please select the "direct category" of the product instead of the parent category.]]></comment>
-					</field>
-
-					<!-- Enabled for product page  -->
-                    <field id="enable_for_product_page" translate="label tooltip" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="enable_cta_product_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Display on Product Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/afterpaypayovertime/enable_for_product_page</config_path>
-                        <tooltip>Show/Hide Afterpay installments message on Product Display page </tooltip>
-
+                        <config_path>payment/afterpay/enable_cta_product_page</config_path>
                     </field>
-
-                    <!-- Enabled for cart page  -->
-                    <field id="enable_for_cart_page" translate="label tooltip" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="enable_cta_cart_page" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Display on Cart Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/afterpaypayovertime/enable_for_cart_page</config_path>
-                        <tooltip>Show/Hide Afterpay installments message on Cart page </tooltip>
+                        <config_path>payment/afterpay/enable_cta_cart_page</config_path>
                     </field>
-
-                    <!-- Payment Flow -->
-                    <field id="payment_flow" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="enable_cta_mini_cart" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display on Mini Cart</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpay/enable_cta_mini_cart</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <config_path>payment/afterpay/sort_order</config_path>
+                    </field>
+                    <field id="exclude_categories" translate="label" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Exclude Categories</label>
+                        <source_model>Afterpay\Afterpay\Model\Config\Source\Category</source_model>
+                        <config_path>payment/afterpay/exclude_categories</config_path>
+                        <can_be_empty>1</can_be_empty>
+                        <comment>Please select the "direct category" of the product instead of the parent category.</comment>
+                    </field>
+                    <field id="payment_flow" translate="label comment" sortOrder="100" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment Flow</label>
-                        <source_model>Afterpay\Afterpay\Model\Source\PaymentFlow</source_model>
-                        <config_path>payment/afterpaypayovertime/payment_flow</config_path>
-						<comment><![CDATA[Find out more about the payment flows <a href="https://afterpay-online.readme.io/v2/reference#payment-flows" target="_blank">here</a>]]></comment>
+                        <source_model>Afterpay\Afterpay\Model\Config\Source\PaymentFlow</source_model>
+                        <config_path>payment/afterpay/payment_flow</config_path>
+                        <comment><![CDATA[Find out more about the payment flows <a href="https://afterpay-online.readme.io/v2/reference#payment-flows" target="_blank">here</a>]]></comment>
                     </field>
                 </group>
-            <group id="afterpaypayovertime_expresscheckout" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label><![CDATA[Express Checkout Settings]]></label>
-                <!-- Enabled for product page  -->
-                <field id="express_checkout_product_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Enabled for Product Page</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/afterpaypayovertime/express_checkout_product_page</config_path>
-                </field>
-
-                <!-- Enabled for cart page  -->
-                <field id="express_checkout_cart_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Enabled for Cart Page</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/afterpaypayovertime/express_checkout_cart_page</config_path>
-                </field>
-
-                <!-- Enabled for mini-cart page  -->
-                <field id="express_checkout_minicart_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Enabled for Mini-Cart Page</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/afterpaypayovertime/express_checkout_minicart_page</config_path>
-                </field>
-            </group>
-             <group id="afterpaypayovertime_countryspecific" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[Country Specific Settings]]></label>
-                    <!-- country enable -->
-                    <field id="allowspecific" translate="label" type="allowspecific" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Payment from Applicable Countries</label>
-                        <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
-                        <config_path>payment/afterpaypayovertime/allowspecific</config_path>
+                <group id="expresscheckout" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Express Checkout Settings</label>
+                    <field id="enable_express_checkout_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display on Product Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpay/enable_express_checkout_product_page</config_path>
                     </field>
-
-                    <!-- specific country -->
-                    <field id="specificcountry" translate="label" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Payment from Specific Countries</label>
-                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
-                        <config_path>payment/afterpaypayovertime/specificcountry</config_path>
+                    <field id="enable_express_checkout_cart_page" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display on Cart Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpay/enable_express_checkout_cart_page</config_path>
+                    </field>
+                    <field id="enable_express_checkout_mini_cart" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display on Mini Cart</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpay/enable_express_checkout_mini_cart</config_path>
                     </field>
                 </group>
             </group>

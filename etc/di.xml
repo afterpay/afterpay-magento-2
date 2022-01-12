@@ -1,48 +1,343 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Magento 2 extensions for Afterpay Payment
- *
- * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
- */
--->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="Afterpay\Afterpay\Model\Adapter\ApiMode">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Afterpay\Afterpay\Api\CheckoutManagementInterface" type="Afterpay\Afterpay\Model\CheckoutManagement\CheckoutManagement"/>
+    <preference for="Afterpay\Afterpay\Api\Data\RedirectPathInterface" type="Afterpay\Afterpay\Model\RedirectPath"/>
+    <preference for="Afterpay\Afterpay\Api\Data\CheckoutInterface" type="Afterpay\Afterpay\Model\Checkout"/>
+    <preference for="Afterpay\Afterpay\Model\Order\OrderItemInterface" type="Afterpay\Afterpay\Model\Order\OrderItem"/>
+
+    <virtualType name="Afterpay\Afterpay\Model\Method\MethodFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Afterpay\Afterpay\Gateway\Config\Config::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Afterpay\Afterpay\Block\Payment\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">Afterpay\Afterpay\Gateway\Config\ValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\ValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">Afterpay\Afterpay\Gateway\Command\CommandPoolProxy</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Afterpay\Afterpay\Gateway\Command\CommandPoolProxy">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="capture_immediate" xsi:type="string">Afterpay\Afterpay\Gateway\Command\CaptureCommand</item>
+                <item name="auth_deferred" xsi:type="string">Afterpay\Afterpay\Gateway\Command\AuthCommand</item>
+                <item name="refund" xsi:type="string">Afterpay\Afterpay\Gateway\Command\RefundAndVoidCommand</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\CheckoutCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\Checkout\CheckoutDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\CheckoutTransferFactory</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\Checkout\CheckoutResultHandler</argument>
+            <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\CheckoutResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\ExpressCheckoutCommand" type="Afterpay\Afterpay\Gateway\Command\CheckoutCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\ExpressCheckoutDataBuilder</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\CaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\PaymentAction\CaptureDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\CaptureTransferFactory</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\CaptureHandler</argument>
+            <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\CaptureResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\AuthCommand" type="Afterpay\Afterpay\Gateway\Command\CaptureCommand">
+        <arguments>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\AuthTransferFactory</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\AuthHandler</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand" type="Afterpay\Afterpay\Gateway\Command\CaptureCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\PaymentAction\AuthCaptureDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\AuthCaptureTransferFactory</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler</argument>
+        </arguments>
+    </virtualType>
+    <type name="Afterpay\Afterpay\Gateway\Command\RefundAndVoidCommand">
+        <arguments>
+            <argument name="refundCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\RefundCommand</argument>
+            <argument name="voidCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\VoidCommand</argument>
+        </arguments>
+    </type>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\RefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\PaymentAction\RefundAndVoidDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\RefundTransferFactory</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\RefundResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\VoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\PaymentAction\RefundAndVoidDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\VoidTransferFactory</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler</argument>
+            <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\CaptureResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\GetPaymentDataCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\GetPaymentDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\PaymentInfoTransferFactory</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\SyncCheckoutDataCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\Checkout\GetCheckoutDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\CheckoutInfoTransferFactory</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\SyncCheckoutDataHandlerChain</argument>
+            <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\CheckoutResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\ValidateCheckoutDataCommand" type="Afterpay\Afterpay\Gateway\Command\SyncCheckoutDataCommand">
+        <arguments>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\Checkout\CheckoutItemsAmountValidationHandler</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\GetMerchantConfigurationDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\ConfigTransferFactory</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\MerchantConfigurationHandlerChain</argument>
+            <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\MerchantConfigurationResponseValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Afterpay\Afterpay\Gateway\ErrorMessageMapper\MerchantConfigurationErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType  name="Afterpay\Afterpay\Gateway\Response\CaptureHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="payment_details" xsi:type="string">Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler</item>
+                <item name="discount" xsi:type="string">Afterpay\Afterpay\Gateway\Response\DiscountHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Response\AuthHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="payment_details" xsi:type="string">Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler</item>
+                <item name="discount" xsi:type="string">Afterpay\Afterpay\Gateway\Response\DiscountHandler</item>
+                <item name="capture_virtual" xsi:type="string">Afterpay\Afterpay\Gateway\Response\CaptureVirtualProductsHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Response\SyncCheckoutDataHandlerChain" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="checkout_info" xsi:type="string">Afterpay\Afterpay\Gateway\Response\Checkout\CheckoutDataResultHandler</item>
+                <item name="checkout_data_to_quote" xsi:type="string">Afterpay\Afterpay\Gateway\Response\Checkout\CheckoutDataToQuoteHandler</item>
+                <item name="checkout_data_items_amount_validation" xsi:type="string">Afterpay\Afterpay\Gateway\Response\Checkout\CheckoutItemsAmountValidationHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Afterpay\Afterpay\Gateway\Response\CaptureVirtualProductsHandler">
+        <arguments>
+            <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
+        </arguments>
+    </type>
+    <virtualType name="Afterpay\Afterpay\Gateway\Response\MerchantConfigurationHandlerChain" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="limits" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\LimitConfigurationHandler</item>
+                <item name="specific_countries" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\SpecificCountriesConfigurationHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Afterpay\Afterpay\Gateway\Http\Client\Client">
+        <arguments>
+            <argument name="debugLogger" xsi:type="object">AfterpayDebugLogger</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\CheckoutTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/checkouts</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\CaptureTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/payments/capture</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\AuthTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/payments/auth</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\AuthCaptureTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/payments/{orderId}/capture</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\RefundTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/payments/{orderId}/refund</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\VoidTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/payments/{orderId}/void</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\PaymentInfoTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/payments/{orderId}</argument>
+            <argument name="method" xsi:type="const">Afterpay\Afterpay\Gateway\Http\TransferFactory::METHOD_GET</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\CheckoutInfoTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/checkouts/{afterpayToken}</argument>
+            <argument name="method" xsi:type="const">Afterpay\Afterpay\Gateway\Http\TransferFactory::METHOD_GET</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\ConfigTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/configuration?include=cbt</argument>
+            <argument name="method" xsi:type="const">Afterpay\Afterpay\Gateway\Http\TransferFactory::METHOD_GET</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Afterpay\Afterpay\Gateway\Config\ValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">Afterpay\Afterpay\Gateway\Config\ConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Config\ConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Afterpay\Afterpay\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Afterpay\Afterpay\Gateway\Validator\Method\CountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Afterpay\Afterpay\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Validator\ValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">Afterpay\Afterpay\Gateway\Validator\Method\CountryValidator</item>
+                <item name="quote_items" xsi:type="string">Afterpay\Afterpay\Gateway\Validator\Method\NotAllowedProductsValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Payment\Model\Checks\SpecificationFactory">
+        <arguments>
+            <argument name="mapping" xsi:type="array">
+                <item name="quote_items" xsi:type="object">Afterpay\Afterpay\Model\Checks\CanUseForQuoteItems</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Payment\Model\MethodList">
+        <arguments>
+            <argument name="additionalChecks" xsi:type="array">
+                <item name="quote_items" xsi:type="string">quote_items</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Afterpay\Afterpay\Logger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="const">Afterpay\Afterpay\Gateway\Config\Config::CODE</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="debug" xsi:type="object">Afterpay\Afterpay\Model\Log\Handler\Debug</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AfterpayDebugLogger" type="Afterpay\Afterpay\Model\Log\Method\Logger">
+        <arguments>
+            <argument name="logger" xsi:type="object">Afterpay\Afterpay\Logger</argument>
+            <argument name="config" xsi:type="object">Afterpay\Afterpay\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Afterpay\Afterpay\Model\Payment\Capture\CancelOrderProcessor">
+        <arguments>
+            <argument name="refundCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\RefundCommand</argument>
+            <argument name="voidCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\VoidCommand</argument>
+        </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor">
+        <arguments>
+            <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
+        </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Model\CheckoutManagement\CheckoutManagement">
+        <arguments>
+            <argument name="checkoutCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\CheckoutCommand</argument>
+            <argument name="expressCheckoutCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\ExpressCheckoutCommand</argument>
+            <argument name="expressCheckoutValidator" xsi:type="object">Afterpay\Afterpay\Model\CheckoutManagement\ExpressCheckoutValidator</argument>
+        </arguments>
+    </type>
+
+    <type name="Afterpay\Afterpay\Model\Url\UrlBuilder\UrlFactory">
         <arguments>
             <argument name="environments" xsi:type="array">
                 <item name="sandbox" xsi:type="array">
-                    <item name="label" xsi:type="string">Sandbox</item>
-                    <item name="api_url" xsi:type="string">https://api-sandbox.afterpay.com/</item>
+                    <item name="api_url" xsi:type="array">
+                        <item name="USD" xsi:type="string">https://api.us-sandbox.afterpay.com/</item>
+                        <item name="CAD" xsi:type="string">https://api.us-sandbox.afterpay.com/</item>
+                        <item name="default" xsi:type="string">https://api-sandbox.afterpay.com/</item>
+                    </item>
                     <item name="web_url" xsi:type="string">https://portal.sandbox.afterpay.com/</item>
                     <item name="js_lib_url" xsi:type="string">https://js.sandbox.afterpay.com/</item>
                 </item>
                 <item name="production" xsi:type="array">
-                    <item name="label" xsi:type="string">Production</item>
-                    <item name="api_url" xsi:type="string">https://api.afterpay.com/</item>
+                    <item name="api_url" xsi:type="array">
+                        <item name="USD" xsi:type="string">https://api.us.afterpay.com/</item>
+                        <item name="CAD" xsi:type="string">https://api.us.afterpay.com/</item>
+                        <item name="default" xsi:type="string">https://api.afterpay.com/</item>
+                    </item>
                     <item name="web_url" xsi:type="string">https://portal.afterpay.com/</item>
                     <item name="js_lib_url" xsi:type="string">https://js.afterpay.com/</item>
-                </item>                
+                </item>
             </argument>
         </arguments>
     </type>
-    <type name="Magento\Checkout\Model\PaymentInformationManagement">
-        <plugin name="addAfterpayTokenToResponse" type="Afterpay\Afterpay\Model\PaymentInformationManagement\Plugin" />
-    </type>
-    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
-        <plugin name="addAfterpayTokenToResponse" type="Afterpay\Afterpay\Model\GuestPaymentInformationManagement\Plugin" />
-    </type>
-    <type name="Afterpay\Afterpay\Model\Logger\Handler">
+
+    <type name="Afterpay\Afterpay\Model\Order\CreditMemo\PaymentUpdater">
         <arguments>
-            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+            <argument name="getPaymentDataCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetPaymentDataCommand</argument>
         </arguments>
     </type>
-    <type name="Afterpay\Afterpay\Model\Logger\Logger">
+    <type name="Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper">
         <arguments>
-            <argument name="name" xsi:type="string">afterpay</argument>
-            <argument name="handlers"  xsi:type="array">
-                <item name="debug" xsi:type="object">Afterpay\Afterpay\Model\Logger\Handler</item>
-            </argument>
+            <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommand</argument>
+            <argument name="debugLogger" xsi:type="object">AfterpayDebugLogger</argument>
+        </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Cron\MerchantConfigurationUpdater">
+        <arguments>
+            <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
+        </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Controller\Adminhtml\MerchantConfiguration\Update">
+        <arguments>
+            <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
+        </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Observer\Adminhtml\ConfigSaveAfter">
+        <arguments>
+            <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
         </arguments>
     </type>
 </config>

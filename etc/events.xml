@@ -1,6 +1,15 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-	<event name="sales_order_shipment_save_before">
-        <observer name="afterpay_before_shipment" instance="Afterpay\Afterpay\Observer\BeforeShipment" />
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_order_payment_pay">
+        <observer name="afterpay_set_quote_is_paid_by_afterpay"
+                  instance="Afterpay\Afterpay\Observer\SetQuoteIsPaidByAfterpay"/>
+    </event>
+    <event name="payment_method_assign_data_afterpay">
+        <observer name="afterpay_gateway_data_assign" instance="Afterpay\Afterpay\Observer\Payment\DataAssignObserver"/>
+    </event>
+    <event name="sales_order_shipment_save_before">
+        <observer name="afterpay_auth_capture_before_shipment"
+                  instance="Afterpay\Afterpay\Observer\AuthCaptureBeforeShipment"/>
     </event>
 </config>

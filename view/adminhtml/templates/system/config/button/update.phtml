@@ -1,13 +1,24 @@
 <?php
-/**
- * Magento 2 extensions for Afterpay Payment
- *
- * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
- */
+/** @var \Afterpay\Afterpay\Block\Adminhtml\System\Config\Button\LimitUpdate $block */
+/** @var Magento\Framework\Escaper $escaper */
 ?>
 <div class="afterpay-buttons-container">
-    <button id="<?php echo $block->getHtmlId() ?>">
-        <span><span><span><?php echo $block->escapeHtml($block->getButtonLabel()); ?></span></span></span>
+    <button id="<?= $escaper->escapeHtml($block->getHtmlId()) ?>">
+        <?= $escaper->escapeHtml($block->getButtonLabel()); ?>
     </button>
+    <div id="limits-spinner">
+        <div class="spinner">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+    </div>
 </div>
+<script type="text/x-magento-init">
+    {
+        "#<?= $block->getHtmlId() ?>": {
+            "Afterpay_Afterpay/js/limits": {
+                "actionUrl": "<?= $escaper->escapeUrl($block->getUrl($block->getButtonUrl())) ?>",
+                "spinnerId": "#limits-spinner"
+            }
+        }
+    }
+</script>

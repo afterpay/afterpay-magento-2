@@ -1,0 +1,16 @@
+<!-- ko if: ($data.dataCurrency)-->
+<afterpay-placement
+    data-bind="attr: {
+            'id': id,
+            'data-show-lower-limit': dataShowLowerLimit,
+            'data-currency': dataCurrency,
+            'data-locale': dataLocale,
+            'data-is-eligible': dataIsEligible,
+            'data-amount': dataAmount,
+            'data-cbt-enabled': dataCbtEnabledString
+        },
+        afterRender: onRendered,
+        visible: isVisible
+"
+></afterpay-placement>
+<!-- /ko -->

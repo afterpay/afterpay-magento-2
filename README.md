@@ -26,9 +26,9 @@
 
 | Magento version | Download                                          |
    |-----------------|--------------------------------------------------------|
-| 2.4.*           | [Afterpay](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/main.zip) |
-| 2.3.*           | [Afterpay:4.*](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/2.3-main.zip)  |
-| < 2.3.0         | [Afterpay:legacy](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/legacy-main.zip) |
+   | 2.4.*           | [Afterpay](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/main.zip) |
+   | 2.3.*           | [Afterpay:4.*](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/2.3-main.zip)  |
+   | < 2.3.0         | [Afterpay:legacy](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/legacy-main.zip) |
    </li>
 <li> Unzip the file</li>
 <li> Create directory `Afterpay/Afterpay` in: <em>[MAGENTO]/app/code/ </em> </li>
@@ -39,9 +39,9 @@
 <li> Flush Magento cache: <code><em>php bin/magento cache:flush</em></code></li>
 </ol>
 
-## Afterpay Merchant Setup
+## Afterpay Merchant Setup 
 Complete the below steps to configure the merchant’s Afterpay Merchant Credentials in Magento Admin.
-<em><strong>Note:</strong> Prerequisite for this section is to obtain an Afterpay Merchant ID and Secret Key from Afterpay.</em>
+<em><strong>Note:</strong> Prerequisite for this section is to obtain an Afterpay Merchant ID and Secret Key from Afterpay.</em> 
 
 <ol>
    <li> Navigate to <em>Magento Admin/Stores/Configuration/Sales/Payment Methods/Afterpay</em> </li>
@@ -78,7 +78,7 @@ Complete the below steps to configure the merchant’s Afterpay Merchant Credent
 <li> Flush Magento cache: <code><em>php bin/magento cache:flush</em></code></li>
 </ol>
 
-### Manual Upgrade
+### Manual Upgrade 
 <p>This section outlines the steps to upgrade the currently installed Afterpay plugin version.<br/>
 The process of upgrading the Afterpay plugin version involves the complete removal of Afterpay plugin files. <br/>
 </p>
@@ -116,3 +116,7 @@ https://github.com/afterpay/magento-2/archive/refs/heads/2.3-main.zip
    <li> Deploy static view files (production mode only): <code><em>php bin/magento setup:static-content:deploy</em></code> </li>
    <li> Flush Magento cache: <code><em>php bin/magento cache:flush</em></code></li>
 </ol>
+
+## Headless support
+
+Module supports GraphQL and REST API. See [GraphQL](Docs/GraphQL.md) and [Rest API](Docs/RestAPI.md)

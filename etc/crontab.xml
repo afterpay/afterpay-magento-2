@@ -1,18 +1,10 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Magento 2 extensions for Afterpay Payment
- *
- * @author Afterpay
- * @copyright 2016-2021 Afterpay https://www.afterpay.com
- */
--->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
-    <group id="default">
-        <job name="afterpay_order_limit_update" instance="Afterpay\Afterpay\Model\Cron\Limit" method="execute">
+    <group id="afterpay">
+        <job name="afterpay_merchant_configuration_update" instance="Afterpay\Afterpay\Cron\MerchantConfigurationUpdater" method="execute">
             <schedule>0 6 * * *</schedule>
         </job>
-		<job name="afterpay_order_status_update" instance="Afterpay\Afterpay\Model\Cron\Status" method="execute">
+        <job name="afterpay_order_status_update" instance="Afterpay\Afterpay\Cron\OfflineCreditMemo" method="execute">
             <schedule>*/5 * * * *</schedule>
         </job>
     </group>

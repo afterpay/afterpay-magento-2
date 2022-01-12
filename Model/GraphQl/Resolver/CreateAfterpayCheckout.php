@@ -1,0 +1,57 @@
+<?php declare(strict_types=1);
+
+namespace Afterpay\Afterpay\Model\GraphQl\Resolver;
+
+use Afterpay\Afterpay\Api\Data\CheckoutInterface;
+use Magento\Framework\GraphQl\Config\Element\Field;
+use Magento\Framework\GraphQl\Exception\GraphQlInputException;
+use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+
+class CreateAfterpayCheckout implements \Magento\Framework\GraphQl\Query\ResolverInterface
+{
+    private \Afterpay\Afterpay\Model\Config $config;
+    private \Afterpay\Afterpay\Api\CheckoutManagementInterface $afterpayCheckoutManagement;
+    private \Afterpay\Afterpay\Api\Data\RedirectPathInterfaceFactory $redirectPathFactory;
+
+    public function __construct(
+        \Afterpay\Afterpay\Model\Config $config,
+        \Afterpay\Afterpay\Api\CheckoutManagementInterface $afterpayCheckoutManagement,
+        \Afterpay\Afterpay\Api\Data\RedirectPathInterfaceFactory $redirectPathFactory
+    ) {
+        $this->config = $config;
+        $this->afterpayCheckoutManagement = $afterpayCheckoutManagement;
+        $this->redirectPathFactory = $redirectPathFactory;
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null): array
+    {
+        /** @phpstan-ignore-next-line */
+        $storeId = $context->getExtensionAttributes()->getStore()->getId();
+
+        if (!$this->config->getIsPaymentActive((int)$storeId)) {
+            throw new GraphQlInputException(__('Afterpay payment method is not active'));
+        }
+
+        if (!$args || !$args['input']) {
+            throw new \InvalidArgumentException('Required params cart_id and redirect_path are missing');
+        }
+
+        $maskedCartId = $args['input']['cart_id'];
+        $afterpayRedirectPath = $args['input']['redirect_path'];
+
+        $redirectUrls = $this->redirectPathFactory->create()
+            ->setConfirmPath($afterpayRedirectPath['confirm_path'])
+            ->setCancelPath($afterpayRedirectPath['cancel_path']);
+
+        $checkoutResult = $this->afterpayCheckoutManagement->create($maskedCartId, $redirectUrls);
+
+        return [
+            CheckoutInterface::AFTERPAY_TOKEN => $checkoutResult->getAfterpayToken(),
+            CheckoutInterface::AFTERPAY_AUTH_TOKEN_EXPIRES => $checkoutResult->getAfterpayAuthTokenExpires(),
+            CheckoutInterface::AFTERPAY_REDIRECT_CHECKOUT_URL => $checkoutResult->getAfterpayRedirectCheckoutUrl()
+        ];
+    }
+}
