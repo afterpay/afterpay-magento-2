@@ -9,9 +9,9 @@
 
 | Magento version | Command to run                                              |
 |-----------------|-------------------------------------------------------------|
-| 2.4.*           | composer install afterpay-global/module-afterpay            |
-| 2.3.*           | composer install afterpay-global/module-afterpay:^4         |
-| < 2.3.0         | composer install afterpay-global/module-afterpay:dev-legacy-main |
+| 2.4.*           | composer require afterpay-global/module-afterpay:^5            |
+| 2.3.*           | composer require afterpay-global/module-afterpay:^4         |
+| < 2.3.0         | composer require afterpay-global/module-afterpay:^3 |
 </li>
 <li> Run Magento install/upgrade scripts: <code><em>php bin/magento setup:upgrade</em></code> </li>
 <li> Compile dependency injection: <code><em>php bin/magento setup:di:compile</em></code> </li>
@@ -65,11 +65,11 @@ Complete the below steps to configure the merchant’s Afterpay Merchant Credent
 	<li> In CLI, run the below command to update Afterpay module:  
 <br/>The right installation command is dependent on your Magento 2 version:
 
-| Magento version | Command to run                                         |
-|-----------------|--------------------------------------------------------|
-| 2.4.*           | composer update afterpay-global/module-afterpay:latest |
-| 2.3.*           | composer update afterpay-global/module-afterpay:^4 |
-| < 2.3.0         | composer update afterpay-global/module-afterpay:dev-legacy-main |
+| Magento version | Command to run                                              |
+|-----------------|-------------------------------------------------------------|
+| 2.4.*           | composer require afterpay-global/module-afterpay:^5            |
+| 2.3.*           | composer require afterpay-global/module-afterpay:^4         |
+| < 2.3.0         | composer require afterpay-global/module-afterpay:^3 |
  </li>
 <li> Make sure that Composer finished the update without errors </li>
 <li> Run Magento install/upgrade scripts: <code><em>php bin/magento setup:upgrade</em></code> </li>
@@ -91,7 +91,6 @@ The process of upgrading the Afterpay plugin version involves the complete remov
 
 | Magento version | Download                                          |
    |-----------------|--------------------------------------------------------|
-https://github.com/afterpay/magento-2/archive/refs/heads/2.3-main.zip
 | 2.4.*           | [Afterpay:latest](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/main.zip) |
 | 2.3.*           | [Afterpay:4.*](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/2.3-main.zip)  |
 | < 2.3.0         | [Afterpay:legacy](https://github.com/afterpay/afterpay-magento-2/archive/refs/heads/legacy-main.zip) |
