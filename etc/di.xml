@@ -259,6 +259,11 @@
         <plugin name="afterpay_add_additional_checks" type="Afterpay\Afterpay\Plugin\Model\Checks\SpecificationFactory" />
     </type>
 
+    <type name="Afterpay\Afterpay\Gateway\Validator\StockItemsValidator">
+        <arguments>
+            <argument name="sourceValidatorService" xsi:type="object">Afterpay\Afterpay\Model\SourceValidatorService</argument>
+        </arguments>
+    </type>
     <virtualType name="Afterpay\Afterpay\Logger" type="Magento\Framework\Logger\Monolog">
         <arguments>
             <argument name="name" xsi:type="const">Afterpay\Afterpay\Gateway\Config\Config::CODE</argument>
@@ -283,6 +288,7 @@
     <type name="Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor">
         <arguments>
             <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
+            <argument name="stockItemsValidator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\StockItemsValidator</argument>
         </arguments>
     </type>
     <type name="Afterpay\Afterpay\Model\CheckoutManagement\CheckoutManagement">
@@ -297,20 +303,12 @@
         <arguments>
             <argument name="environments" xsi:type="array">
                 <item name="sandbox" xsi:type="array">
-                    <item name="api_url" xsi:type="array">
-                        <item name="USD" xsi:type="string">https://api.us-sandbox.afterpay.com/</item>
-                        <item name="CAD" xsi:type="string">https://api.us-sandbox.afterpay.com/</item>
-                        <item name="default" xsi:type="string">https://api-sandbox.afterpay.com/</item>
-                    </item>
+                    <item name="api_url" xsi:type="string">https://global-api-sandbox.afterpay.com/</item>
                     <item name="web_url" xsi:type="string">https://portal.sandbox.afterpay.com/</item>
                     <item name="js_lib_url" xsi:type="string">https://js.sandbox.afterpay.com/</item>
                 </item>
                 <item name="production" xsi:type="array">
-                    <item name="api_url" xsi:type="array">
-                        <item name="USD" xsi:type="string">https://api.us.afterpay.com/</item>
-                        <item name="CAD" xsi:type="string">https://api.us.afterpay.com/</item>
-                        <item name="default" xsi:type="string">https://api.afterpay.com/</item>
-                    </item>
+                    <item name="api_url" xsi:type="string">https://global-api.afterpay.com/</item>
                     <item name="web_url" xsi:type="string">https://portal.afterpay.com/</item>
                     <item name="js_lib_url" xsi:type="string">https://js.afterpay.com/</item>
                 </item>

@@ -40,6 +40,8 @@ class Update implements \Magento\Framework\App\Action\HttpPostActionInterface
                 (string)__('Afterpay merchant configuration fetching is failed. See logs.')
             );
         }
-        return $this->resultJsonFactory->create();
+        return $this->resultJsonFactory->create()->setData([
+            'done' => true
+        ]);
     }
 }

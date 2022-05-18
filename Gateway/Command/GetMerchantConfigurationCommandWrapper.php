@@ -47,10 +47,12 @@ class GetMerchantConfigurationCommandWrapper implements \Magento\Payment\Gateway
                 return null;
             }
             $this->checkCountry($scope, $websiteId);
+            $this->checkCurrency($scope, $websiteId);
             $this->debugLogger->setForceDebug($this->afterpayConfig->getIsDebug($websiteId));
             return $this->merchantConfigurationCommand->execute($commandSubject);
         } catch (\Magento\Payment\Gateway\Command\CommandException $e) {
             $this->eraseMerchantConfiguration($websiteId, $websiteHasOwnConfig);
+            $this->logger->notice($e->getMessage());
             throw $e;
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
@@ -83,7 +85,26 @@ class GetMerchantConfigurationCommandWrapper implements \Magento\Payment\Gateway
         if (!in_array($merchantCountry, $allowedCountries)) {
             throw new \Magento\Payment\Gateway\Command\CommandException(
             // @codingStandardsIgnoreLine
-                __('Unable to fetch Afterpay merchant configuration due to unsupported merchant country. Supported countries: AU, CA, NZ, US.')
+                __('Unable to fetch Afterpay merchant configuration due to unsupported merchant country. Supported countries: %1.', implode(', ', $allowedCountries))
+            );
+        }
+    }
+
+    /**
+     * @throws \Magento\Payment\Gateway\Command\CommandException
+     */
+    private function checkCurrency(string $scope, int $websiteId): void
+    {
+
+        $merchantCurrency = $this->afterpayConfig->getMerchantCurrency(
+            $scope,
+            $websiteId
+        );
+        $allowedCurrencies = $this->afterpayConfig->getAllowedCurrencies($websiteId);
+        if (!in_array($merchantCurrency, $allowedCurrencies)) {
+            throw new \Magento\Payment\Gateway\Command\CommandException(
+            // @codingStandardsIgnoreLine
+                __('Unable to fetch Afterpay merchant configuration due to unsupported merchant currency. Supported currencies: %1.', implode(', ', $allowedCurrencies))
             );
         }
     }

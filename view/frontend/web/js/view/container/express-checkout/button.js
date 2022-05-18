@@ -80,9 +80,9 @@ define([
                 ).done(function (response) {
                     if (response && response.redirectUrl) {
                         $.mage.redirect(response.redirectUrl);
+                    } else {
+                        $(document.body).trigger('processStop');
                     }
-                }).always(function () {
-                    $(document.body).trigger('processStop');
                 });
             }
         },
@@ -96,7 +96,8 @@ define([
         _getIsVisible: function () {
             const floatMaxOrderTotal = parseFloat(this.maxOrderTotal);
             const floatMinOrderTotal = parseFloat(this.minOrderTotal);
-            return (window.AfterPay !== undefined && this.isProductAllowed() &&
+
+            return (this.countryCode && window.AfterPay !== undefined && this.isProductAllowed() &&
                 !(this.currentPrice() > floatMaxOrderTotal || this.currentPrice() < floatMinOrderTotal) &&
                 !this._getIsVirtual()) && this._super();
         }

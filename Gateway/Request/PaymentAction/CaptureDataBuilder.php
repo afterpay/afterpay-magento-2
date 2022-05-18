@@ -18,7 +18,7 @@ class CaptureDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInte
         if ($payment->getAdditionalInformation('afterpay_express')) {
             $data['amount'] = [
                 'amount' => \Magento\Payment\Gateway\Helper\SubjectReader::readAmount($buildSubject),
-                'currency' => $payment->getOrder()->getOrderCurrencyCode()
+                'currency' => $payment->getOrder()->getBaseCurrencyCode()
             ];
         }
 

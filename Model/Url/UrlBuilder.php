@@ -18,13 +18,13 @@ class UrlBuilder
 
     public function build(string $type, string $path, array $pathArgs = [], ?int $storeId = null): string
     {
-        return $this->urlFactory->create($type, $storeId) . $this->replaceArgsInPath($path, $pathArgs);
+        return $this->urlFactory->create($type, $storeId, $pathArgs) . $this->replaceArgsInPath($path, $pathArgs);
     }
 
     private function replaceArgsInPath(string $path, array $args): string
     {
         foreach ($args as $argKey => $argVal) {
-            $path = str_replace('{' . $argKey . '}', $argVal, $path);
+            $path = str_replace('{' . $argKey . '}', (string)$argVal, $path);
         }
         return $path;
     }

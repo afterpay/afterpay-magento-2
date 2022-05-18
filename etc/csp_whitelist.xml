@@ -20,6 +20,12 @@
                 <value id="afterpay-production-jslib-connect" type="host">js.afterpay.com</value>
             </values>
         </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="afterpay-widget-connect" type="host">widgets.sandbox.afterpay.com</value>
+                <value id="clearpay-widget-connect" type="host">widgets.sandbox.clearpay.co.uk</value>
+            </values>
+        </policy>
 		<policy id="style-src">
         		<values>
             		<value id="afterpay-cdn-style" type="host">static.afterpay.com/</value>

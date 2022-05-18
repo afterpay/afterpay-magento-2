@@ -8,8 +8,7 @@
 "4 interest-free instalments of","4 interest-free instalments of"
 "Four interest-free payments totalling","Four interest-free payments totalling"
 "Continue to Afterpay","Continue to Afterpay"
-"Due today","due yesterday"
-"First instalment","First instalment"
+"First payment","First payment"
 "You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.","You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order."
 "You will be redirected to the Afterpay website when you proceed to checkout.","You will be redirected to the Afterpay website when you proceed to checkout."
 "Shipping is unavailable for this address, or all options exceed Afterpay order limit.","Shipping is unavailable for this address, or all options exceed Afterpay order limit."
@@ -23,5 +22,7 @@
 "Afterpay merchant configuration fetching is failed. See logs.","Afterpay merchant configuration fetching is failed. See logs."
 "Afterpay merchant configuration fetching is success.","Afterpay merchant configuration fetching is success."
 "Unable to fetch Afterpay merchant configuration due to unsupported merchant country. Supported countries: AU, CA, NZ, US.","Unable to fetch Afterpay merchant configuration due to unsupported merchant country. Supported countries: AU, CA, NZ, US."
+"Unable to fetch Afterpay merchant configuration due to unsupported merchant currency. Supported countries: %1.","Unable to fetch Afterpay merchant configuration due to unsupported merchant currency. Supported countries: %1."
 "Update Merchant Configuration","Update Merchant Configuration"
 Update limit configuration and specific countries from Afterpay API.,Update limit configuration and specific countries from Afterpay API.
+"Terms & Conditions","Terms & Conditions"

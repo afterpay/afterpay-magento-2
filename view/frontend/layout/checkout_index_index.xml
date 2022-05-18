@@ -5,6 +5,15 @@
         <css src="Afterpay_Afterpay::css/afterpay-checkout.css"/>
     </head>
     <body>
+        <referenceBlock name="afterpay.express.checkout.mini.cart.lib" remove="true"/>
+        <referenceBlock name="afterpay.cta.mini.cart.lib" remove="true"/>
+        <referenceBlock name="head.components">
+            <block name="afterpay.widget.checkout.cart.lib" template="Afterpay_Afterpay::express-checkout/lib.phtml" before="-" >
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\WidgetCheckout\Lib</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
         <referenceBlock name="checkout.root">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">
