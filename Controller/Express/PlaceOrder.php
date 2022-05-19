@@ -54,7 +54,7 @@ class PlaceOrder implements \Magento\Framework\App\Action\HttpPostActionInterfac
                 ? $e->getMessage()
                 : (string)__('Payment is failed');
             $this->messageManager->addErrorMessage($errorMessage);
-            return $jsonResult;
+            return $jsonResult->setData(['redirectUrl' => $this->url->getUrl('checkout/cart')]);
         }
 
         return $jsonResult->setData(['redirectUrl' => $this->url->getUrl('checkout/onepage/success')]);

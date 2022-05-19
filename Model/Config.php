@@ -26,6 +26,7 @@ class Config
     const XML_PATH_ALLOW_SPECIFIC_COUNTRIES  = 'payment/afterpay/allowspecific';
     const XML_PATH_SPECIFIC_COUNTRIES  = 'payment/afterpay/specificcountry';
     const XML_PATH_ALLOWED_MERCHANT_COUNTRIES  = 'payment/afterpay/allowed_merchant_countries';
+    const XML_PATH_ALLOWED_MERCHANT_CURRENCIES  = 'payment/afterpay/allowed_merchant_currencies';
     const XML_PATH_PAYPAL_MERCHANT_COUNTRY  = 'paypal/general/merchant_country';
 
     private \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig;
@@ -244,6 +245,22 @@ class Config
     /**
      * @return string[]
      */
+    public function getAllowedCurrencies(?int $scopeCode = null): array
+    {
+        $specificCountries = $this->scopeConfig->getValue(
+            self::XML_PATH_ALLOWED_MERCHANT_CURRENCIES,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+        if ($specificCountries != null) {
+            return explode(",", $specificCountries);
+        }
+        return [];
+    }
+
+    /**
+     * @return string[]
+     */
     public function getSpecificCountries(?int $scopeCode = null): array
     {
         $specificCountries = $this->scopeConfig->getValue(
@@ -299,6 +316,17 @@ class Config
             return $countryCode;
         }
         return null;
+    }
+
+    public function getMerchantCurrency(
+        string $scope = ScopeInterface::SCOPE_WEBSITES,
+        ?int $scopeCode = null
+    ): ?string {
+        return $this->scopeConfig->getValue(
+            \Magento\Directory\Model\Currency::XML_PATH_CURRENCY_BASE,
+            $scope,
+            $scopeCode
+        );
     }
 
     public function getByConfigPath(?string $path, ?int $scopeCode = null): ?string

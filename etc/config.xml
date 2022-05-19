@@ -16,10 +16,23 @@
                 <paymentInfoKeys>afterpay_token,afterpay_order_id,afterpay_payment_state,afterpay_open_to_capture_amount,afterpay_rollover_discount,afterpay_captured_discount,afterpay_auth_expiry_date</paymentInfoKeys>
                 <merchant_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <allowed_merchant_countries>AU,NZ,US,CA</allowed_merchant_countries>
+                <allowed_merchant_currencies>AUD,NZD,USD,CAD</allowed_merchant_currencies>
                 <allowspecific>1</allowspecific>
                 <payment_flow>immediate</payment_flow>
                 <debugReplaceKeys>shipping,billing,consumer</debugReplaceKeys>
+                <expresscheckout>
+                    <allowed_merchant_countries>AU,NZ,US,CA</allowed_merchant_countries>
+                </expresscheckout>
             </afterpay>
         </payment>
+        <csp>
+            <policies>
+                <storefront>
+                    <frame-ancestors>
+                        <inline>0</inline>
+                    </frame-ancestors>
+                </storefront>
+            </policies>
+        </csp>
     </default>
 </config>

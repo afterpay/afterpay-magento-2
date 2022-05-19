@@ -11,7 +11,7 @@ class CheckoutItemsAmountValidationHandler implements \Magento\Payment\Gateway\R
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $paymentDO->getPayment()->getQuote();
 
-        if (round($quote->getBaseGrandTotal(), 2) != round($response['amount']['amount'], 2)) {
+        if (round(1 * $quote->getBaseGrandTotal(), 2) != round(1 * $response['amount']['amount'], 2)) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('There are issues when processing your payment. Invalid Amount')
             );

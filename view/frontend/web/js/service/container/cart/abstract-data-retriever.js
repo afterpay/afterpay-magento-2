@@ -19,7 +19,7 @@ define([
         },
         _updateContainerModel: function (modelWithPrice) {
             const containerModel = containerModelHolder.getModel(this.modelContainerId);
-            if (modelWithPrice[this.priceKey] && parseInt(modelWithPrice[this.priceKey]) > 0) {
+            if (modelWithPrice[this.priceKey] && parseFloat(modelWithPrice[this.priceKey]) > 0) {
                 containerModel.setPrice(modelWithPrice[this.priceKey]);
             } else {
                 containerModel.setPrice(0);

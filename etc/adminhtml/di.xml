@@ -6,11 +6,21 @@
             <argument name="config" xsi:type="object">Afterpay\Afterpay\Gateway\Config\Config</argument>
         </arguments>
     </type>
-    <type name="Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\Payment">
+    <type name="Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\AllowedByCountry">
         <arguments>
             <argument name="afterpay" xsi:type="object">Afterpay\Afterpay\Model\Method\MethodFacade</argument>
         </arguments>
     </type>
+    <virtualType name="Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\Payment" type="Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\AllowedByCountry">
+        <arguments>
+            <argument name="allowedCountriesConfigPath" xsi:type="string">allowed_merchant_countries</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\ExpressCheckout" type="Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\AllowedByCountry">
+        <arguments>
+            <argument name="allowedCountriesConfigPath" xsi:type="string">expresscheckout/allowed_merchant_countries</argument>
+        </arguments>
+    </virtualType>
     <type name="Magento\Sales\Block\Adminhtml\Order\Creditmemo\Create\Items">
         <plugin name="afterpay_remove_offline_refund_button" type="Afterpay\Afterpay\Plugin\Block\Adminhtml\Order\Creditmemo\Create\Items" />
     </type>

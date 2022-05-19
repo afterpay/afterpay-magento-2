@@ -23,7 +23,7 @@ class Order
     protected function calculateItemPrice(\Magento\Sales\Model\Order\Item $item, float $qty): float
     {
         $discountPerItem = $item->getBaseDiscountAmount() / $item->getQtyOrdered();
-        $pricePerItem =  $item->getBaseRowTotalInclTax() / $item->getQtyOrdered();
+        $pricePerItem =  ($item->getBaseRowTotal() + $item->getBaseTaxAmount()) / $item->getQtyOrdered();
         return $qty * ($pricePerItem - $discountPerItem);
     }
 

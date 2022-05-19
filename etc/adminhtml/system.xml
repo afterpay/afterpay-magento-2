@@ -93,6 +93,7 @@
                 </group>
                 <group id="expresscheckout" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Express Checkout Settings</label>
+                    <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\ExpressCheckout</frontend_model>
                     <field id="enable_express_checkout_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Display on Product Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

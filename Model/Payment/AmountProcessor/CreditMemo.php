@@ -160,7 +160,7 @@ class CreditMemo
     private function calculateItemPrice(\Magento\Sales\Model\Order\Creditmemo\Item $item, float $qty): float
     {
         $discountPerItem = $item->getBaseDiscountAmount() / $item->getQty();
-        $pricePerItem = $item->getBaseRowTotalInclTax() / $item->getQty();
+        $pricePerItem = ($item->getBaseRowTotal() + $item->getBaseTaxAmount()) / $item->getQty();
         return $qty * ($pricePerItem - $discountPerItem);
     }
 

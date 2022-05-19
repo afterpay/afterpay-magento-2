@@ -39,7 +39,8 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
             'consumer' => [
                 'givenNames' => $quote->getCustomerFirstname() ?: $billingAddress->getFirstname(),
                 'surname' => $quote->getCustomerLastname() ?: $billingAddress->getLastname(),
-                'email' => $quote->getCustomerEmail() ?: $billingAddress->getEmail()
+                'email' => $quote->getCustomerEmail() ?: $billingAddress->getEmail(),
+                'phoneNumber' => $billingAddress->getTelephone()
             ],
             'billing' => [
                 'name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),
@@ -48,7 +49,8 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
                 'area1' => $billingAddress->getCity(),
                 'region' => $billingAddress->getRegion(),
                 'postcode' => $billingAddress->getPostcode(),
-                'countryCode' => $billingAddress->getCountryId()
+                'countryCode' => $billingAddress->getCountryId(),
+                'phoneNumber' => $billingAddress->getTelephone()
             ],
             'items' => $this->getItems($quote),
             'merchant' => [
@@ -61,7 +63,8 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
                     $billingAddress->getBaseTaxAmount() ?: $shippingAddress->getBaseTaxAmount()
                 ),
                 'currency' => $quote->getBaseCurrencyCode()
-            ]
+            ],
+            'purchaseCountry' => $billingAddress->getCountryId()
         ];
 
         if ($shippingAddress = $this->getShippingAddress($quote)) {
@@ -129,9 +132,7 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
             ->create();
         $products = $this->productRepository->getList($searchCriteria)->getItems();
 
-        foreach ($items as $item) {
-            /** @var \Magento\Catalog\Model\Product $product */
-            $product = $products[$item->getProduct()->getId()];
+        foreach ($products as $product) {
             $medialGalleryImages = $product->getMediaGalleryImages();
             $itemsImages[$product->getId()] = $medialGalleryImages->getFirstItem();
         }
@@ -151,7 +152,8 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
             'area1' => $shippingAddress->getCity(),
             'region' => $shippingAddress->getRegion(),
             'postcode' => $shippingAddress->getPostcode(),
-            'countryCode' => $shippingAddress->getCountryId()
+            'countryCode' => $shippingAddress->getCountryId(),
+            'phoneNumber' => $shippingAddress->getTelephone()
         ];
     }
 
