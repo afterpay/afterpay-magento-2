@@ -161,6 +161,7 @@
     <type name="Afterpay\Afterpay\Gateway\Http\Client\Client">
         <arguments>
             <argument name="debugLogger" xsi:type="object">AfterpayDebugLogger</argument>
+            <argument name="client" xsi:type="object" shared="false">\Magento\Framework\HTTP\ClientInterface</argument>
         </arguments>
     </type>
 
@@ -254,11 +255,6 @@
             </argument>
         </arguments>
     </type>
-    <type name="Afterpay\Afterpay\Gateway\Validator\StockItemsValidator">
-        <arguments>
-            <argument name="sourceValidatorService" xsi:type="object">Afterpay\Afterpay\Model\SourceValidatorService</argument>
-        </arguments>
-    </type>
     <virtualType name="Afterpay\Afterpay\Logger" type="Magento\Framework\Logger\Monolog">
         <arguments>
             <argument name="name" xsi:type="const">Afterpay\Afterpay\Gateway\Config\Config::CODE</argument>
@@ -283,7 +279,7 @@
     <type name="Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor">
         <arguments>
             <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
-            <argument name="stockItemsValidator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\StockItemsValidator</argument>
+            <argument name="stockItemsValidator" xsi:type="object">Afterpay\Afterpay\Model\StockItemsValidator\StockItemsValidatorProxy</argument>
         </arguments>
     </type>
     <type name="Afterpay\Afterpay\Model\CheckoutManagement\CheckoutManagement">

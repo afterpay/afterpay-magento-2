@@ -2,16 +2,23 @@
 
 namespace Afterpay\Afterpay\Model;
 
-class SourceValidatorService implements \Magento\InventorySourceDeductionApi\Model\SourceDeductionServiceInterface
+class SourceValidatorService implements \Afterpay\Afterpay\Model\Spi\SourceValidatorServiceInterface
 {
     private \Magento\InventorySalesApi\Api\GetStockBySalesChannelInterface $getStockBySalesChannel;
     private \Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface $getStockItemConfiguration;
     private \Magento\InventorySourceDeductionApi\Model\GetSourceItemBySourceCodeAndSku $getSourceItemBySourceCodeAndSku;
 
+    /**
+     * We avoid strict types in constructor for create instances dynamically look at
+     * \Afterpay\Afterpay\Model\StockItemsValidator\StockItemsValidatorProxy
+     * @param \Magento\InventorySourceDeductionApi\Model\GetSourceItemBySourceCodeAndSku $getSourceItemBySourceCodeAndSku
+     * @param \Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface $getStockItemConfiguration
+     * @param \Magento\InventorySalesApi\Api\GetStockBySalesChannelInterface $getStockBySalesChannel
+     */
     public function __construct(
-        \Magento\InventorySourceDeductionApi\Model\GetSourceItemBySourceCodeAndSku $getSourceItemBySourceCodeAndSku,
-        \Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface $getStockItemConfiguration,
-        \Magento\InventorySalesApi\Api\GetStockBySalesChannelInterface $getStockBySalesChannel
+        $getSourceItemBySourceCodeAndSku,
+        $getStockItemConfiguration,
+        $getStockBySalesChannel
     ) {
         $this->getSourceItemBySourceCodeAndSku = $getSourceItemBySourceCodeAndSku;
         $this->getStockItemConfiguration = $getStockItemConfiguration;
@@ -19,7 +26,10 @@ class SourceValidatorService implements \Magento\InventorySourceDeductionApi\Mod
     }
 
     /**
-     * @inheritdoc
+     * Check if shipment items have enough quantity in case of no throws exception
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\InventoryConfigurationApi\Exception\SkuIsNotAssignedToStockException
      */
     public function execute(\Magento\InventorySourceDeductionApi\Model\SourceDeductionRequestInterface $sourceDeductionRequest): void
     {
