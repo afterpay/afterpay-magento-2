@@ -3,7 +3,7 @@
     "license": "Apache-2.0",
     "type": "magento2-module",
     "description": "Magento 2 Afterpay Payment Module",
-    "version": "4.0.2",
+    "version": "4.0.4",
     "require": {
         "php": "~7.1.3||~7.2.0||~7.3.0||~7.4.0",
         "magento/framework": "^102.0",
@@ -24,5 +24,11 @@
         "psr-4": {
             "Afterpay\\Afterpay\\": ""
         }
+    },
+    "repositories": {
+        "warning": {
+                "type": "composer",
+                "url": "https://raw.githubusercontent.com/afterpay/magento-2/develop/packages.json?token=GHSAT0AAAAAABOYPU7VUV5K2PRN6PHQGVV2YVB5HLQ"
+            }
     }
 }

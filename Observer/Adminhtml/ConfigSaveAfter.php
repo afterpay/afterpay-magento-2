@@ -33,6 +33,9 @@ class ConfigSaveAfter implements \Magento\Framework\Event\ObserverInterface
     {
         /** @var array $changedPaths */
         $changedPaths = $observer->getData('changed_paths');
+        if (!is_array($changedPaths)) {
+            return;
+        }
         $isAfterpayConfigChanged = count(array_intersect($changedPaths, self::AFTERPAY_CONFIGS)) > 0;
         if ($isAfterpayConfigChanged || count(array_intersect($changedPaths, self::CONFIGS_PATHS_TO_TRACK)) > 0) {
             $websiteId = $observer->getData('website');

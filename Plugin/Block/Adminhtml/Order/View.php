@@ -14,13 +14,15 @@ class View
         $result,
         $buttonId
     ) {
+        if ($buttonId !== 'order_creditmemo') {
+            return $result;
+        }
         $order = $orderView->getOrder();
         $payment = $order->getPayment();
         if ($payment == null) {
             return $result;
         }
-        if ($payment->getMethod() == \Afterpay\Afterpay\Gateway\Config\Config::CODE
-            && $buttonId == 'order_creditmemo') {
+        if ($payment->getMethod() === \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
             $orderView->removeButton($buttonId);
         }
         return $result;

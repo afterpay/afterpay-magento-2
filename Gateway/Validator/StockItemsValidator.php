@@ -10,12 +10,21 @@ class StockItemsValidator implements \Afterpay\Afterpay\Model\Spi\StockItemsVali
     private $getItemsToDeductFromShipment;
     private $defaultSourceProvider;
 
+    /**
+     * We avoid strict types in constructor for create instances dynamically look at
+     * \Afterpay\Afterpay\Model\StockItemsValidator\StockItemsValidatorProxy
+     * @param \Magento\InventoryCatalogApi\Model\IsSingleSourceModeInterface $isSingleSourceMode
+     * @param \Magento\InventoryCatalogApi\Api\DefaultSourceProviderInterface $defaultSourceProvider
+     * @param \Magento\InventoryShipping\Model\GetItemsToDeductFromShipment $getItemsToDeductFromShipment
+     * @param \Magento\InventoryShipping\Model\SourceDeductionRequestFromShipmentFactory $sourceDeductionRequestFromShipmentFactory
+     * @param \Afterpay\Afterpay\Model\Spi\SourceValidatorServiceInterface $sourceValidatorService
+     */
     public function __construct(
-        \Magento\InventoryCatalogApi\Model\IsSingleSourceModeInterface $isSingleSourceMode,
-        \Magento\InventoryCatalogApi\Api\DefaultSourceProviderInterface $defaultSourceProvider,
-        \Magento\InventoryShipping\Model\GetItemsToDeductFromShipment $getItemsToDeductFromShipment,
-        \Magento\InventoryShipping\Model\SourceDeductionRequestFromShipmentFactory $sourceDeductionRequestFromShipmentFactory,
-        \Magento\InventorySourceDeductionApi\Model\SourceDeductionServiceInterface $sourceValidatorService
+        $isSingleSourceMode,
+        $defaultSourceProvider,
+        $getItemsToDeductFromShipment,
+        $sourceDeductionRequestFromShipmentFactory,
+        $sourceValidatorService
     ) {
         $this->isSingleSourceMode = $isSingleSourceMode;
         $this->defaultSourceProvider = $defaultSourceProvider;

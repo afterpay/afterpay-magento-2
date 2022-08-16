@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Setup\Patch\Data;
 
 class AdaptPayments implements \Magento\Framework\Setup\Patch\DataPatchInterface
 {
-    private const METHOD_CODE = 'afterpaypayovertime';
+    protected const METHOD_CODE = 'afterpaypayovertime';
 
     private $salesSetup;
 
@@ -35,7 +35,7 @@ class AdaptPayments implements \Magento\Framework\Setup\Patch\DataPatchInterface
                         'replace(additional_information, "afterpay_payment_status", "afterpay_payment_state")'
                     )
                 ],
-                ['method = ?' => self::METHOD_CODE]
+                ['method = ?' => static::METHOD_CODE]
             );
 
         return $this;

@@ -68,7 +68,7 @@ class AdaptCapturedDiscounts implements \Magento\Framework\Setup\Patch\DataPatch
             $additionalInfo[AdditionalInformationInterface::AFTERPAY_CAPTURED_DISCOUNT] = $totalDiscountAmount;
             if ($additionalInfo[AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE] != PaymentStateInterface::CAPTURED) {
                 $additionalInfo[AdditionalInformationInterface::AFTERPAY_CAPTURED_DISCOUNT] -=
-                    $additionalInfo[AdditionalInformationInterface::AFTERPAY_ROLLOVER_DISCOUNT];
+                    $additionalInfo[AdditionalInformationInterface::AFTERPAY_ROLLOVER_DISCOUNT] ?? 0;
             }
             $ordersAdditionalInfo[$payment['order_id']] = $additionalInfo;
         }
