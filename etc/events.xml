@@ -12,4 +12,9 @@
         <observer name="afterpay_auth_capture_before_shipment"
                   instance="Afterpay\Afterpay\Observer\AuthCaptureBeforeShipment"/>
     </event>
+
+    <event name="checkout_submit_before">
+        <observer name="afterpay_validate_quote_amount"
+                  instance="Afterpay\Afterpay\Observer\CheckoutSubmitBefore\AfterpayValidateQuoteAmount" />
+    </event>
 </config>

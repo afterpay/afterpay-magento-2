@@ -333,4 +333,10 @@
             <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
         </arguments>
     </type>
+
+    <type name="Afterpay\Afterpay\Observer\CheckoutSubmitBefore\AfterpayValidateQuoteAmount">
+        <arguments>
+            <argument name="validateCheckoutDataCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
+        </arguments>
+    </type>
 </config>
