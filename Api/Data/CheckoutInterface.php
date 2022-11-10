@@ -14,6 +14,8 @@ interface CheckoutInterface
     const AFTERPAY_TOKEN = 'afterpay_token';
     const AFTERPAY_AUTH_TOKEN_EXPIRES = 'afterpay_expires';
     const AFTERPAY_REDIRECT_CHECKOUT_URL = 'afterpay_redirectCheckoutUrl';
+    const AFTERPAY_IS_CBT_CURRENCY = 'afterpay_is_cbt_currency';
+    const AFTERPAY_CBT_CURRENCY = 'afterpay_cbt_currency';
     /**#@-*/
 
     /**

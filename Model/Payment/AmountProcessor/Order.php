@@ -12,7 +12,7 @@ class Order
         $amount = 0;
         foreach ($items as $item) {
             if (!$item->getParentItem()) {
-                $amount += $this->calculateItemPrice($item, (float)$item->getQtyOrdered());
+                $amount += $this->calculateItemPrice($payment, $item, (float)$item->getQtyOrdered());
             }
         }
         $amount += $this->getShippingAmount($payment->getOrder());
@@ -20,10 +20,18 @@ class Order
         return $this->processDiscount($amount, $payment);
     }
 
-    protected function calculateItemPrice(\Magento\Sales\Model\Order\Item $item, float $qty): float
+    protected function calculateItemPrice(
+        \Magento\Sales\Model\Order\Payment $payment,
+        \Magento\Sales\Model\Order\Item $item,
+        float $qty): float
     {
-        $discountPerItem = $item->getBaseDiscountAmount() / $item->getQtyOrdered();
-        $pricePerItem =  ($item->getBaseRowTotal() + $item->getBaseTaxAmount()) / $item->getQtyOrdered();
+        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
+        $discountAmount = $isCBTCurrency ? $item->getDiscountAmount() : $item->getBaseDiscountAmount();
+        $rowTotal = $isCBTCurrency ? $item->getRowTotal() : $item->getBaseRowTotal();
+        $taxAmount = $isCBTCurrency ? $item->getTaxAmount() : $item->getBaseTaxAmount();
+        $discountPerItem = $discountAmount / $item->getQtyOrdered();
+        $pricePerItem =  ($rowTotal + $taxAmount) / $item->getQtyOrdered();
+
         return $qty * ($pricePerItem - $discountPerItem);
     }
 

@@ -5,11 +5,14 @@ namespace Afterpay\Afterpay\Plugin\Block\Adminhtml\Order\Creditmemo\Create;
 class Items
 {
     private \Magento\Framework\View\LayoutInterface $layout;
+    private \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $checkPaymentMethod;
 
     public function __construct(
-        \Magento\Framework\View\LayoutInterface $layout
+        \Magento\Framework\View\LayoutInterface $layout,
+        \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $checkPaymentMethod
     ) {
         $this->layout = $layout;
+        $this->checkPaymentMethod = $checkPaymentMethod;
     }
 
     /**
@@ -24,7 +27,7 @@ class Items
             return null;
         }
 
-        if ($payment->getMethod() == \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
+        if ($this->checkPaymentMethod->isAfterPayMethod($payment)) {
             $this->layout->unsetChild(
                 $creditmemoBlock->getNameInLayout(),
                 !$creditmemo->canRefund() ? 'submit_button' : 'submit_offline'

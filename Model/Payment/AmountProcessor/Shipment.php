@@ -12,7 +12,7 @@ class Shipment extends \Afterpay\Afterpay\Model\Payment\AmountProcessor\Order
         $amount = 0;
         foreach ($items as $item) {
             if (!$item->getOrderItem()->getParentItem()) {
-                $amount += $this->calculateItemPrice($item->getOrderItem(), (float)$item->getQty());
+                $amount += $this->calculateItemPrice($payment, $item->getOrderItem(), (float)$item->getQty());
             }
         }
         $amount += $this->getShippingAmount($payment->getOrder());

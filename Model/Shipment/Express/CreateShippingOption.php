@@ -9,15 +9,19 @@ class CreateShippingOption
     private \Afterpay\Afterpay\Model\Config $config;
     private \Magento\Checkout\Api\TotalsInformationManagementInterface $totalsInformationManagement;
     private \Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory $totalsInformationFactory;
+    private \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability;
+    private ?bool $canUseCurrentCurrency = null;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Config $config,
         \Magento\Checkout\Api\TotalsInformationManagementInterface $totalsInformationManagement,
-        \Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory $totalsInformationFactory
+        \Magento\Checkout\Api\Data\TotalsInformationInterfaceFactory $totalsInformationFactory,
+        \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface  $checkCBTCurrencyAvailability
     ) {
         $this->config = $config;
         $this->totalsInformationManagement = $totalsInformationManagement;
         $this->totalsInformationFactory = $totalsInformationFactory;
+        $this->checkCBTCurrencyAvailability = $checkCBTCurrencyAvailability;
     }
 
     public function create(
@@ -47,21 +51,31 @@ class CreateShippingOption
         \Magento\Quote\Model\Quote $quote,
         \Magento\Quote\Api\Data\TotalsInterface $totals
     ): array {
+        $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
+        $currency = $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getStoreCurrencyCode();
+        $amount = $isCBTCurrencyAvailable
+            ? $quote->getGrandTotal()
+            : $quote->getBaseGrandTotal();
+        $taxAmount = $isCBTCurrencyAvailable ? $totals->getTaxAmount() : $totals->getBaseTaxAmount();
+        $shippingAmount = $this->formatPrice($isCBTCurrencyAvailable
+            ? $totals->getShippingAmount()
+            : $totals->getBaseShippingAmount());
+
         return [
             'id' => $shippingMethod->getCarrierCode() . "_" . $shippingMethod->getMethodCode(),
             'name' => $shippingMethod->getCarrierTitle(),
             'description' => $shippingMethod->getCarrierTitle(),
             'shippingAmount' => [
-                'amount' => $this->formatPrice($totals->getBaseShippingAmount()),
-                'currency' => $quote->getStoreCurrencyCode()
+                'amount' => $this->formatPrice($shippingAmount),
+                'currency' => $currency
             ],
             'taxAmount' => [
-                'amount' => $this->formatPrice($totals->getBaseTaxAmount()),
-                'currency' => $quote->getStoreCurrencyCode()
+                'amount' => $this->formatPrice($taxAmount),
+                'currency' => $currency
             ],
             'orderAmount' => [
-                'amount' => $this->formatPrice($totals->getBaseGrandTotal()),
-                'currency' => $quote->getStoreCurrencyCode()
+                'amount' => $this->formatPrice($amount),
+                'currency' => $currency
             ]
         ];
     }

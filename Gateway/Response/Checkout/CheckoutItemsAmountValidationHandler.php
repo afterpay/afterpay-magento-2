@@ -7,11 +7,13 @@ class CheckoutItemsAmountValidationHandler implements \Magento\Payment\Gateway\R
     public function handle(array $handlingSubject, array $response)
     {
         $paymentDO = \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($handlingSubject);
-
+        $payment = $paymentDO->getPayment();
         /** @var \Magento\Quote\Model\Quote $quote */
-        $quote = $paymentDO->getPayment()->getQuote();
+        $quote = $payment->getQuote();
+        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
+        $grandTotal = $isCBTCurrency ? $quote->getGrandTotal() : $quote->getBaseGrandTotal();
 
-        if (round(1 * $quote->getBaseGrandTotal(), 2) != round(1 * $response['amount']['amount'], 2)) {
+        if (round(1 * $grandTotal, 2) != round(1 * $response['amount']['amount'], 2)) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('There are issues when processing your payment. Invalid Amount')
             );

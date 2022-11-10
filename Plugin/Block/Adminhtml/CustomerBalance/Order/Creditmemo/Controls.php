@@ -5,11 +5,14 @@ namespace Afterpay\Afterpay\Plugin\Block\Adminhtml\CustomerBalance\Order\Creditm
 class Controls
 {
     private \Magento\Framework\Registry $registry;
+    private \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $checkPaymentMethod;
 
     public function __construct(
-        \Magento\Framework\Registry $registry
+        \Magento\Framework\Registry $registry,
+        \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $checkPaymentMethod
     ) {
         $this->registry = $registry;
+        $this->checkPaymentMethod = $checkPaymentMethod;
     }
 
     /**
@@ -29,7 +32,7 @@ class Controls
         if (!$payment) {
             return $proceed();
         }
-        if ($payment->getMethod() == \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
+        if ($this->checkPaymentMethod->isAfterPayMethod($payment)) {
             return false;
         }
         return $proceed();

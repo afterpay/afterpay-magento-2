@@ -8,17 +8,27 @@ class CaptureDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInte
     {
         $paymentDO = \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($buildSubject);
         $payment = $paymentDO->getPayment();
+        /** @var \Magento\Sales\Api\Data\OrderInterface $order */
+        $order = $payment->getOrder();
+
+        $isCBTCurrency = (bool) $payment->getAdditionalInformation(
+            \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY
+        );
+        $cbtCurrency = $payment->getAdditionalInformation(
+            \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_CBT_CURRENCY
+        );
+        $currencyCode = ($isCBTCurrency && $cbtCurrency) ? $cbtCurrency : $order->getBaseCurrencyCode();
 
         $token = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_TOKEN);
         $data = [
-            'storeId' => $paymentDO->getOrder()->getStoreId(),
+            'storeId' => $order->getStoreId(),
             'token' => $token
         ];
 
         if ($payment->getAdditionalInformation('afterpay_express')) {
             $data['amount'] = [
                 'amount' => \Magento\Payment\Gateway\Helper\SubjectReader::readAmount($buildSubject),
-                'currency' => $payment->getOrder()->getBaseCurrencyCode()
+                'currency' => $currencyCode
             ];
         }
 

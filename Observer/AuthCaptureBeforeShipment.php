@@ -5,11 +5,14 @@ namespace Afterpay\Afterpay\Observer;
 class AuthCaptureBeforeShipment implements \Magento\Framework\Event\ObserverInterface
 {
     private \Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor $shipmentCaptureProcessor;
+    private \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $checkPaymentMethod;
 
     public function __construct(
-        \Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor $shipmentCaptureProcessor
+        \Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor $shipmentCaptureProcessor,
+        \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $checkPaymentMethod
     ) {
         $this->shipmentCaptureProcessor = $shipmentCaptureProcessor;
+        $this->checkPaymentMethod = $checkPaymentMethod;
     }
 
     /**
@@ -24,7 +27,7 @@ class AuthCaptureBeforeShipment implements \Magento\Framework\Event\ObserverInte
         /** @var \Magento\Sales\Model\Order\Payment $paymentInfo */
         $paymentInfo = $shipment->getOrder()->getPayment();
 
-        if ($paymentInfo->getMethod() != \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
+        if (!$this->checkPaymentMethod->isAfterPayMethod($paymentInfo)) {
             return;
         }
 

@@ -12,6 +12,7 @@ class PlaceOrderProcessor
     private \Afterpay\Afterpay\Model\Payment\Capture\CancelOrderProcessor $cancelOrderProcessor;
     private \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage $quotePaidStorage;
     private \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory;
+    private \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability;
     private \Psr\Log\LoggerInterface $logger;
 
     public function __construct(
@@ -19,12 +20,14 @@ class PlaceOrderProcessor
         \Afterpay\Afterpay\Model\Payment\Capture\CancelOrderProcessor $cancelOrderProcessor,
         \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage $quotePaidStorage,
         \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory,
+        \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface  $checkCBTCurrencyAvailability,
         \Psr\Log\LoggerInterface $logger
     ) {
         $this->cartManagement = $cartManagement;
         $this->cancelOrderProcessor = $cancelOrderProcessor;
         $this->quotePaidStorage = $quotePaidStorage;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
+        $this->checkCBTCurrencyAvailability = $checkCBTCurrencyAvailability;
         $this->logger = $logger;
     }
 
@@ -34,6 +37,16 @@ class PlaceOrderProcessor
             $quote->getPayment()->setAdditionalInformation(
                 \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_TOKEN,
                 $afterpayOrderToken
+            );
+
+            $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
+            $quote->getPayment()->setAdditionalInformation(
+                \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY,
+                $isCBTCurrencyAvailable
+            );
+            $quote->getPayment()->setAdditionalInformation(
+                \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_CBT_CURRENCY,
+                $quote->getQuoteCurrencyCode()
             );
 
             if (!$quote->getCustomerId()) {
@@ -52,7 +65,8 @@ class PlaceOrderProcessor
                 $this->cancelOrderProcessor->execute($afterpayPayment);
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __(
-                        'There was a problem placing your order. Your Afterpay order %1 is refunded.',
+                        'There was a problem placing your order. Your %1 order %2 is refunded.',
+                        $quote->getPayment()->getMethodInstance()->getTitle(),
                         $afterpayPayment->getAdditionalInformation(AdditionalInformationInterface::AFTERPAY_ORDER_ID)
                     )
                 );

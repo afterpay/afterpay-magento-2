@@ -8,15 +8,18 @@ class ExpressCheckoutDataBuilder extends \Afterpay\Afterpay\Gateway\Request\Chec
     {
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $buildSubject['quote'];
-
+        $currentCurrencyCode = $quote->getQuoteCurrencyCode();
+        $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
+        $amount = $isCBTCurrencyAvailable ? $quote->getGrandTotal() : $quote->getBaseGrandTotal();
+        $currencyCode = $isCBTCurrencyAvailable ? $currentCurrencyCode : $quote->getBaseCurrencyCode();
         $popupOriginUrl = $buildSubject['popup_origin_url'];
 
         $data = [
             'mode' => 'express',
             'storeId' => $quote->getStoreId(),
             'amount' => [
-                'amount' => $this->formatPrice($quote->getBaseGrandTotal()),
-                'currency' => $quote->getBaseCurrencyCode()
+                'amount' => $this->formatPrice($amount),
+                'currency' => $currencyCode
             ],
             'merchant' => [
                 'popupOriginUrl' => $popupOriginUrl
