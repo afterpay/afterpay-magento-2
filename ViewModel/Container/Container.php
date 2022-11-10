@@ -14,15 +14,18 @@ class Container implements \Magento\Framework\View\Element\Block\ArgumentInterfa
     protected $config;
     protected $serializer;
     protected $notAllowedProductsProvider;
+    protected $storeManager;
 
     public function __construct(
         \Magento\Framework\Serialize\SerializerInterface $serializer,
         \Afterpay\Afterpay\Model\Config $config,
-        \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider $notAllowedProductsProvider
+        \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider $notAllowedProductsProvider,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->serializer = $serializer;
         $this->config = $config;
         $this->notAllowedProductsProvider = $notAllowedProductsProvider;
+        $this->storeManager = $storeManager;
     }
 
     public function isContainerEnable(): bool
@@ -30,7 +33,8 @@ class Container implements \Magento\Framework\View\Element\Block\ArgumentInterfa
         return $this->config->getIsPaymentActive() &&
             $this->config->getMinOrderTotal() !== null &&
             $this->config->getMaxOrderTotal() !== null &&
-            in_array($this->config->getMerchantCountry(), $this->config->getSpecificCountries());
+            in_array($this->config->getMerchantCountry(), $this->config->getSpecificCountries()) &&
+            $this->isCurrentCurrencyAvailable();
     }
 
     public function updateJsLayout(
@@ -76,5 +80,13 @@ class Container implements \Magento\Framework\View\Element\Block\ArgumentInterfa
             }
         }
         return $jsLayout;
+    }
+
+    private function isCurrentCurrencyAvailable(): bool
+    {
+        $currentCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency();
+        $allowedCurrencies = $this->config->getAllowedCurrencies();
+
+        return in_array($currentCurrencyCode->getCode(), $allowedCurrencies);
     }
 }

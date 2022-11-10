@@ -31,8 +31,9 @@ class CancelOrderProcessor
         if ($paymentState == \Afterpay\Afterpay\Model\PaymentStateInterface::AUTH_APPROVED) {
             $this->voidCommand->execute($commandSubject);
         } else {
+            $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
             $this->refundCommand->execute(array_merge($commandSubject, [
-                'amount' => $payment->getBaseAmountOrdered()
+                'amount' => $isCBTCurrency ? $payment->getAmountOrdered() : $payment->getBaseAmountOrdered()
             ]));
         }
     }

@@ -6,10 +6,14 @@ class SetQuoteIsPaidByAfterpay implements \Magento\Framework\Event\ObserverInter
 {
     private $quotePaidStorage;
 
+    private $ckeckPaymentMethod;
+
     public function __construct(
-        \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage $quotePaidStorage
+        \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage $quotePaidStorage,
+        \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $ckeckPaymentMethod
     ) {
         $this->quotePaidStorage = $quotePaidStorage;
+        $this->ckeckPaymentMethod = $ckeckPaymentMethod;
     }
 
     public function execute(\Magento\Framework\Event\Observer $observer)
@@ -17,7 +21,7 @@ class SetQuoteIsPaidByAfterpay implements \Magento\Framework\Event\ObserverInter
         /** @var \Magento\Sales\Model\Order\Payment $payment */
         $payment = $observer->getEvent()->getData('payment');
 
-        if ($payment->getMethod() == \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
+        if ($this->ckeckPaymentMethod->isAfterPayMethod($payment)) {
             $this->quotePaidStorage->setAfterpayPaymentForQuote((int)$payment->getOrder()->getQuoteId(), $payment);
         }
     }

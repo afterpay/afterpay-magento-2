@@ -12,16 +12,13 @@ class ExpressCheckout extends \Afterpay\Afterpay\ViewModel\Container\Container
         'GBP' => 'GB'
     ];
 
-    private $storeManager;
-
     public function __construct(
         \Magento\Framework\Serialize\SerializerInterface $serializer,
         \Afterpay\Afterpay\Model\Config $config,
         \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider $notAllowedProductsProvider,
         \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
-        parent::__construct($serializer, $config, $notAllowedProductsProvider);
-        $this->storeManager = $storeManager;
+        parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager);
     }
 
     public function updateJsLayout(

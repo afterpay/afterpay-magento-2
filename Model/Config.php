@@ -22,6 +22,7 @@ class Config
     const XML_PATH_PAYMENT_FLOW = 'payment/afterpay/payment_flow';
     const XML_PATH_MIN_LIMIT = 'payment/afterpay/min_order_total';
     const XML_PATH_MAX_LIMIT  = 'payment/afterpay/max_order_total';
+    const XML_PATH_CBT_CURRENCY_LIMITS  = 'payment/afterpay/cbt_currency_limits';
     const XML_PATH_EXCLUDE_CATEGORIES  = 'payment/afterpay/exclude_categories';
     const XML_PATH_ALLOW_SPECIFIC_COUNTRIES  = 'payment/afterpay/allowspecific';
     const XML_PATH_SPECIFIC_COUNTRIES  = 'payment/afterpay/specificcountry';
@@ -169,6 +170,30 @@ class Config
         );
     }
 
+    public function getCbtCurrencyLimits(?int $scopeCode = null): array
+    {
+        $data = [];
+        $value = $this->scopeConfig->getValue(
+            self::XML_PATH_CBT_CURRENCY_LIMITS,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+
+        if (!$value) {
+            return [];
+        }
+
+        $list = explode(',', $value);
+        foreach ($list as $item) {
+            $currencyLimit = explode(':', $item);
+            if (isset($currencyLimit[0]) && isset($currencyLimit[1])) {
+                $data[$currencyLimit[0]] = (float) $currencyLimit[1];
+            }
+        }
+
+        return $data;
+    }
+
     public function getExcludeCategories(?int $scopeCode = null): array
     {
         $excludeCategories = $this->scopeConfig->getValue(
@@ -226,6 +251,29 @@ class Config
         return $this->eraseConfigByPath($scopeId, self::XML_PATH_MIN_LIMIT, $websiteHasOwnConfig);
     }
 
+    public function deleteCbtCurrencyLimits(int $scopeId = 0, bool $websiteHasOwnConfig = false): self
+    {
+        return $this->eraseConfigByPath($scopeId, self::XML_PATH_CBT_CURRENCY_LIMITS, $websiteHasOwnConfig);
+    }
+
+    public function setCbtCurrencyLimits(string $value, int $scopeId = 0): self
+    {
+        if ($scopeId) {
+            $this->writer->save(
+                self::XML_PATH_CBT_CURRENCY_LIMITS,
+                $value,
+                ScopeInterface::SCOPE_WEBSITES,
+                $scopeId
+            );
+            return $this;
+        }
+        $this->writer->save(
+            self::XML_PATH_CBT_CURRENCY_LIMITS,
+            $value
+        );
+        return $this;
+    }
+
     /**
      * @return string[]
      */
@@ -274,9 +322,9 @@ class Config
         return [];
     }
 
-    public function deleteSpecificCountries(int $scopeId = 0,  bool $websiteHasOwnConfig = false): self
+    public function deleteSpecificCountries(int $scopeId = 0, bool $websiteHasOwnConfig = false): self
     {
-        return $this->eraseConfigByPath($scopeId,self::XML_PATH_SPECIFIC_COUNTRIES, $websiteHasOwnConfig);
+        return $this->eraseConfigByPath($scopeId, self::XML_PATH_SPECIFIC_COUNTRIES, $websiteHasOwnConfig);
     }
 
     public function setSpecificCountries(string $value, int $scopeId = 0): self

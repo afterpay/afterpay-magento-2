@@ -5,6 +5,8 @@
     <preference for="Afterpay\Afterpay\Api\Data\RedirectPathInterface" type="Afterpay\Afterpay\Model\RedirectPath"/>
     <preference for="Afterpay\Afterpay\Api\Data\CheckoutInterface" type="Afterpay\Afterpay\Model\Checkout"/>
     <preference for="Afterpay\Afterpay\Model\Order\OrderItemInterface" type="Afterpay\Afterpay\Model\Order\OrderItem"/>
+    <preference for="Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface" type="Afterpay\Afterpay\Model\Checks\IsCBTAvailable"/>
+    <preference for="Afterpay\Afterpay\Model\Checks\PaymentMethodInterface" type="Afterpay\Afterpay\Model\Checks\PaymentMethod"/>
 
     <virtualType name="Afterpay\Afterpay\Model\Method\MethodFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -154,6 +156,7 @@
             <argument name="handlers" xsi:type="array">
                 <item name="limits" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\LimitConfigurationHandler</item>
                 <item name="specific_countries" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\SpecificCountriesConfigurationHandler</item>
+                <item name="cbt_available_currencies" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\CBTAvailableCurrenciesConfigurationHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -237,6 +240,7 @@
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">Afterpay\Afterpay\Gateway\Validator\Method\CountryValidator</item>
                 <item name="quote_items" xsi:type="string">Afterpay\Afterpay\Gateway\Validator\Method\NotAllowedProductsValidator</item>
+                <item name="currency" xsi:type="string">Afterpay\Afterpay\Gateway\Validator\Method\CurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -248,7 +252,6 @@
             </argument>
         </arguments>
     </type>
-
     <type name="Afterpay\Afterpay\Plugin\Model\Checks\SpecificationFactory">
         <arguments>
             <argument name="additionalChecks" xsi:type="array">
@@ -284,6 +287,11 @@
         <arguments>
             <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
             <argument name="stockItemsValidator" xsi:type="object">Afterpay\Afterpay\Model\StockItemsValidator\StockItemsValidatorProxy</argument>
+        </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Model\Order\CreditMemo\CaptureProcessor">
+        <arguments>
+            <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
         </arguments>
     </type>
     <type name="Afterpay\Afterpay\Model\CheckoutManagement\CheckoutManagement">
@@ -336,5 +344,14 @@
         <arguments>
             <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
         </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Plugin\Model\Order\Payment\Operations\CaptureOperation">
+        <arguments>
+            <argument name="stateCommand" xsi:type="object">Magento\Sales\Model\Order\Payment\State\CaptureCommand</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Sales\Model\Order\Payment\Operations\CaptureOperation">
+        <plugin name="afterpay_replace_invoice_amount_for_cbt"
+                type="Afterpay\Afterpay\Plugin\Model\Order\Payment\Operations\CaptureOperation"/>
     </type>
 </config>

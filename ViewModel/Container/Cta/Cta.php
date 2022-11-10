@@ -6,7 +6,6 @@ use Magento\Store\Model\Store;
 
 class Cta extends \Afterpay\Afterpay\ViewModel\Container\Container
 {
-    private $storeManager;
     private $localeResolver;
 
     public function __construct(
@@ -16,8 +15,7 @@ class Cta extends \Afterpay\Afterpay\ViewModel\Container\Container
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Locale\Resolver $localeResolver
     ) {
-        parent::__construct($serializer, $config, $notAllowedProductsProvider);
-        $this->storeManager = $storeManager;
+        parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager);
         $this->localeResolver = $localeResolver;
     }
 

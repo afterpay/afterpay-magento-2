@@ -6,10 +6,14 @@ class AuthCaptureBeforeShipment implements \Magento\Framework\Event\ObserverInte
 {
     private $shipmentCaptureProcessor;
 
+    private $ckeckPaymentMethod;
+
     public function __construct(
-        \Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor $shipmentCaptureProcessor
+        \Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor $shipmentCaptureProcessor,
+        \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $ckeckPaymentMethod
     ) {
         $this->shipmentCaptureProcessor = $shipmentCaptureProcessor;
+        $this->ckeckPaymentMethod = $ckeckPaymentMethod;
     }
 
     /**
@@ -24,7 +28,7 @@ class AuthCaptureBeforeShipment implements \Magento\Framework\Event\ObserverInte
         /** @var \Magento\Sales\Model\Order\Payment $paymentInfo */
         $paymentInfo = $shipment->getOrder()->getPayment();
 
-        if ($paymentInfo->getMethod() != \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
+        if (!$this->ckeckPaymentMethod->isAfterPayMethod($paymentInfo)) {
             return;
         }
 

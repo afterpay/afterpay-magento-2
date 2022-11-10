@@ -67,7 +67,8 @@ class GetMerchantConfigurationCommandWrapper implements \Magento\Payment\Gateway
     {
         $this->afterpayConfig
             ->deleteMaxOrderTotal($websiteId, $websiteHasOwnConfig)
-            ->deleteMinOrderTotal($websiteId, $websiteHasOwnConfig);
+            ->deleteMinOrderTotal($websiteId, $websiteHasOwnConfig)
+            ->deleteCbtCurrencyLimits($websiteId, $websiteHasOwnConfig);
         $this->afterpayConfig->deleteSpecificCountries($websiteId, $websiteHasOwnConfig);
     }
 

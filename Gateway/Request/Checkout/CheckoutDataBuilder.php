@@ -9,15 +9,18 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
     private $url;
     private $productRepository;
     private $searchCriteriaBuilder;
+    protected $checkCBTCurrencyAvailability;
 
     public function __construct(
         \Magento\Framework\UrlInterface $url,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability
     ) {
         $this->url = $url;
         $this->productRepository = $productRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->checkCBTCurrencyAvailability = $checkCBTCurrencyAvailability;
     }
 
     public function build(array $buildSubject): array
@@ -27,14 +30,23 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
         /** @var \Afterpay\Afterpay\Api\Data\RedirectPathInterface $redirectPath */
         $redirectPath = $buildSubject['redirect_path'];
 
+        $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
         $shippingAddress = $quote->getShippingAddress();
         $billingAddress = $quote->getBillingAddress();
+        $billingTaxAmount = $isCBTCurrencyAvailable
+            ? $billingAddress->getTaxAmount()
+            : $billingAddress->getBaseTaxAmount();
+        $shippingTaxAmount = $isCBTCurrencyAvailable
+            ? $shippingAddress->getTaxAmount()
+            : $shippingAddress->getBaseTaxAmount();
 
         $data = [
             'storeId' => $quote->getStoreId(),
             'amount' => [
-                'amount' => $this->formatPrice($quote->getBaseGrandTotal()),
-                'currency' => $quote->getBaseCurrencyCode()
+                'amount' => $this->formatPrice(
+                    $isCBTCurrencyAvailable ? $quote->getGrandTotal() : $quote->getBaseGrandTotal()
+                ),
+                'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
             ],
             'consumer' => [
                 'givenNames' => $quote->getCustomerFirstname() ?: $billingAddress->getFirstname(),
@@ -60,9 +72,9 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
             'merchantReference' => $quote->getReservedOrderId(),
             'taxAmount' => [
                 'amount' => $this->formatPrice(
-                    $billingAddress->getBaseTaxAmount() ?: $shippingAddress->getBaseTaxAmount()
+                    $billingTaxAmount ?: $shippingTaxAmount
                 ),
-                'currency' => $quote->getBaseCurrencyCode()
+                'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
             ],
             'purchaseCountry' => $billingAddress->getCountryId()
         ];
@@ -85,6 +97,7 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
         $formattedItems = [];
         $quoteItems = $quote->getAllVisibleItems();
         $itemsImages = $this->getItemsImages($quoteItems);
+        $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
 
         foreach ($quoteItems as $item) {
             $productId = $item->getProduct()->getId();
@@ -96,8 +109,10 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
                 'pageUrl' => $item->getProduct()->getProductUrl(),
                 'categories' => [array_values($this->getQuoteItemCategoriesNames($item))],
                 'price' => [
-                    'amount' => $this->formatPrice($item->getBasePriceInclTax()),
-                    'currency' => $quote->getBaseCurrencyCode()
+                    'amount' => $this->formatPrice(
+                        $isCBTCurrencyAvailable ? $item->getPriceInclTax() : $item->getBasePriceInclTax()
+                    ),
+                    'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
                 ]
             ];
 
@@ -168,9 +183,14 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
         if ($quote->isVirtual()) {
             return null;
         }
+        $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
+
         return [
-            'amount' => $this->formatPrice($quote->getShippingAddress()->getBaseShippingAmount()),
-            'currency' => $quote->getBaseCurrencyCode()
+            'amount' => $this->formatPrice($isCBTCurrencyAvailable
+                ? $quote->getShippingAddress()->getShippingAmount()
+                : $quote->getShippingAddress()->getBaseShippingAmount()
+            ),
+            'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
         ];
     }
 
@@ -190,11 +210,14 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
         if (!$quote->getBaseDiscountAmount()) {
             return null;
         }
+        $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
         return [
             'displayName' => __('Discount'),
             'amount' => [
-                'amount' => $this->formatPrice($quote->getBaseDiscountAmount()),
-                'currency' => $quote->getBaseCurrencyCode()
+                'amount' => $this->formatPrice($isCBTCurrencyAvailable
+                    ? $quote->getDiscountAmount()
+                    : $quote->getBaseDiscountAmount()),
+                'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
             ]
         ];
     }

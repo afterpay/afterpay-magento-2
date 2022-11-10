@@ -6,10 +6,14 @@ class Items
 {
     private $layout;
 
+    private $ckeckPaymentMethod;
+
     public function __construct(
-        \Magento\Framework\View\LayoutInterface $layout
+        \Magento\Framework\View\LayoutInterface $layout,
+        \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $ckeckPaymentMethod
     ) {
         $this->layout = $layout;
+        $this->ckeckPaymentMethod = $ckeckPaymentMethod;
     }
 
     /**
@@ -24,7 +28,7 @@ class Items
             return null;
         }
 
-        if ($payment->getMethod() == \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
+        if ($this->ckeckPaymentMethod->isAfterPayMethod($payment)) {
             $this->layout->unsetChild(
                 $creditmemoBlock->getNameInLayout(),
                 !$creditmemo->canRefund() ? 'submit_button' : 'submit_offline'

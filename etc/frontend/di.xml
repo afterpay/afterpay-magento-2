@@ -16,6 +16,9 @@
             <argument name="validateCheckoutDataCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\ValidateCheckoutDataCommand</argument>
         </arguments>
     </type>
+    <type name="Magento\Sales\Block\Order\Totals">
+        <plugin name="afterpay_order_total_remove_base_grand_total_for_cbt" type="Afterpay\Afterpay\Plugin\Block\Order\Totals"/>
+    </type>
 
     <type name="Magento\Checkout\Block\Cart\Sidebar">
         <plugin name="afterpay_sidebar_update" type="Afterpay\Afterpay\Plugin\Checkout\Block\Cart\Sidebar"/>

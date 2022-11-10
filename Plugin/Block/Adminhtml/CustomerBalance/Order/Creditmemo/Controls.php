@@ -6,10 +6,14 @@ class Controls
 {
     private $registry;
 
+    private $ckeckPaymentMethod;
+
     public function __construct(
-        \Magento\Framework\Registry $registry
+        \Magento\Framework\Registry $registry,
+        \Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $ckeckPaymentMethod
     ) {
         $this->registry = $registry;
+        $this->ckeckPaymentMethod = $ckeckPaymentMethod;
     }
 
     /**
@@ -29,7 +33,7 @@ class Controls
         if (!$payment) {
             return $proceed();
         }
-        if ($payment->getMethod() == \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
+        if ($this->ckeckPaymentMethod->isAfterPayMethod($payment)) {
             return false;
         }
         return $proceed();

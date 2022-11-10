@@ -3,13 +3,15 @@
     "license": "Apache-2.0",
     "type": "magento2-module",
     "description": "Magento 2 Afterpay Payment Module",
-    "version": "4.0.4",
+    "version": "4.0.5-beta.1",
     "require": {
         "php": "~7.1.3||~7.2.0||~7.3.0||~7.4.0",
         "magento/framework": "^102.0",
         "magento/module-checkout": "100.3.*",
         "magento/module-payment": "100.3.*",
-        "magento/module-sales": "102.0.*"
+        "magento/module-quote-graph-ql": "100.3.*",
+        "magento/module-sales": "102.0.*",
+        "afterpay-global/module-cash-app-pay" : "^4"
     },
     "authors": [
         {

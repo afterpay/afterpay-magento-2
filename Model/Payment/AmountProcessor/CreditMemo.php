@@ -24,33 +24,57 @@ class CreditMemo
             }
 
             if ($orderItem->getIsVirtual()) {
-                $amountToRefund += $this->calculateItemPrice($creditmemoItem, (float)$creditmemoItem->getQty());
+                $amountToRefund += $this->calculateItemPrice($payment, $creditmemoItem, (float)$creditmemoItem->getQty());
                 continue;
             }
 
             if ($this->getItemCapturedQty($orderItem) <= 0) {
-                $amountToVoid += $this->calculateItemPrice($creditmemoItem, (float)$creditmemoItem->getQty());
+                $amountToVoid += $this->calculateItemPrice($payment, $creditmemoItem, (float)$creditmemoItem->getQty());
                 continue;
             }
 
             $orderItemQtyRefunded = $orderItem->getOrigData('qty_refunded');
             if (!(float)$orderItemQtyRefunded) {
-                $this->processForCapturedButNotRefunded($orderItem, $creditmemoItem, $amountToRefund, $amountToVoid);
+                $this->processForCapturedButNotRefunded($payment, $orderItem, $creditmemoItem, $amountToRefund, $amountToVoid);
                 continue;
             }
 
-            $this->processForCapturedAndRefunded($orderItem, $creditmemoItem, $amountToRefund, $amountToVoid);
+            $this->processForCapturedAndRefunded($payment, $orderItem, $creditmemoItem, $amountToRefund, $amountToVoid);
         }
 
         $this->processShipmentAmount($payment, $creditmemo, $amountToRefund, $amountToVoid);
 
         $this->processCapturedDiscountForRefundAmount($payment, $amountToRefund);
         $this->processRolloverDiscountForVoidAmount($payment, $amountToVoid);
+        $this->processAdjustmentAmount($payment, $amountToVoid, $amountToRefund);
 
         return [$amountToRefund, $amountToVoid];
     }
 
+    private function processAdjustmentAmount(
+        \Magento\Sales\Model\Order\Payment $payment,
+        float &$amountToVoid,
+        float &$amountToRefund): void
+    {
+        $additionalInfo = $payment->getAdditionalInformation();
+        $paymentState = $additionalInfo[\Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE] ?? '';
+        $creditmemo = $payment->getCreditmemo();
+
+        if ($paymentState === \Afterpay\Afterpay\Model\PaymentStateInterface::AUTH_APPROVED) {
+            $amountToVoid += $creditmemo->getAdjustmentPositive();
+            $amountToVoid -= $creditmemo->getAdjustmentNegative();
+            return;
+        }
+
+        if ($paymentState === \Afterpay\Afterpay\Model\PaymentStateInterface::CAPTURED
+        || $paymentState === \Afterpay\Afterpay\Model\PaymentStateInterface::PARTIALLY_CAPTURED) {
+            $amountToRefund += $creditmemo->getAdjustmentPositive();
+            $amountToRefund -= $creditmemo->getAdjustmentNegative();
+        }
+    }
+
     private function processForCapturedButNotRefunded(
+        \Magento\Sales\Model\Order\Payment $payment,
         \Magento\Sales\Model\Order\Item $orderItem,
         \Magento\Sales\Model\Order\Creditmemo\Item $creditmemoItem,
         float &$amountToRefund,
@@ -58,10 +82,11 @@ class CreditMemo
     ): void {
         $itemCapturedQty = $this->getItemCapturedQty($orderItem);
         if ($itemCapturedQty >= $creditmemoItem->getQty()) {
-            $amountToRefund += $this->calculateItemPrice($creditmemoItem, (float)$creditmemoItem->getQty());
+            $amountToRefund += $this->calculateItemPrice($payment, $creditmemoItem, (float)$creditmemoItem->getQty());
         } else {
-            $amountToRefund += $this->calculateItemPrice($creditmemoItem, (float)$itemCapturedQty);
+            $amountToRefund += $this->calculateItemPrice($payment, $creditmemoItem, (float)$itemCapturedQty);
             $amountToVoid += $this->calculateItemPrice(
+                $payment,
                 $creditmemoItem,
                 (float)($creditmemoItem->getQty() - $itemCapturedQty)
             );
@@ -69,6 +94,7 @@ class CreditMemo
     }
 
     private function processForCapturedAndRefunded(
+        \Magento\Sales\Model\Order\Payment $payment,
         \Magento\Sales\Model\Order\Item $orderItem,
         \Magento\Sales\Model\Order\Creditmemo\Item $creditmemoItem,
         float &$amountToRefund,
@@ -79,16 +105,17 @@ class CreditMemo
         $allowedToRefundQty = $itemCapturedQty - $afterpayOrderItemHistory->getAfterpayRefundedQty();
         if ($allowedToRefundQty > 0) {
             if ($creditmemoItem->getQty() > $allowedToRefundQty) {
-                $amountToRefund += $this->calculateItemPrice($creditmemoItem, (float)$allowedToRefundQty);
+                $amountToRefund += $this->calculateItemPrice($payment, $creditmemoItem, (float)$allowedToRefundQty);
                 $amountToVoid += $this->calculateItemPrice(
+                    $payment,
                     $creditmemoItem,
                     (float)($creditmemoItem->getQty() - $allowedToRefundQty)
                 );
             } else {
-                $amountToRefund += $this->calculateItemPrice($creditmemoItem, (float)$creditmemoItem->getQty());
+                $amountToRefund += $this->calculateItemPrice($payment, $creditmemoItem, (float)$creditmemoItem->getQty());
             }
         } else {
-            $amountToVoid += $this->calculateItemPrice($creditmemoItem, (float)$creditmemoItem->getQty());
+            $amountToVoid += $this->calculateItemPrice($payment, $creditmemoItem, (float)$creditmemoItem->getQty());
         }
     }
 
@@ -157,10 +184,21 @@ class CreditMemo
         }
     }
 
-    private function calculateItemPrice(\Magento\Sales\Model\Order\Creditmemo\Item $item, float $qty): float
+    private function calculateItemPrice(
+        \Magento\Sales\Model\Order\Payment $payment,
+        \Magento\Sales\Model\Order\Creditmemo\Item $item,
+        float $qty): float
     {
-        $discountPerItem = $item->getBaseDiscountAmount() / $item->getQty();
-        $pricePerItem = ($item->getBaseRowTotal() + $item->getBaseTaxAmount()) / $item->getQty();
+        $isCBTCurrency = $payment->getAdditionalInformation(
+            \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY
+        );
+        $discountAmount = $isCBTCurrency ? $item->getDiscountAmount() : $item->getBaseDiscountAmount();
+        $rowTotal = $isCBTCurrency ? $item->getRowTotal() : $item->getBaseRowTotal();
+        $taxAmount = $isCBTCurrency ? $item->getTaxAmount() : $item->getBaseTaxAmount();
+
+        $discountPerItem = $discountAmount / $item->getQty();
+        $pricePerItem = ($rowTotal + $taxAmount) / $item->getQty();
+
         return $qty * ($pricePerItem - $discountPerItem);
     }
 

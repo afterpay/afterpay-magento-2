@@ -4,6 +4,13 @@ namespace Afterpay\Afterpay\Plugin\Block\Adminhtml\Order;
 
 class View
 {
+    private $ckeckPaymentMethod;
+
+    public function __construct(\Afterpay\Afterpay\Model\Checks\PaymentMethodInterface $ckeckPaymentMethod)
+    {
+        $this->ckeckPaymentMethod = $ckeckPaymentMethod;
+    }
+
     /**
      * @param string $buttonId
      * @param \Magento\Sales\Block\Adminhtml\Order\View $result
@@ -22,7 +29,7 @@ class View
         if ($payment == null) {
             return $result;
         }
-        if ($payment->getMethod() === \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
+        if ($this->ckeckPaymentMethod->isAfterPayMethod($payment)) {
             $orderView->removeButton($buttonId);
         }
         return $result;

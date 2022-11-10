@@ -16,6 +16,14 @@ class RefundAndVoidDataBuilder implements \Magento\Payment\Gateway\Request\Build
             \Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface::AFTERPAY_ORDER_ID
         );
 
+        $isCBTCurrency = (bool) $paymentDO->getPayment()->getAdditionalInformation(
+            \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY
+        );
+        $CBTCurrency = $paymentDO->getPayment()->getAdditionalInformation(
+            \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_CBT_CURRENCY
+        );
+        $currencyCode = ($isCBTCurrency && $CBTCurrency) ? $CBTCurrency : $paymentDO->getOrder()->getCurrencyCode();
+
         $data = [
             'storeId' => $paymentDO->getOrder()->getStoreId(),
             'orderId' => $afterpayOrderId
@@ -24,7 +32,7 @@ class RefundAndVoidDataBuilder implements \Magento\Payment\Gateway\Request\Build
             return array_merge($data, [
                 'amount' => [
                     'amount' => $this->formatPrice(SubjectReader::readAmount($buildSubject)),
-                    'currency' => $paymentDO->getOrder()->getCurrencyCode()
+                    'currency' => $currencyCode
                 ]
             ]);
         } catch (\InvalidArgumentException $e) {
