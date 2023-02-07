@@ -18,10 +18,11 @@ define(
         'Magento_Ui/js/model/messageList',
         'Magento_Customer/js/customer-data',
         'Magento_Customer/js/section-config',
-		'Magento_Checkout/js/action/set-billing-address',
-        'Afterpay_Afterpay/js/view/payment/method-renderer/afterpayredirect'
+        'Magento_Checkout/js/action/set-billing-address',
+        'Afterpay_Afterpay/js/view/payment/method-renderer/afterpayredirect',
+        'Magento_Checkout/js/model/totals',
     ],
-    function ($, Component, quote, resourceUrlManager, storage, mageUrl, additionalValidators, globalMessageList, customerData, sectionConfig,setBillingAddressAction,afterpayRedirect) {
+    function ($, Component, quote, resourceUrlManager, storage, mageUrl, additionalValidators, globalMessageList, customerData, sectionConfig,setBillingAddressAction,afterpayRedirect,totals) {
         'use strict';
 
         return Component.extend({
@@ -31,7 +32,31 @@ define(
                 template: 'Afterpay_Afterpay/payment/afterpaypayovertime',
                 billingAgreement: ''
             },
-
+            initWidget: function () {
+                var afterpay = window.checkoutConfig.payment.afterpay;
+                var storeLocale=afterpay.storeLocale.replace('_', '-');
+                window.afterpayWidget = new AfterPay.Widgets.PaymentSchedule({
+                    target: '#afterpay-widget-container',
+                    locale: storeLocale,
+                    amount: this._getOrderAmount(totals.totals()),
+                    onError: function (event) {
+                        console.log(event.data.error);
+                    },
+                });
+                totals.totals.subscribe((totals) => {
+                    if (afterpayWidget) {
+                        afterpayWidget.update({
+                            amount: this._getOrderAmount(totals),
+                        })
+                    }
+                });
+            },
+            _getOrderAmount: function (totals) {
+                return {
+                    amount: parseFloat(totals.grand_total).toFixed(2),
+                    currency: totals.quote_currency_code
+                }
+            },
             /**
              * Terms and condition link
              * @returns {*}
@@ -39,117 +64,36 @@ define(
             getTermsConditionUrl: function () {
                 return window.checkoutConfig.payment.afterpay.termsConditionUrl;
             },
-
-            /**
-             * Get Grand Total of the current cart
-             * @returns {*}
-             */
-            getGrandTotal: function () {
-
-                var total = quote.getCalculatedTotal();
-                var format = window.checkoutConfig.priceFormat.pattern
-				var afterpay = window.checkoutConfig.payment.afterpay;
-
-                storage.get(resourceUrlManager.getUrlForCartTotals(quote), false)
-                .done(
-                    function (response) {
-
-                        var amount = response.base_grand_total;
-                        var installmentFee = response.base_grand_total / 4;
-                        var installmentFeeLast = amount - installmentFee.toFixed(window.checkoutConfig.priceFormat.precision) * 3;
-
-                        $(".afterpay_instalments_amount").text(format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)));
-                        $(".afterpay_instalments_amount_last").text(format.replace(/%s/g, installmentFeeLast.toFixed(window.checkoutConfig.priceFormat.precision)));
-
-
-						if (afterpay.currencyCode == 'USD' || afterpay.currencyCode == 'CAD' ) {
-							 $(".afterpay_total_amount").text(format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)));
-							return format.replace(/%s/g, installmentFee);
-						} else {
-							 $(".afterpay_total_amount").text(format.replace(/%s/g, amount.toFixed(window.checkoutConfig.priceFormat.precision)));
-							return format.replace(/%s/g, amount);
-						}
-
-                    }
-                )
-                .fail(
-                    function (response) {
-                       //do your error handling
-
-                    return 'Error';
-                    }
-                );
-            },
-
-            /**
-             * Get Checkout Message based on the currency
-             * @returns {*}
-             */
-            getCheckoutText: function () {
-
-                var afterpay = window.checkoutConfig.payment.afterpay;
-                var afterpayCheckoutText = '';
-                switch(afterpay.currencyCode){
-	                case 'USD':
-	                	afterpayCheckoutText = '4 interest-free installments of';
-	                	break;
-	                case 'CAD':
-	                	afterpayCheckoutText = '4 interest-free instalments of';
-	                	break;
-	                default:
-	                	afterpayCheckoutText = 'Four interest-free payments totalling';
-                }
-
-                return afterpayCheckoutText;
-            },
-			getFirstInstalmentText: function () {
-
-                var afterpay = window.checkoutConfig.payment.afterpay;
-                var afterpayFirstInstalmentText = '';
-
-                switch(afterpay.currencyCode){
-	                case 'USD':
-	                case 'CAD':
-	                	afterpayFirstInstalmentText = 'Due today';
-	                	break;
-	                default:
-	                	afterpayFirstInstalmentText = 'First instalment';
-
-                }
-
-
-                return afterpayFirstInstalmentText;
-            },
-			getTermsText: function () {
+            getTermsText: function () {
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayTermsText = '';
 
                 switch(afterpay.currencyCode){
-	                case 'USD':
-	                case 'CAD':
-	                	afterpayTermsText = 'You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.';
-	                	break;
-	                default:
-	                	afterpayTermsText = 'You will be redirected to the Afterpay website when you proceed to checkout.';
+                    case 'USD':
+                    case 'CAD':
+                        afterpayTermsText = 'You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.';
+                        break;
+                    default:
+                        afterpayTermsText = 'You will be redirected to the Afterpay website when you proceed to checkout.';
                 }
 
                 return afterpayTermsText;
             },
-			getTermsLink: function () {
+            getTermsLink: function () {
 
                 var afterpay = window.checkoutConfig.payment.afterpay;
                 var afterpayCheckoutTermsLink = '';
                 switch(afterpay.currencyCode){
-	                case 'USD':
-	                	afterpayCheckoutTermsLink="https://www.afterpay.com/purchase-payment-agreement";
-						break;
-	                case 'CAD':
-						afterpayCheckoutTermsLink="https://www.afterpay.com/en-CA/instalment-agreement";
-						break;
-	                default:
-						afterpayCheckoutTermsLink="https://www.afterpay.com/terms/";
-				}
+                    case 'USD':
+                        afterpayCheckoutTermsLink="https://www.afterpay.com/purchase-payment-agreement";
+                        break;
+                    case 'CAD':
+                        afterpayCheckoutTermsLink="https://www.afterpay.com/en-CA/instalment-agreement";
+                        break;
+                    default:
+                        afterpayCheckoutTermsLink="https://www.afterpay.com/terms/";
+                }
 
                 return afterpayCheckoutTermsLink;
             },
@@ -221,16 +165,16 @@ define(
 
                                 //Waiting for all AJAX calls to resolve to avoid error messages upon redirection
                                 $("body").ajaxStop(function () {
-									ajaxRedirected = true;
+                                    ajaxRedirected = true;
                                     afterpayRedirect.redirectToAfterpay(data);
                                 });
-								setTimeout(
-									function(){
-										if(!ajaxRedirected){
-											afterpayRedirect.redirectToAfterpay(data);
-										}
-									}
-								,5000);
+                                setTimeout(
+                                    function(){
+                                        if(!ajaxRedirected){
+                                            afterpayRedirect.redirectToAfterpay(data);
+                                        }
+                                    }
+                                    ,5000);
                             } else if (typeof data.error !== 'undefined' && typeof data.message !== 'undefined' &&
                                 data.error && data.message.length) {
                                 globalMessageList.addErrorMessage({
@@ -248,7 +192,7 @@ define(
                             $('body').trigger('processStop');
                         });
                     }).fail(function () {
-						window.scrollTo({top: 0, behavior: 'smooth'});
+                        window.scrollTo({top: 0, behavior: 'smooth'});
                     });
                 }
             },
@@ -266,8 +210,8 @@ define(
                 // Making sure it using current flow
                 var url = mageUrl.build("afterpay/payment/process");
 
-				//Update billing address of the quote
-				setBillingAddressAction(globalMessageList);
+                //Update billing address of the quote
+                setBillingAddressAction(globalMessageList);
 
                 $.ajax({
                     url: url,

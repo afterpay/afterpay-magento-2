@@ -33,39 +33,7 @@
 			<!--/ko-->
 		<div>
         <div class="payment-method-note afterpay-checkout-note">
-            <div style="">
-
-                <h3>
-                    <strong><span class="afterpay_checkout_text" data-bind="text: getCheckoutText()"></span></strong>
-                    <strong><span class="afterpay_total_amount" data-bind="text: getGrandTotal()"></span></strong>
-                </h3>
-                <ul class="cost">
-                    <li><span class="afterpay_instalments_amount"></span></li>
-                    <li><span class="afterpay_instalments_amount"></span></li>
-                    <li><span class="afterpay_instalments_amount"></span></li>
-                    <li><span class="afterpay_instalments_amount_last"></span></li>
-                </ul>
-                <ul class="icon">
-                    <li>
-                        <span class="afterpay_checkout_steps afterpay_checkout_steps_1"></span>
-                    </li>
-                    <li>
-                        <span class="afterpay_checkout_steps afterpay_checkout_steps_2"></span>
-                    </li>
-                    <li>
-                        <span class="afterpay_checkout_steps afterpay_checkout_steps_3"></span>
-                    </li>
-                    <li>
-                        <span class="afterpay_checkout_steps afterpay_checkout_steps_4"></span>
-                    </li>
-                </ul>
-                <ul class="instalment">
-                    <li data-bind="text: getFirstInstalmentText()"></li>
-                    <li><!-- ko i18n: '2 weeks later' --><!-- /ko --></li>
-                    <li><!-- ko i18n: '4 weeks later' --><!-- /ko --></li>
-                    <li><!-- ko i18n: '6 weeks later' --><!-- /ko --></li>
-                </ul>
-            </div>
+            <div id="afterpay-widget-container" data-bind="afterRender: initWidget">
         </div>
         <div class="payment-method-content afterpay-checkout-redirect">
             <div class="instalment-footer">

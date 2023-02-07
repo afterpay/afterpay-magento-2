@@ -84,8 +84,7 @@ class Installments extends JsConfig
 
         if ($this->_getPaymentIsActive() &&
             $this->afterpayConfig->getCurrencyCode() &&
-            $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode() &&
-            $product->isSalable())
+            $this->afterpayPayovertime->canUseForCurrency($this->afterpayConfig->getCurrencyCode())
         ) {
             $excluded_categories = $this->afterpayConfig->getExcludedCategories();
             if ($excluded_categories != "") {
@@ -165,5 +164,13 @@ class Installments extends JsConfig
         }
 
         return $isVirtual;
+    }
+    /**
+     * @retrun boolean
+     */
+    public function isProductOutOfStock(){
+
+        $product = $this->registry->registry('product');
+        return $product && !$product->isSalable();
     }
 }

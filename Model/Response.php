@@ -327,7 +327,7 @@ class Response
             $order           = $payment->getOrder();
             $creditmemo      = $payment->getCreditmemo();
             $amountToCapture = 0.00;
-            $storeCredit     = $creditmemo->getCustomerBalanceAmount();
+            $storeCredit     = $creditmemo->getBaseCustomerBalanceAmount();
             $override        = ["website_id" => $order->getStore()->getWebsiteId()];
 
             $afterpayPaymentStatus = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::PAYMENT_STATUS);
@@ -337,10 +337,10 @@ class Response
             }
             elseif($afterpayPaymentStatus == self::PAYMENT_STATUS_PARTIALLY_CAPTURED || $afterpayPaymentStatus == self::PAYMENT_STATUS_AUTH_APPROVED){
 
-                $orderTotal                = $order->getGrandTotal();
-                $shippingApplied           = $creditmemo->getShippingInclTax();
-                $adjustmentPositive        = $creditmemo->getAdjustmentPositive();
-                $adjustmentNegative        = $creditmemo->getAdjustmentNegative();
+                $orderTotal                = $order->getBaseGrandTotal();
+                $shippingApplied           = $creditmemo->getBaseShippingInclTax();
+                $adjustmentPositive        = $creditmemo->getBaseAdjustmentPositive();
+                $adjustmentNegative        = $creditmemo->getBaseAdjustmentNegative();
                 $amountCaptured            = 0.00;
                 $amountNotCaptured         = 0.00;
                 $amountToRefund            = 0.00;
@@ -350,16 +350,16 @@ class Response
                 $refundAmountAvailable     = $orderTotal - $openToCaptureAmount;
                 $appliedDiscount           = 0.00;
                 $refundedDiscount          = 0.00;
-                $orderDiscount             = $order->getCustomerBalanceAmount() + $order->getGiftCardsAmount();
+                $orderDiscount             = $order->getBaseCustomerBalanceAmount() + $order->getBaseGiftCardsAmount();
                 $rolloverDiscount          = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_DISCOUNT);
                 $capturedDiscount          = $orderDiscount - $rolloverDiscount;
                 $orderShippingAmount       = $order->getShippingInclTax();
                 $actualOpenToCaptureAmount = $openToCaptureAmount - ($rolloverRefund + $rolloverAmount);
-                $shippingRefunded          = ($order->getShippingRefunded() + $order->getShippingTaxRefunded()) - $shippingApplied;
+                $shippingRefunded          = ($order->getBaseShippingRefunded() + $order->getBaseShippingTaxRefunded()) - $shippingApplied;
 
                 if($orderDiscount > 0){
-                    $refundedDiscount = $order->getCustomerBalanceRefunded() + $order->getGiftCardsRefunded();
-                    $appliedDiscount  = $creditmemo->getCustomerBalanceAmount() + $creditmemo->getGiftCardsAmount();
+                    $refundedDiscount = $order->getBaseCustomerBalanceRefunded() + $order->getBaseGiftCardsRefunded();
+                    $appliedDiscount  = $creditmemo->getBaseCustomerBalanceAmount() + $creditmemo->getBaseGiftCardsAmount();
                 }
 
                 foreach ($creditmemo->getAllItems() as $item) {
@@ -512,7 +512,6 @@ class Response
             if($storeCredit > 0){
                 $storeCredit = $storeCredit + $order->getBaseCustomerBalanceRefunded();
                 $order->setBaseCustomerBalanceRefunded($storeCredit);
-                $order->setCustomerBalanceRefunded($storeCredit);
             }
 
         }
@@ -546,7 +545,7 @@ class Response
                 }
                 elseif($afterpayPaymentStatus == self::PAYMENT_STATUS_PARTIALLY_CAPTURED || $afterpayPaymentStatus == self::PAYMENT_STATUS_AUTH_APPROVED){
 
-                    $orderTotal               = $order->getGrandTotal();
+                    $orderTotal               = $order->getBaseGrandTotal();
                     $openToCaptureAmount      = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::OPEN_TOCAPTURE_AMOUNT);
                     $rolloverRefund           = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ROLLOVER_REFUND);
                     $refundAmountAvailable    = $orderTotal - $openToCaptureAmount;
@@ -596,7 +595,7 @@ class Response
             $merchant_order_id = $order->getIncrementId();
             $totalAmount= [
                 'amount'   => number_format($amountToCapture, 2, '.', ''),
-                'currency' => $order->getOrderCurrencyCode()
+                'currency' => $order->getBaseCurrencyCode()
             ];
 
             $captureResponse = $this->paymentCapture->send($totalAmount,$merchant_order_id,$orderId,$override);
@@ -617,7 +616,7 @@ class Response
         //Refund reqest
         if($afterpayRefund && $amount > 0){
 
-            $refundResponse = $this->afterpayApiPayment->refund(number_format($amount, 2, '.', ''),$orderId,$order->getOrderCurrencyCode(),$override);
+            $refundResponse = $this->afterpayApiPayment->refund(number_format($amount, 2, '.', ''),$orderId,$order->getBaseCurrencyCode(),$override);
 
             $refundResponse = $this->jsonHelper->jsonDecode($refundResponse->getBody());
 
@@ -666,12 +665,12 @@ class Response
     public function calculateItemPrice($item,$qty){
         $totalQtyOrdered = $item->getQtyOrdered();
         $totalTaxAmount  = $item->getBaseTaxAmount();
-        $totalDiscount   = $item->getDiscountAmount();
+        $totalDiscount   = $item->getBaseDiscountAmount();
 
         $taxPerItem      = $totalTaxAmount/$totalQtyOrdered;
         $discountPerItem = $totalDiscount / $totalQtyOrdered;
 
-        $pricePerItem    = $item->getPrice() + $taxPerItem;
+        $pricePerItem    = $item->getBasePrice() + $taxPerItem;
         $itemPrice       = $qty * ($pricePerItem - $discountPerItem);
         return $itemPrice;
     }

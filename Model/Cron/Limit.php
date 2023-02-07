@@ -13,7 +13,7 @@ use Afterpay\Afterpay\Helper\Data as AfterpayHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\App\Config\Storage\WriterInterface as WriterInterface;
 use Magento\Config\Model\ResourceModel\Config as RequestConfig;
-use Magento\Framework\Message\ManagerInterface as MessageManager;
+use Psr\Log\LoggerInterface as logger;
 
 class Limit
 {
@@ -26,7 +26,7 @@ class Limit
     protected $_jsonHelper;
     protected $_resourceConfig;
     protected $_writerInterface;
-    protected $_messageManager;
+    private $_logger;
 
     /**
      * Limit constructor.
@@ -41,7 +41,7 @@ class Limit
         JsonHelper $jsonHelper,
         WriterInterface $writerInterface,
         RequestConfig $resourceConfig,
-        MessageManager $messageManager
+        logger $logger
     ) {
         $this->_afterpayTotalLimit = $afterpayTotalLimit;
         $this->_storeManager = $storeManager;
@@ -49,7 +49,7 @@ class Limit
         $this->_resourceConfig = $resourceConfig;
         $this->_helper = $helper;
         $this->_writerInterface = $writerInterface;
-        $this->_messageManager = $messageManager;
+        $this->_logger=$logger;
     }
 
     /**
@@ -93,8 +93,8 @@ class Limit
         
 
         if (array_key_exists('errorCode', $response)) {
-            //Unfortunately Message Manager is not working with CRON jobs yet
-            $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key. Default Config');
+            //Log the error
+            $this->_logger->warning('Afterpay Update Limits Failed. Please check Merchant ID and Key. Default Config');
             return false;
         } else {
             // default min and max if not provided
@@ -141,8 +141,8 @@ class Limit
         $response = $this->_jsonHelper->jsonDecode($response->getBody());
 
         if (array_key_exists('errorCode', $response)) {
-            //Unfortunately Message Manager is not working with CRON jobs yet
-            $this->_messageManager->addWarningMessage('Afterpay Update Limits Failed. Please check Merchant ID and Key.' . $website["name"]);
+           //Log the error
+            $this->_logger->warning('Afterpay Update Limits Failed. Please check Merchant ID and Key.' . $website["name"]);
             return false;
         } else {
             // default min and max if not provided

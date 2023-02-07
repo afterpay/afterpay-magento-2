@@ -65,12 +65,14 @@ Complete the below steps to configure the merchant’s Afterpay Merchant Credent
 	<li> In CLI, run the below command to update Afterpay module:  
 <br/>The right installation command is dependent on your Magento 2 version:
 
+
 | Magento version | Command to run                                              |
 |-----------------|-------------------------------------------------------------|
 | 2.4.*           | composer require afterpay-global/module-afterpay:^5            |
 | 2.3.*           | composer require afterpay-global/module-afterpay:^4         |
 | < 2.3.0         | composer require afterpay-global/module-afterpay:^3 |
- </li>
+
+</li>
 <li> Make sure that Composer finished the update without errors </li>
 <li> Run Magento install/upgrade scripts: <code><em>php bin/magento setup:upgrade</em></code> </li>
 <li> Compile dependency injection: <code><em>php bin/magento setup:di:compile</em></code> </li>

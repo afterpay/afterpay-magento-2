@@ -194,38 +194,20 @@ class Payovertime
         }
 
         $url ="";
-        if ($type=='api_url') {
-            if ($apiMode == 'Sandbox') {
-                if ($currency == 'USD' || $currency == 'CAD') {
-                    $url = 'https://api.us-sandbox.afterpay.com/';
-                } else {
-                    $url = 'https://api-sandbox.afterpay.com/';
-                }
-            } elseif ($apiMode == 'Production') {
-                if ($currency == 'USD'  || $currency == 'CAD') {
-                    $url = 'https://api.us.afterpay.com/';
-                } else {
-                    $url = 'https://api.afterpay.com/';
-                }
-            }
+        switch($type){
+            case "api_url":
+                 $url=($apiMode == 'Production')?"https://global-api.afterpay.com/" : "https://global-api-sandbox.afterpay.com/" ;
+                 break;
+            case "web_url":
+                $url=($apiMode == 'Production')?"https://portal.afterpay.com/" : "https://portal.sandbox.afterpay.com/" ;
+                break;
+            case "js_lib_url":
+                // get JS Library URL
+                $url=($apiMode == 'Production')?"https://js.afterpay.com/" : "https://js.sandbox.afterpay.com/" ;
+                break;
+
         }
 
-        if ($type=='web_url') {
-            if ($apiMode == 'Sandbox') {
-                $url = 'https://portal.sandbox.afterpay.com/';
-            } elseif ($apiMode == 'Production') {
-                $url = 'https://portal.afterpay.com/';
-            }
-        }
-
-        // get JS Library URL
-        if ($type=='js_lib_url') {
-            if ($apiMode == 'Sandbox') {
-                $url = 'https://js.sandbox.afterpay.com/';
-            } elseif ($apiMode == 'Production') {
-                $url = 'https://js.afterpay.com/';
-            }
-        }
         return $url;
     }
 

@@ -281,8 +281,8 @@ class AfterpayExpressPayment
 
         foreach ($order->getAllItems() as $items) {
             if ($items->getIsVirtual()) {
-                $itemPrice = ($items->getQtyOrdered() * $items->getPrice()) + $items->getBaseTaxAmount();
-                $totalCaptureAmount = $totalCaptureAmount + ($itemPrice - $items->getDiscountAmount());
+                $itemPrice = ($items->getQtyOrdered() * $items->getBasePrice()) + $items->getBaseTaxAmount();
+                $totalCaptureAmount = $totalCaptureAmount + ($itemPrice - $items->getBaseDiscountAmount());
             }
         }
 
@@ -302,7 +302,7 @@ class AfterpayExpressPayment
         if ($totalCaptureAmount >= 1) {
             $afterpay_order_id = $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payovertime::ADDITIONAL_INFORMATION_KEY_ORDERID);
             $merchant_order_id = $order->getIncrementId();
-            $currencyCode = $order->getOrderCurrencyCode();
+            $currencyCode = $order->getBaseCurrencyCode();
 
             $totalAmount = [
                 'amount' => number_format($totalCaptureAmount, 2, '.', ''),

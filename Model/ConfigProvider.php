@@ -29,10 +29,12 @@ class ConfigProvider implements ConfigProviderInterface
      * ConfigProvider constructor.
      * @param Config\Payovertime $config
      */
-    public function __construct(\Afterpay\Afterpay\Model\Config\Payovertime $config,\Afterpay\Afterpay\Model\Payovertime $afterpayPayovertime)
+    private $localeResolver;
+    public function __construct(\Afterpay\Afterpay\Model\Config\Payovertime $config,\Afterpay\Afterpay\Model\Payovertime $afterpayPayovertime,\Magento\Framework\Locale\Resolver $localeResolver)
     {
         $this->afterpayConfig = $config;
         $this->afterpayPayovertime = $afterpayPayovertime;
+        $this->localeResolver = $localeResolver;
     }
 
     /**
@@ -57,6 +59,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'termsConditionUrl' => self::TERMS_CONDITION_LINK,
                     'currencyCode'     => $this->afterpayConfig->getCurrencyCode(),
                     'baseCurrencyCode'     => $this->afterpayPayovertime->getStoreCurrencyCode(),
+                    'storeLocale' =>$this->localeResolver->getLocale()
                 ],
             ],
         ]);
