@@ -14,6 +14,16 @@ class PaymentDetailsHandler implements \Magento\Payment\Gateway\Response\Handler
 
     public function handle(array $handlingSubject, array $response): void
     {
+        if (!isset($response['id'])) {
+            throw new \Magento\Payment\Gateway\Command\CommandException(
+                __(
+                    'Afterpay response error: Code: %1, Id: %2',
+                    $response['errorCode'] ?? '',
+                    $response['errorId'] ?? ''
+                )
+            );
+        }
+
         $paymentDO = \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($handlingSubject);
 
         /** @var \Magento\Sales\Model\Order\Payment $payment */

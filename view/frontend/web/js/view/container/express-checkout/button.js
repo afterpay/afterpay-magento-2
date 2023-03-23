@@ -3,8 +3,12 @@ define([
     'Afterpay_Afterpay/js/model/container/express-checkout-popup',
     'ko',
     'mage/url',
-    'jquery'
-], function (Component, expressCheckoutPopup, ko, url, $) {
+    'jquery',
+    'mage/translate',
+    'Magento_Customer/js/customer-data',
+    'Magento_Ui/js/view/messages',
+    'jquery/jquery-storageapi'
+], function (Component, expressCheckoutPopup, ko, url, $, $t, customerData) {
     'use strict';
 
     return Component.extend({
@@ -30,6 +34,16 @@ define([
                 expressCheckoutPopup.handlerNames.complete,
                 this._getOnComplete()
             );
+            let errorMessage = $.localStorage.get('express-error-message');
+            if (errorMessage) {
+                customerData.set('messages', {
+                    messages: [{
+                        type: 'error',
+                        text: $t(errorMessage)
+                    }]
+                });
+                $.localStorage.remove('express-error-message');
+            }
             return res;
         },
         initAfterpay: function () {
@@ -79,6 +93,9 @@ define([
                     event.data
                 ).done(function (response) {
                     if (response && response.redirectUrl) {
+                        if (response.error) {
+                            $.localStorage.set('express-error-message', response.error);
+                        }
                         $.mage.redirect(response.redirectUrl);
                     } else {
                         $(document.body).trigger('processStop');

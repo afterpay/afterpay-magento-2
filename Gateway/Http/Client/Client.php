@@ -11,11 +11,11 @@ class Client implements \Magento\Payment\Gateway\Http\ClientInterface
     private \Magento\Framework\App\RequestInterface $request;
 
     public function __construct(
-        \Magento\Framework\HTTP\ClientInterface $client,
+        \Magento\Framework\HTTP\ClientInterface          $client,
         \Magento\Framework\Serialize\SerializerInterface $serializer,
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Payment\Model\Method\Logger $debugLogger,
-        \Magento\Framework\App\RequestInterface $request
+        \Psr\Log\LoggerInterface                         $logger,
+        \Magento\Payment\Model\Method\Logger             $debugLogger,
+        \Magento\Framework\App\RequestInterface          $request
     ) {
         $this->client = $client;
         $this->serializer = $serializer;
@@ -62,7 +62,13 @@ class Client implements \Magento\Payment\Gateway\Http\ClientInterface
         } else {
             $this->client->get($transferObject->getUri());
         }
+
+        if (empty($this->client->getBody())) {
+            return [];
+        }
+
         $unserializedBody = $this->serializer->unserialize($this->client->getBody());
+
         return is_array($unserializedBody) ? (array)$unserializedBody : [];
     }
 }
