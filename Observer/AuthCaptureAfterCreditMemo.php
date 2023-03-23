@@ -40,7 +40,7 @@ class AuthCaptureAfterCreditMemo implements \Magento\Framework\Event\ObserverInt
         $additionalInfo = $paymentInfo->getAdditionalInformation();
         $paymentState = $additionalInfo[AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE] ?? '';
 
-        if ($paymentState !== PaymentStateInterface::AUTH_APPROVED) {
+        if ($paymentState !== PaymentStateInterface::AUTH_APPROVED && $paymentState !== PaymentStateInterface::PARTIALLY_CAPTURED) {
             return;
         }
 

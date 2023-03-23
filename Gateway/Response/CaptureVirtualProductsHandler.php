@@ -7,15 +7,19 @@ class CaptureVirtualProductsHandler implements \Magento\Payment\Gateway\Response
     private $authCaptureCommand;
     private $paymentDataObjectFactory;
     private $orderAmountProcessor;
+    private $voidCommand;
 
     public function __construct(
-        \Magento\Payment\Gateway\CommandInterface $authCaptureCommand,
+        \Magento\Payment\Gateway\CommandInterface                       $authCaptureCommand,
         \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory,
-        \Afterpay\Afterpay\Model\Payment\AmountProcessor\Order $orderAmountProcessor
-    ) {
+        \Afterpay\Afterpay\Model\Payment\AmountProcessor\Order          $orderAmountProcessor,
+        \Magento\Payment\Gateway\CommandInterface                       $voidCommand
+    )
+    {
         $this->authCaptureCommand = $authCaptureCommand;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->orderAmountProcessor = $orderAmountProcessor;
+        $this->voidCommand = $voidCommand;
     }
 
     /**
@@ -31,16 +35,26 @@ class CaptureVirtualProductsHandler implements \Magento\Payment\Gateway\Response
 
         $itemsToCapture = array_filter(
             $payment->getOrder()->getAllItems(),
-            function ($item) {return !$item->getParentItem() && $item->getIsVirtual();}
+            function ($item) {
+                return !$item->getParentItem() && $item->getIsVirtual();
+            }
         );
 
         if (count($itemsToCapture)) {
             $amountToCapture = $this->orderAmountProcessor->process($itemsToCapture, $payment);
             if ($amountToCapture > 0) {
-                $this->authCaptureCommand->execute([
-                    'payment' => $this->paymentDataObjectFactory->create($payment),
-                    'amount' => $amountToCapture
-                ]);
+                try {
+                    $this->authCaptureCommand->execute([
+                        'payment' => $this->paymentDataObjectFactory->create($payment),
+                        'amount' => $amountToCapture
+                    ]);
+
+                } catch (\Throwable $e) {
+                    $commandSubject = ['payment' => $paymentDO];
+                    $this->voidCommand->execute($commandSubject);
+
+                    throw $e;
+                }
             }
         }
     }

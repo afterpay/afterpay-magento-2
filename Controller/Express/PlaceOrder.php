@@ -52,9 +52,9 @@ class PlaceOrder implements \Magento\Framework\App\Action\HttpPostActionInterfac
         } catch (\Throwable $e) {
             $errorMessage = $e instanceof \Magento\Framework\Exception\LocalizedException
                 ? $e->getMessage()
-                : (string)__('Payment is failed');
-            $this->messageManager->addErrorMessage($errorMessage);
-            return $jsonResult->setData(['redirectUrl' => $this->url->getUrl(
+                : (string)__('Afterpay payment declined. Please select an alternative payment method.');
+
+            return $jsonResult->setData(['error' => $errorMessage, 'redirectUrl' => $this->url->getUrl(
                     'checkout/cart',
                     ['_scope' => $quote->getStore()]
                 )]

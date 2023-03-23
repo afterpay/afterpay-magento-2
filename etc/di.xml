@@ -7,6 +7,7 @@
     <preference for="Afterpay\Afterpay\Model\Order\OrderItemInterface" type="Afterpay\Afterpay\Model\Order\OrderItem"/>
     <preference for="Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface" type="Afterpay\Afterpay\Model\Checks\IsCBTAvailable"/>
     <preference for="Afterpay\Afterpay\Model\Checks\PaymentMethodInterface" type="Afterpay\Afterpay\Model\Checks\PaymentMethod"/>
+    <preference for="Afterpay\Afterpay\Api\Data\Quote\ExtendedShippingInformationInterface" type="Afterpay\Afterpay\Model\Quote\ExtendedShippingInformation"/>
 
     <virtualType name="Afterpay\Afterpay\Model\Method\MethodFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -76,6 +77,14 @@
             <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\RefundTransferFactory</argument>
             <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
             <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\RefundResponseValidator</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Command\ReversalCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\PaymentAction\ReversalDataBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\ReversalTransferFactory</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\ReversalResponseValidator</argument>
         </arguments>
     </virtualType>
     <virtualType name="Afterpay\Afterpay\Gateway\Command\VoidCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
@@ -149,6 +158,7 @@
     <type name="Afterpay\Afterpay\Gateway\Response\CaptureVirtualProductsHandler">
         <arguments>
             <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
+            <argument name="voidCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\VoidCommand</argument>
         </arguments>
     </type>
     <virtualType name="Afterpay\Afterpay\Gateway\Response\MerchantConfigurationHandlerChain" type="Magento\Payment\Gateway\Response\HandlerChain">
@@ -191,6 +201,11 @@
     <virtualType name="Afterpay\Afterpay\Gateway\Http\RefundTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="uriPath" xsi:type="string">v2/payments/{orderId}/refund</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\Gateway\Http\ReversalTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="uriPath" xsi:type="string">v2/payments/token:{afterpayToken}/reversal</argument>
         </arguments>
     </virtualType>
     <virtualType name="Afterpay\Afterpay\Gateway\Http\VoidTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
@@ -279,8 +294,8 @@
 
     <type name="Afterpay\Afterpay\Model\Payment\Capture\CancelOrderProcessor">
         <arguments>
-            <argument name="refundCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\RefundCommand</argument>
             <argument name="voidCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\VoidCommand</argument>
+            <argument name="reversalCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\ReversalCommand</argument>
         </arguments>
     </type>
     <type name="Afterpay\Afterpay\Model\Order\Shipment\CaptureProcessor">

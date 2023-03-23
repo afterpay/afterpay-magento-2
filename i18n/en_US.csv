@@ -26,3 +26,4 @@
 "Update Merchant Configuration","Update Merchant Configuration"
 Update limit configuration and specific countries from Afterpay API.,Update limit configuration and specific countries from Afterpay API.
 "Terms & Conditions","Terms & Conditions"
+"Afterpay response error: Code: %1, Id: %2","Afterpay response error: Code: %1, Id: %2"

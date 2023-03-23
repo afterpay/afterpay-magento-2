@@ -45,7 +45,7 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
         }
         if ($this->request->getParam('status') != self::CHECKOUT_STATUS_SUCCESS) {
             $this->messageManager->addErrorMessage(
-                (string)__('Afterpay payment is failed. Please select an alternative payment method.')
+                (string)__('Afterpay payment is declined. Please select an alternative payment method.')
             );
             return $this->redirectFactory->create()->setPath('checkout/cart', [
                 '_scope' => $this->storeManager->getStore()
@@ -59,7 +59,7 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
         } catch (\Throwable $e) {
             $errorMessage = $e instanceof \Magento\Framework\Exception\LocalizedException
                 ? $e->getMessage()
-                : (string)__('Payment is failed');
+                : (string)__('Afterpay payment is declined. Please select an alternative payment method.');
             $this->messageManager->addErrorMessage($errorMessage);
             return $this->redirectFactory->create()->setPath('checkout/cart', [
                 '_scope' => $this->storeManager->getStore()

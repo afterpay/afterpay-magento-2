@@ -44,6 +44,7 @@ class CreditMemoProcessor
             AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE
         ];
         if ($paymentState !== PaymentStateInterface::CAPTURED &&
+            $paymentState !== PaymentStateInterface::PARTIALLY_CAPTURED &&
             $paymentState !== PaymentStateInterface::VOIDED) {
             return;
         }

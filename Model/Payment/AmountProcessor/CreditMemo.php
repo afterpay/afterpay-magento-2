@@ -6,10 +6,14 @@ class CreditMemo
 {
     private $orderItemProvider;
 
+    private $priceRenderer;
+
     public function __construct(
-        \Afterpay\Afterpay\Model\Order\OrderItemProvider $orderItemProvider
+        \Afterpay\Afterpay\Model\Order\OrderItemProvider $orderItemProvider,
+        \Magento\Weee\Block\Item\Price\Renderer $priceRenderer
     ) {
         $this->orderItemProvider = $orderItemProvider;
+        $this->priceRenderer = $priceRenderer;
     }
 
     public function process(\Magento\Sales\Model\Order\Payment $payment): array
@@ -187,19 +191,13 @@ class CreditMemo
     private function calculateItemPrice(
         \Magento\Sales\Model\Order\Payment $payment,
         \Magento\Sales\Model\Order\Creditmemo\Item $item,
-        float $qty): float
-    {
-        $isCBTCurrency = $payment->getAdditionalInformation(
-            \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY
-        );
-        $discountAmount = $isCBTCurrency ? $item->getDiscountAmount() : $item->getBaseDiscountAmount();
-        $rowTotal = $isCBTCurrency ? $item->getRowTotal() : $item->getBaseRowTotal();
-        $taxAmount = $isCBTCurrency ? $item->getTaxAmount() : $item->getBaseTaxAmount();
+        float $qty
+    ): float {
+        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
+        $rowTotal = $isCBTCurrency ? $this->priceRenderer->getTotalAmount($item) : $this->priceRenderer->getBaseTotalAmount($item);
+        $pricePerItem = $rowTotal / $item->getQty();
 
-        $discountPerItem = $discountAmount / $item->getQty();
-        $pricePerItem = ($rowTotal + $taxAmount) / $item->getQty();
-
-        return $qty * ($pricePerItem - $discountPerItem);
+        return $qty * $pricePerItem;
     }
 
     private function getItemCapturedQty(\Magento\Sales\Model\Order\Item $item): float

@@ -2,39 +2,64 @@
 
 namespace Afterpay\Afterpay\Model\Payment\Capture;
 
-use Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface;
-
 class CancelOrderProcessor
 {
     private $paymentDataObjectFactory;
-    private $refundCommand;
+    private $reversalCommand;
     private $voidCommand;
+    private $storeManager;
+    private $config;
+    private $quotePaidStorage;
 
     public function __construct(
         \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory,
-        \Magento\Payment\Gateway\CommandInterface $refundCommand,
-        \Magento\Payment\Gateway\CommandInterface $voidCommand
-    ) {
+        \Magento\Payment\Gateway\CommandInterface                       $reversalCommand,
+        \Magento\Payment\Gateway\CommandInterface                       $voidCommand,
+        \Magento\Store\Model\StoreManagerInterface                      $storeManager,
+        \Afterpay\Afterpay\Model\Config                                 $config,
+        \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage         $quotePaidStorage
+    )
+    {
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
-        $this->refundCommand = $refundCommand;
+        $this->reversalCommand = $reversalCommand;
         $this->voidCommand = $voidCommand;
+        $this->storeManager = $storeManager;
+        $this->config = $config;
+        $this->quotePaidStorage = $quotePaidStorage;
     }
 
     /**
      * @throws \Magento\Payment\Gateway\Command\CommandException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function execute(\Magento\Sales\Model\Order\Payment $payment): void
+    public function execute(\Magento\Quote\Model\Quote\Payment $payment, int $quoteId): void
     {
         $commandSubject = ['payment' => $this->paymentDataObjectFactory->create($payment)];
 
-        $paymentState = $payment->getAdditionalInformation(AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE);
-        if ($paymentState == \Afterpay\Afterpay\Model\PaymentStateInterface::AUTH_APPROVED) {
-            $this->voidCommand->execute($commandSubject);
-        } else {
-            $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
-            $this->refundCommand->execute(array_merge($commandSubject, [
-                'amount' => $isCBTCurrency ? $payment->getAmountOrdered() : $payment->getBaseAmountOrdered()
-            ]));
+        if (!$this->isDeferredPaymentFlow()) {
+            $this->reversalCommand->execute($commandSubject);
+
+            return;
         }
+
+        $afterpayPayment = $this->quotePaidStorage->getAfterpayPaymentIfQuoteIsPaid($quoteId);
+        if (!$afterpayPayment) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __(
+                    'Afterpay payment declined. Please select an alternative payment method.'
+                )
+            );
+        }
+
+        $commandSubject = ['payment' => $this->paymentDataObjectFactory->create($afterpayPayment)];
+        $this->voidCommand->execute($commandSubject);
+    }
+
+    private function isDeferredPaymentFlow(): bool
+    {
+        $websiteId = (int)$this->storeManager->getStore()->getWebsiteId();
+        $paymentFlow = $this->config->getPaymentFlow($websiteId);
+
+        return $paymentFlow === \Afterpay\Afterpay\Model\Config\Source\PaymentFlow::DEFERRED;
     }
 }
