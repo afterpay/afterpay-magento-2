@@ -12,7 +12,7 @@
         "magento/module-quote-graph-ql": "100.3.*",
         "magento/module-sales": "102.0.*",
         "magento/module-weee": "100.3.*",
-        "afterpay-global/module-cash-app-pay" : "dev-2.3-develop"
+        "afterpay-global/module-cash-app-pay" : "^4"
     },
     "authors": [
         {
