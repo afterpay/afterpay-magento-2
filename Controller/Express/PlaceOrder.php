@@ -2,10 +2,20 @@
 
 namespace Afterpay\Afterpay\Controller\Express;
 
-class PlaceOrder implements \Magento\Framework\App\Action\HttpPostActionInterface
-{
-    const CANCELLED_STATUS = 'CANCELLED';
+use Afterpay\Afterpay\Controller\Payment\Capture;
+use Afterpay\Afterpay\Gateway\Config\Config;
+use Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\UrlInterface;
+use Magento\Payment\Gateway\CommandInterface;
 
+class PlaceOrder implements HttpPostActionInterface
+{
     private $request;
     private $messageManager;
     private $checkoutSession;
@@ -15,13 +25,13 @@ class PlaceOrder implements \Magento\Framework\App\Action\HttpPostActionInterfac
     private $syncCheckoutDataCommand;
 
     public function __construct(
-        \Magento\Framework\App\RequestInterface $request,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
-        \Magento\Framework\UrlInterface $url,
-        \Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor $placeOrderProcessor,
-        \Magento\Payment\Gateway\CommandInterface $syncCheckoutDataCommand
+        RequestInterface    $request,
+        ManagerInterface    $messageManager,
+        Session             $checkoutSession,
+        JsonFactory         $jsonFactory,
+        UrlInterface        $url,
+        PlaceOrderProcessor $placeOrderProcessor,
+        CommandInterface    $syncCheckoutDataCommand
     ) {
         $this->request = $request;
         $this->messageManager = $messageManager;
@@ -40,25 +50,29 @@ class PlaceOrder implements \Magento\Framework\App\Action\HttpPostActionInterfac
         $afterpayOrderToken = $this->request->getParam('orderToken');
         $status = $this->request->getParam('status');
 
-        if ($status === static::CANCELLED_STATUS) {
+        if ($status === Capture::CHECKOUT_STATUS_CANCELLED) {
             return $jsonResult;
+        }
+
+        if ($status !== Capture::CHECKOUT_STATUS_SUCCESS) {
+            $errorMessage = (string)__('Afterpay payment is declined. Please select an alternative payment method.');
+            $this->messageManager->addErrorMessage($errorMessage);
+
+            return $jsonResult->setData(['redirectUrl' => $this->url->getUrl('checkout/cart')]);
         }
 
         try {
             $quote->getPayment()
-                ->setMethod(\Afterpay\Afterpay\Gateway\Config\Config::CODE)
+                ->setMethod(Config::CODE)
                 ->setAdditionalInformation('afterpay_express', true);
             $this->placeOrderProcessor->execute($quote, $this->syncCheckoutDataCommand, $afterpayOrderToken);
         } catch (\Throwable $e) {
-            $errorMessage = $e instanceof \Magento\Framework\Exception\LocalizedException
+            $errorMessage = $e instanceof LocalizedException
                 ? $e->getMessage()
-                : (string)__('Afterpay payment declined. Please select an alternative payment method.');
+                : (string)__('Afterpay payment is declined. Please select an alternative payment method.');
+            $this->messageManager->addErrorMessage($errorMessage);
 
-            return $jsonResult->setData(['error' => $errorMessage, 'redirectUrl' => $this->url->getUrl(
-                    'checkout/cart',
-                    ['_scope' => $quote->getStore()]
-                )]
-            );
+            return $jsonResult->setData(['redirectUrl' => $this->url->getUrl('checkout/cart')]);
         }
 
         return $jsonResult->setData(['redirectUrl' => $this->url->getUrl('checkout/onepage/success')]);

@@ -84,9 +84,15 @@ class Container implements \Magento\Framework\View\Element\Block\ArgumentInterfa
 
     private function isCurrentCurrencyAvailable(): bool
     {
-        $currentCurrencyCode = $this->storeManager->getStore()->getCurrentCurrency();
+        $currentCurrencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
+        $baseCurrencyCode = $this->storeManager->getStore()->getBaseCurrencyCode();
         $allowedCurrencies = $this->config->getAllowedCurrencies();
+        $validCurrencies = array_keys($this->config->getCbtCurrencyLimits());
 
-        return in_array($currentCurrencyCode->getCode(), $allowedCurrencies);
+        if (in_array($baseCurrencyCode, $allowedCurrencies)) {
+            $validCurrencies[] = $baseCurrencyCode;
+        }
+
+        return in_array($currentCurrencyCode, $validCurrencies);
     }
 }

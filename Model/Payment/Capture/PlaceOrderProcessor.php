@@ -2,72 +2,62 @@
 
 namespace Afterpay\Afterpay\Model\Payment\Capture;
 
-use Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface;
+use Afterpay\Afterpay\Api\Data\CheckoutInterface;
+use Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface;
+use Afterpay\Afterpay\Model\Order\Payment\Auth\TokenValidator;
+use Afterpay\Afterpay\Model\Payment\PaymentErrorProcessor;
+use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Payment\Gateway\CommandInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface;
+use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Model\Quote;
 
 class PlaceOrderProcessor
 {
     private $cartManagement;
-    private $cancelOrderProcessor;
     private $paymentDataObjectFactory;
     private $checkCBTCurrencyAvailability;
-    private $logger;
+    private $tokenValidator;
+    private $paymentErrorProcessor;
 
     public function __construct(
-        \Magento\Quote\Api\CartManagementInterface                         $cartManagement,
-        \Afterpay\Afterpay\Model\Payment\Capture\CancelOrderProcessor      $cancelOrderProcessor,
-        \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface    $paymentDataObjectFactory,
-        \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability,
-        \Psr\Log\LoggerInterface                                           $logger
-    )
-    {
+        CartManagementInterface               $cartManagement,
+        PaymentDataObjectFactoryInterface     $paymentDataObjectFactory,
+        CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability,
+        TokenValidator                        $tokenValidator,
+        PaymentErrorProcessor                 $paymentErrorProcessor
+    ) {
         $this->cartManagement = $cartManagement;
-        $this->cancelOrderProcessor = $cancelOrderProcessor;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->checkCBTCurrencyAvailability = $checkCBTCurrencyAvailability;
-        $this->logger = $logger;
+        $this->tokenValidator = $tokenValidator;
+        $this->paymentErrorProcessor = $paymentErrorProcessor;
     }
 
     public function execute(Quote $quote, CommandInterface $checkoutDataCommand, string $afterpayOrderToken): void
     {
+        if ($this->tokenValidator->checkIsUsed($afterpayOrderToken)) {
+            return;
+        }
+
+        $payment = $quote->getPayment();
         try {
-            $payment = $quote->getPayment();
-            $payment->setAdditionalInformation(
-                \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_TOKEN,
-                $afterpayOrderToken
-            );
+            $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_TOKEN, $afterpayOrderToken);
 
             $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
-            $payment->setAdditionalInformation(
-                \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY,
-                $isCBTCurrencyAvailable
-            );
-            $payment->setAdditionalInformation(
-                \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_CBT_CURRENCY,
-                $quote->getQuoteCurrencyCode()
-            );
+            $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY, $isCBTCurrencyAvailable);
+            $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_CBT_CURRENCY, $quote->getQuoteCurrencyCode());
 
             if (!$quote->getCustomerId()) {
                 $quote->setCustomerEmail($quote->getBillingAddress()->getEmail())
                     ->setCustomerIsGuest(true)
-                    ->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
+                    ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
             }
 
             $checkoutDataCommand->execute(['payment' => $this->paymentDataObjectFactory->create($payment)]);
-
             $this->cartManagement->placeOrder($quote->getId());
         } catch (\Throwable $e) {
-            $this->logger->critical('Order placement is failed with error: ' . $e->getMessage());
-            $quoteId = (int)$quote->getId();
-            $this->cancelOrderProcessor->execute($payment, $quoteId);
-
-            throw new \Magento\Framework\Exception\LocalizedException(
-                    __(
-                        '%1 payment declined. Please select an alternative payment method.',
-                        $quote->getPayment()->getMethodInstance()->getTitle()
-                    )
-            );
+            $this->paymentErrorProcessor->execute($quote, $e, $payment);
         }
     }
 }

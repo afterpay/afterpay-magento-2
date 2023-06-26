@@ -350,6 +350,11 @@
             <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
         </arguments>
     </type>
+    <type name="Afterpay\Afterpay\Setup\Patch\Data\UpdateCbtInfoPatch">
+        <arguments>
+            <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
+        </arguments>
+    </type>
     <type name="Afterpay\Afterpay\Controller\Adminhtml\MerchantConfiguration\Update">
         <arguments>
             <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
@@ -368,5 +373,8 @@
     <type name="Magento\Sales\Model\Order\Payment\Operations\CaptureOperation">
         <plugin name="afterpay_replace_invoice_amount_for_cbt"
                 type="Afterpay\Afterpay\Plugin\Model\Order\Payment\Operations\CaptureOperation"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Payment\State\CaptureCommand">
+        <plugin name="afterpay_change_captured_comment" type="Afterpay\Afterpay\Plugin\Order\Payment\State\CaptureCommand"/>
     </type>
 </config>

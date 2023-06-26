@@ -30,7 +30,7 @@ class IsCBTAvailable implements \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAva
             return $this->canUseCurrentCurrency;
         }
 
-        $currentCurrencyCode = $quote->getQuoteCurrencyCode();
+        $currentCurrencyCode = $quote->getQuoteCurrencyCode() ?? $quote->getStore()->getCurrentCurrencyCode();
         $amount = (float) $quote->getGrandTotal();
         $this->canUseCurrentCurrency = $this->check($currentCurrencyCode, $amount);
 

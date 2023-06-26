@@ -94,7 +94,13 @@
                         <label>Payment Flow</label>
                         <source_model>Afterpay\Afterpay\Model\Config\Source\PaymentFlow</source_model>
                         <config_path>payment/afterpay/payment_flow</config_path>
-                        <comment><![CDATA[Find out more about the payment flows <a href="https://afterpay-online.readme.io/v2/reference#payment-flows" target="_blank">here</a>]]></comment>
+                        <comment><![CDATA[Find out more about the payment flows <a href="https://developers.afterpay.com/afterpay-online/reference/payment-flows" target="_blank">here</a>]]></comment>
+                    </field>
+                    <field id="enable_reversal" translate="label comment" sortOrder="110" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Auto-Reversals</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpay/enable_reversal</config_path>
+                        <comment><![CDATA[In the event that Magento throws an exception while attempting to finalise an order after payment is approved by Afterpay, the payment can be reversed automatically. This may help to prevent scenarios where customers pay for orders that can't be fulfilled.]]></comment>
                     </field>
                 </group>
                 <group id="expresscheckout" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

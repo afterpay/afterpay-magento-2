@@ -101,18 +101,26 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
 
         foreach ($quoteItems as $item) {
             $productId = $item->getProduct()->getId();
+            $amount = $isCBTCurrencyAvailable ? $item->getPriceInclTax() : $item->getBasePriceInclTax();
+            $currencyCode = $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode();
+            $qty = $item->getQty();
+            $isIntQty = floor($qty) == $qty;
+            if ($isIntQty) {
+                $qty = (int)$item->getQty();
+            } else {
+                $amount *= $item->getQty();
+                $qty = 1;
+            }
 
             $formattedItem = [
                 'name' => $item->getName(),
                 'sku' => $item->getSku(),
-                'quantity' => $item->getQty(),
+                'quantity' => $qty,
                 'pageUrl' => $item->getProduct()->getProductUrl(),
                 'categories' => [array_values($this->getQuoteItemCategoriesNames($item))],
                 'price' => [
-                    'amount' => $this->formatPrice(
-                        $isCBTCurrencyAvailable ? $item->getPriceInclTax() : $item->getBasePriceInclTax()
-                    ),
-                    'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
+                    'amount' => $this->formatPrice($amount),
+                    'currency' => $currencyCode
                 ]
             ];
 
@@ -132,10 +140,7 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
         /** @var \Magento\Catalog\Model\ResourceModel\AbstractCollection $categoryCollection */
         $categoryCollection = $item->getProduct()->getCategoryCollection();
         $itemCategories = $categoryCollection->addAttributeToSelect('name')->getItems();
-        return array_map(
-            function ($cat) {return $cat->getData('name');},
-            $itemCategories
-        );
+        return array_map(static function ($cat) {return $cat->getData('name');}, $itemCategories);
     }
 
     /**
@@ -146,11 +151,8 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
     {
         $itemsImages = [];
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter(
-                'entity_id',
-                array_map(function ($item) {return $item->getProduct()->getId();}, $items),
-                'in'
-            )->create();
+            ->addFilter('entity_id', array_map(static function ($item) {return $item->getProduct()->getId();}, $items), 'in')
+            ->create();
         $products = $this->productRepository->getList($searchCriteria)->getItems();
 
         foreach ($products as $product) {
@@ -184,13 +186,14 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
             return null;
         }
         $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
+        $amount = $isCBTCurrencyAvailable
+            ? $quote->getShippingAddress()->getShippingAmount()
+            : $quote->getShippingAddress()->getBaseShippingAmount();
+        $currencyCode = $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode();
 
         return [
-            'amount' => $this->formatPrice($isCBTCurrencyAvailable
-                ? $quote->getShippingAddress()->getShippingAmount()
-                : $quote->getShippingAddress()->getBaseShippingAmount()
-            ),
-            'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
+            'amount' => $this->formatPrice($amount),
+            'currency' => $currencyCode
         ];
     }
 
@@ -211,13 +214,16 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
             return null;
         }
         $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
+        $amount = $isCBTCurrencyAvailable
+            ? $quote->getDiscountAmount()
+            : $quote->getBaseDiscountAmount();
+        $currencyCode = $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode();
+
         return [
             'displayName' => __('Discount'),
             'amount' => [
-                'amount' => $this->formatPrice($isCBTCurrencyAvailable
-                    ? $quote->getDiscountAmount()
-                    : $quote->getBaseDiscountAmount()),
-                'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
+                'amount' => $this->formatPrice($amount),
+                'currency' => $currencyCode
             ]
         ];
     }

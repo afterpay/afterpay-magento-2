@@ -35,6 +35,14 @@ class CheckoutItemsAmountValidationHandler implements \Magento\Payment\Gateway\R
                 throw new \Magento\Framework\Exception\LocalizedException($invalidCartItemsExceptionMessage);
             }
             if ($item->getQty() != $responseItems[$itemIndex]['quantity']) {
+                $qty = $item->getQty();
+                $isIntQty = floor($qty) == $qty;
+                if (!$isIntQty && $responseItems[$itemIndex]['quantity'] == 1) {
+                    $amount = $isCBTCurrency ? $item->getPriceInclTax() : $item->getBasePriceInclTax();
+                    if ($amount * $qty == $responseItems[$itemIndex]['price']['amount']) {
+                        continue;
+                    }
+                }
                 throw new \Magento\Framework\Exception\LocalizedException($invalidCartItemsExceptionMessage);
             }
         }

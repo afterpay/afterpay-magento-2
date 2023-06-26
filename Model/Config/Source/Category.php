@@ -7,15 +7,18 @@ class Category implements \Magento\Framework\Data\OptionSourceInterface
     private $storeManager;
     private $request;
     private $categoryHelper;
+    private $categorySourceRegistry;
 
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\RequestInterface $request,
-        \Magento\Catalog\Helper\Category $categoryHelper
+        \Magento\Catalog\Helper\Category $categoryHelper,
+        \Afterpay\Afterpay\Model\Config\CategorySourceRegistry $categorySourceRegistry
     ) {
         $this->storeManager = $storeManager;
         $this->request = $request;
         $this->categoryHelper = $categoryHelper;
+        $this->categorySourceRegistry = $categorySourceRegistry;
     }
 
     public function toOptionArray(): array
@@ -45,8 +48,10 @@ class Category implements \Magento\Framework\Data\OptionSourceInterface
         $currentStoreId = $this->storeManager->getStore()->getId();
 
         $this->storeManager->setCurrentStore($this->getStoreIdByRequest() ?? $currentStoreId);
+        $this->categorySourceRegistry->setShowAllCategories(true);
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $categories */
         $categories = $this->categoryHelper->getStoreCategories(false, true);
+        $this->categorySourceRegistry->setShowAllCategories(false);
         $this->storeManager->setCurrentStore($currentStoreId);
 
         return $this->convertToTree($categories);

@@ -30,4 +30,7 @@
     <type name="Magento\Sales\Block\Adminhtml\Order\View">
         <plugin name="afterpay_remove_creditmemo_button_from_order_view" type="Afterpay\Afterpay\Plugin\Block\Adminhtml\Order\View" />
     </type>
+    <type name="Magento\Catalog\Model\ResourceModel\Category\Tree">
+        <plugin name="afterpay_show_not_icluded_in_menu_categories" type="Afterpay\Afterpay\Plugin\Catalog\Model\ResourceModel\Category\Tree" />
+    </type>
 </config>
