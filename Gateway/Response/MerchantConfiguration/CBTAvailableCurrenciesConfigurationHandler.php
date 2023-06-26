@@ -2,30 +2,35 @@
 
 namespace Afterpay\Afterpay\Gateway\Response\MerchantConfiguration;
 
-class CBTAvailableCurrenciesConfigurationHandler implements \Magento\Payment\Gateway\Response\HandlerInterface
+use Afterpay\Afterpay\Model\Config;
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Payment\Gateway\Response\HandlerInterface;
+
+class CBTAvailableCurrenciesConfigurationHandler implements HandlerInterface
 {
-    private \Afterpay\Afterpay\Model\Config  $config;
+    private Config $config;
+    private SerializerInterface $serializer;
 
     public function __construct(
-        \Afterpay\Afterpay\Model\Config $config
+        Config              $config,
+        SerializerInterface $serializer
     ) {
         $this->config = $config;
+        $this->serializer = $serializer;
     }
 
     public function handle(array $handlingSubject, array $response): void
     {
         $websiteId = (int)$handlingSubject['websiteId'];
-        $cbtAvailableCurrencies = [];
+        $cbtAvailableCurrencies = '';
+
         if (isset($response['CBT']['enabled']) &&
             isset($response['CBT']['limits']) &&
             is_array($response['CBT']['limits'])
         ) {
-            foreach ($response['CBT']['limits'] as $limit) {
-                if (isset($limit['maximumAmount']['currency']) && isset($limit['maximumAmount']['amount'])) {
-                    $cbtAvailableCurrencies[] = $limit['maximumAmount']['currency'] . ':' . $limit['maximumAmount']['amount'];
-                }
-            }
+            $cbtAvailableCurrencies = $this->serializer->serialize($response['CBT']['limits']);
         }
-        $this->config->setCbtCurrencyLimits(implode(",", $cbtAvailableCurrencies), $websiteId);
+
+        $this->config->setCbtCurrencyLimits($cbtAvailableCurrencies, $websiteId);
     }
 }

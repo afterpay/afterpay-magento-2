@@ -347,6 +347,11 @@
             <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
         </arguments>
     </type>
+    <type name="Afterpay\Afterpay\Setup\Patch\Data\UpdateCbtInfoPatch">
+        <arguments>
+            <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
+        </arguments>
+    </type>
     <type name="Afterpay\Afterpay\Controller\Adminhtml\MerchantConfiguration\Update">
         <arguments>
             <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
@@ -369,5 +374,13 @@
     <type name="Magento\Sales\Api\CreditmemoManagementInterface">
         <plugin name="afterpay_replace_adjustment amount_validation"
                 type="Afterpay\Afterpay\Plugin\Sales\Model\Service\CreditmemoService\AdjustmentAmountValidation"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Payment\State\CaptureCommand">
+        <plugin name="afterpay_change_captured_comment" type="Afterpay\Afterpay\Plugin\Order\Payment\State\CaptureCommand"/>
+    </type>
+    <type name="Afterpay\Afterpay\Model\Payment\PaymentErrorProcessor">
+        <arguments>
+            <argument name="logger" xsi:type="object">Afterpay\Afterpay\Logger</argument>
+        </arguments>
     </type>
 </config>

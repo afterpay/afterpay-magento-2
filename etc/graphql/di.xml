@@ -8,4 +8,12 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\QuoteGraphQl\Model\Cart\PlaceOrder">
+        <plugin name="afterpay_reversal_placeorder"
+                type="Afterpay\Afterpay\Plugin\QuoteGraphQl\Cart\PlaceOrderPlugin"/>
+    </type>
+    <type name="Magento\Payment\Model\Checks\CanUseForCountry">
+        <plugin name="afterpay_qraphql_country_validator"
+                type="Afterpay\Afterpay\Plugin\Payment\Checks\CanUseForCountryPlugin"/>
+    </type>
 </config>

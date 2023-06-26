@@ -18,8 +18,7 @@ class CancelOrderProcessor
         \Magento\Store\Model\StoreManagerInterface                      $storeManager,
         \Afterpay\Afterpay\Model\Config                                 $config,
         \Afterpay\Afterpay\Model\Order\Payment\QuotePaidStorage         $quotePaidStorage
-    )
-    {
+    ) {
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->voidCommand = $voidCommand;
         $this->reversalCommand = $reversalCommand;
@@ -28,18 +27,23 @@ class CancelOrderProcessor
         $this->quotePaidStorage = $quotePaidStorage;
     }
 
-    /**
-     * @throws \Magento\Payment\Gateway\Command\CommandException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
     public function execute(\Magento\Quote\Model\Quote\Payment $payment, int $quoteId): void
     {
+        if (!$this->config->getIsReversalEnabled()) {
+            return;
+        }
+
         $commandSubject = ['payment' => $this->paymentDataObjectFactory->create($payment)];
 
         if (!$this->isDeferredPaymentFlow()) {
             $this->reversalCommand->execute($commandSubject);
 
-            return;
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __(
+                    'There was a problem placing your order. Your Afterpay order %1 is refunded.',
+                    $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface::AFTERPAY_ORDER_ID)
+                )
+            );
         }
 
         $afterpayPayment = $this->quotePaidStorage->getAfterpayPaymentIfQuoteIsPaid($quoteId);

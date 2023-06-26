@@ -25,3 +25,14 @@ input PaymentMethodInput {
 input AfterpayInput {
     afterpay_token: String! @doc(description:"Afterpay checkout token returned by the createAfterpayCheckout mutation")
 }
+
+type Query {
+    afterpayConfig: afterpayConfigOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfig") @doc(description:"return Afterpay config")
+}
+
+type afterpayConfigOutput {
+    max_amount: String
+    min_amount: String
+    allowed_currencies: [String]
+    is_enabled: Boolean
+}

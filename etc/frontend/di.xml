@@ -1,11 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor">
-        <arguments>
-            <argument name="logger" xsi:type="object">Afterpay\Afterpay\Logger</argument>
-        </arguments>
-    </type>
     <type name="Afterpay\Afterpay\Controller\Express\PlaceOrder">
         <arguments>
             <argument name="syncCheckoutDataCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\SyncCheckoutDataCommand</argument>

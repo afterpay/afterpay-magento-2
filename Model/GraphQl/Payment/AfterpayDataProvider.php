@@ -7,10 +7,9 @@ class AfterpayDataProvider implements \Magento\QuoteGraphQl\Model\Cart\Payment\A
     public function getData(array $data): array
     {
         if (!isset($data[$data['code']]['afterpay_token'])) {
-            throw new \Magento\Framework\GraphQl\Exception\GraphQlInputException(
-                __('No afterpay token provided!')
-            );
+            return [];
         }
+
         return $data[$data['code']];
     }
 }

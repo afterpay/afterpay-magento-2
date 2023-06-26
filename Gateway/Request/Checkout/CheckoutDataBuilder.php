@@ -103,11 +103,19 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
             $productId = $item->getProduct()->getId();
             $amount = $isCBTCurrencyAvailable ? $item->getPriceInclTax() : $item->getBasePriceInclTax();
             $currencyCode = $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode();
+            $qty = $item->getQty();
+            $isIntQty = floor($qty) == $qty;
+            if ($isIntQty) {
+                $qty = (int)$item->getQty();
+            } else {
+                $amount *= $item->getQty();
+                $qty = 1;
+            }
 
             $formattedItem = [
                 'name' => $item->getName(),
                 'sku' => $item->getSku(),
-                'quantity' => $item->getQty(),
+                'quantity' => $qty,
                 'pageUrl' => $item->getProduct()->getProductUrl(),
                 'categories' => [array_values($this->getQuoteItemCategoriesNames($item))],
                 'price' => [

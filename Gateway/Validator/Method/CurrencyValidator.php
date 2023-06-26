@@ -20,7 +20,7 @@ class CurrencyValidator extends \Magento\Payment\Gateway\Validator\AbstractValid
     public function validate(array $validationSubject): \Magento\Payment\Gateway\Validator\ResultInterface
     {
         $quote = $this->checkoutSession->getQuote();
-        $currentCurrency = $quote->getQuoteCurrencyCode();
+        $currentCurrency = $quote->getStore()->getCurrentCurrencyCode();
         $allowedCurrencies = $this->config->getAllowedCurrencies();
         $cbtCurrencies = array_keys($this->config->getCbtCurrencyLimits());
 

@@ -1,9 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Afterpay\Afterpay\Model;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\ScopeInterface;
 
 class Config
@@ -21,27 +23,31 @@ class Config
     const XML_PATH_MERCHANT_KEY = 'payment/afterpay/merchant_key';
     const XML_PATH_PAYMENT_FLOW = 'payment/afterpay/payment_flow';
     const XML_PATH_MIN_LIMIT = 'payment/afterpay/min_order_total';
-    const XML_PATH_MAX_LIMIT  = 'payment/afterpay/max_order_total';
-    const XML_PATH_CBT_CURRENCY_LIMITS  = 'payment/afterpay/cbt_currency_limits';
-    const XML_PATH_EXCLUDE_CATEGORIES  = 'payment/afterpay/exclude_categories';
-    const XML_PATH_ALLOW_SPECIFIC_COUNTRIES  = 'payment/afterpay/allowspecific';
-    const XML_PATH_SPECIFIC_COUNTRIES  = 'payment/afterpay/specificcountry';
-    const XML_PATH_ALLOWED_MERCHANT_COUNTRIES  = 'payment/afterpay/allowed_merchant_countries';
-    const XML_PATH_ALLOWED_MERCHANT_CURRENCIES  = 'payment/afterpay/allowed_merchant_currencies';
-    const XML_PATH_PAYPAL_MERCHANT_COUNTRY  = 'paypal/general/merchant_country';
+    const XML_PATH_MAX_LIMIT = 'payment/afterpay/max_order_total';
+    const XML_PATH_CBT_CURRENCY_LIMITS = 'payment/afterpay/cbt_currency_limits';
+    const XML_PATH_EXCLUDE_CATEGORIES = 'payment/afterpay/exclude_categories';
+    const XML_PATH_ALLOW_SPECIFIC_COUNTRIES = 'payment/afterpay/allowspecific';
+    const XML_PATH_SPECIFIC_COUNTRIES = 'payment/afterpay/specificcountry';
+    const XML_PATH_ALLOWED_MERCHANT_COUNTRIES = 'payment/afterpay/allowed_merchant_countries';
+    const XML_PATH_ALLOWED_MERCHANT_CURRENCIES = 'payment/afterpay/allowed_merchant_currencies';
+    const XML_PATH_PAYPAL_MERCHANT_COUNTRY = 'paypal/general/merchant_country';
+    const XML_PATH_ENABLE_REVERSAL = 'payment/afterpay/enable_reversal';
 
-    private \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig;
-    private \Magento\Framework\App\Config\Storage\WriterInterface $writer;
-    private \Magento\Framework\App\ResourceConnection $resourceConnection;
+    private ScopeConfigInterface $scopeConfig;
+    private WriterInterface $writer;
+    private ResourceConnection $resourceConnection;
+    private SerializerInterface $serializer;
 
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\App\Config\Storage\WriterInterface $writer,
-        \Magento\Framework\App\ResourceConnection $resourceConnection
+        ScopeConfigInterface $scopeConfig,
+        WriterInterface      $writer,
+        ResourceConnection   $resourceConnection,
+        SerializerInterface  $serializer
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->writer = $writer;
         $this->resourceConnection = $resourceConnection;
+        $this->serializer = $serializer;
     }
 
     public function getIsPaymentActive(?int $scopeCode = null): bool
@@ -172,7 +178,6 @@ class Config
 
     public function getCbtCurrencyLimits(?int $scopeCode = null): array
     {
-        $data = [];
         $value = $this->scopeConfig->getValue(
             self::XML_PATH_CBT_CURRENCY_LIMITS,
             ScopeInterface::SCOPE_WEBSITE,
@@ -183,15 +188,7 @@ class Config
             return [];
         }
 
-        $list = explode(',', $value);
-        foreach ($list as $item) {
-            $currencyLimit = explode(':', $item);
-            if (isset($currencyLimit[0]) && isset($currencyLimit[1])) {
-                $data[$currencyLimit[0]] = (float) $currencyLimit[1];
-            }
-        }
-
-        return $data;
+        return $this->serializer->unserialize($value);
     }
 
     public function getExcludeCategories(?int $scopeCode = null): array
@@ -203,6 +200,15 @@ class Config
         );
 
         return $excludeCategories ? explode(',', $excludeCategories) : [];
+    }
+
+    public function getIsReversalEnabled(?int $scopeCode = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_ENABLE_REVERSAL,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
     }
 
     public function setMaxOrderTotal(string $value, int $scopeId = 0): self
@@ -347,7 +353,7 @@ class Config
 
     public function getMerchantCountry(
         string $scope = ScopeInterface::SCOPE_WEBSITES,
-        ?int $scopeCode = null
+        ?int   $scopeCode = null
     ): ?string {
         if ($countryCode = $this->scopeConfig->getValue(
             self::XML_PATH_PAYPAL_MERCHANT_COUNTRY,
@@ -368,7 +374,7 @@ class Config
 
     public function getMerchantCurrency(
         string $scope = ScopeInterface::SCOPE_WEBSITES,
-        ?int $scopeCode = null
+        ?int   $scopeCode = null
     ): ?string {
         return $this->scopeConfig->getValue(
             \Magento\Directory\Model\Currency::XML_PATH_CURRENCY_BASE,
@@ -401,7 +407,7 @@ class Config
             \Afterpay\Afterpay\Observer\Adminhtml\ConfigSaveAfter::AFTERPAY_CONFIGS,
             \Afterpay\Afterpay\Observer\Adminhtml\ConfigSaveAfter::CONFIGS_PATHS_TO_TRACK
         );
-        $selectQuery = $connection->select()->from($coreConfigData, ['path','value'])
+        $selectQuery = $connection->select()->from($coreConfigData, ['path', 'value'])
             ->where("scope = ?", \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES)
             ->where("scope_id = ?", $websiteId)
             ->where("path in (?)", $configsExistToCheck);
