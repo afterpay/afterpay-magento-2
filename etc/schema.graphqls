@@ -35,4 +35,7 @@ type afterpayConfigOutput {
     min_amount: String
     allowed_currencies: [String]
     is_enabled: Boolean
+    is_enabled_cta_pdp: Boolean
+    is_enabled_cta_minicart: Boolean
+    is_enabled_cta_checkout: Boolean
 }
