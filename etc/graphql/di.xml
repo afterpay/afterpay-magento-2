@@ -16,4 +16,9 @@
         <plugin name="afterpay_qraphql_country_validator"
                 type="Afterpay\Afterpay\Plugin\Payment\Checks\CanUseForCountryPlugin"/>
     </type>
+    <type name="Afterpay\Afterpay\Plugin\QuoteGraphQl\Cart\PlaceOrderPlugin">
+        <arguments>
+            <argument name="validateCheckoutDataCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\ValidateCheckoutDataCommand</argument>
+        </arguments>
+    </type>
 </config>

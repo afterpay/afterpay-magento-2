@@ -3,9 +3,9 @@
     "license": "Apache-2.0",
     "type": "magento2-module",
     "description": "Magento 2 Afterpay Payment Module",
-    "version": "v5.1.1",
+    "version": "v5.1.2",
     "require": {
-        "php": "~7.4.0||~8.1.0",
+        "php": ">=7.4.0",
         "magento/framework": "^103.0",
         "magento/module-checkout": "100.4.*",
         "magento/module-payment": "100.4.*",

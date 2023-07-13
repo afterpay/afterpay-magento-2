@@ -29,7 +29,7 @@ class PaymentErrorProcessor
         $this->logger = $logger;
     }
 
-    public function execute(Quote $quote, \Throwable $e, Payment $payment)
+    public function execute(Quote $quote, \Throwable $e, Payment $payment): int
     {
         $this->logger->critical('Order placement is failed with error: ' . PHP_EOL . $e);
         if (($this->checkoutSession->getLastSuccessQuoteId() == $quote->getId()) && $this->checkoutSession->getLastOrderId()) {
@@ -42,7 +42,7 @@ class PaymentErrorProcessor
                 );
                 $this->orderRepository->save($order);
 
-                return $order->getEntityId();
+                return (int)$order->getEntityId();
             } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             }
         }

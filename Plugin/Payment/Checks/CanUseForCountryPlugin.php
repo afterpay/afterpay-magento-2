@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Afterpay\Afterpay\Plugin\Payment\Checks;
 
@@ -10,7 +10,7 @@ class CanUseForCountryPlugin
 {
     public function afterIsApplicable(CanUseForCountry $subject, $result, MethodInterface $paymentMethod, Quote $quote)
     {
-        if ($paymentMethod->getCode() !== 'afterpay') {
+        if ($paymentMethod->getCode() !== \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
             return $result;
         }
 

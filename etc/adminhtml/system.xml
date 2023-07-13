@@ -100,7 +100,7 @@
                         <label>Enable Auto-Reversals</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/afterpay/enable_reversal</config_path>
-                        <comment><![CDATA[In the event that Magento throws an exception while attempting to finalise an order after payment is approved by Afterpay, the payment can be reversed automatically. This may help to prevent scenarios where customers pay for orders that can't be fulfilled.]]></comment>
+                        <comment><![CDATA[In the event that Magento throws an exception while attempting to finalise an order after payment is approved by Afterpay, the payment can be reversed automatically. This may help to prevent scenarios where customers pay for orders that can't be fulfilled. <b>Not recommended if an external Order Management System (OMS) is in use.</b>]]></comment>
                     </field>
                 </group>
                 <group id="expresscheckout" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

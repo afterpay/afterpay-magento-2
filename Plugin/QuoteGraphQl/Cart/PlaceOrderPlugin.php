@@ -1,53 +1,41 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Afterpay\Afterpay\Plugin\QuoteGraphQl\Cart;
 
-use Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface;
-use Afterpay\Afterpay\Model\Payment\PaymentErrorProcessor;
+use Afterpay\Afterpay\Api\Data\CheckoutInterface;
+use Afterpay\Afterpay\Gateway\Config\Config;
+use Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor;
+use Magento\Payment\Gateway\CommandInterface;
+use Magento\Quote\Model\Quote;
 use Magento\QuoteGraphQl\Model\Cart\PlaceOrder as PlaceOrderModel;
 
 class PlaceOrderPlugin
 {
-    private PaymentErrorProcessor $paymentErrorProcessor;
-    private CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability;
+    private PlaceOrderProcessor $placeOrderProcessor;
+    private CommandInterface $validateCheckoutDataCommand;
 
     public function __construct(
-        PaymentErrorProcessor                 $paymentErrorProcessor,
-        CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability
+        PlaceOrderProcessor $placeOrderProcessor,
+        CommandInterface    $validateCheckoutDataCommand
     ) {
-        $this->paymentErrorProcessor = $paymentErrorProcessor;
-        $this->checkCBTCurrencyAvailability = $checkCBTCurrencyAvailability;
+        $this->placeOrderProcessor = $placeOrderProcessor;
+        $this->validateCheckoutDataCommand = $validateCheckoutDataCommand;
     }
 
     public function aroundExecute(
         PlaceOrderModel $subject,
         callable        $proceed,
-                        $cart,
-                        $maskedCartId,
-                        $userId
-    ) {
-        try {
-            $payment = $cart->getPayment();
+        Quote           $cart,
+        string          $maskedCartId,
+        int             $userId
+    ): int {
+        $payment = $cart->getPayment();
+        if ($payment->getMethod() === Config::CODE) {
+            $afterpayOrderToken = $payment->getAdditionalInformation(CheckoutInterface::AFTERPAY_TOKEN);
 
-            if ($payment->getMethod() === 'afterpay') {
-                $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($cart);
-                $payment->setAdditionalInformation(
-                    \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY,
-                    $isCBTCurrencyAvailable
-                );
-                $payment->setAdditionalInformation(
-                    \Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_CBT_CURRENCY,
-                    $cart->getQuoteCurrencyCode()
-                );
-            }
-
-            return $proceed($cart, $maskedCartId, $userId);
-        } catch (\Throwable $e) {
-            if ($payment->getMethod() === 'afterpay') {
-                return (int)$this->paymentErrorProcessor->execute($cart, $e, $payment);
-            }
-
-            throw $e;
+            return $this->placeOrderProcessor->execute($cart, $this->validateCheckoutDataCommand, $afterpayOrderToken);
         }
+
+        return $proceed($cart, $maskedCartId, $userId);
     }
 }
