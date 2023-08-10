@@ -32,6 +32,9 @@ class Config
     const XML_PATH_ALLOWED_MERCHANT_CURRENCIES = 'payment/afterpay/allowed_merchant_currencies';
     const XML_PATH_PAYPAL_MERCHANT_COUNTRY = 'paypal/general/merchant_country';
     const XML_PATH_ENABLE_REVERSAL = 'payment/afterpay/enable_reversal';
+    const XML_PATH_MPID = 'payment/afterpay/public_id';
+    const XML_PATH_CASHAPP_PAY_AVAILABLE='payment/afterpay/cash_app_pay_available';
+    const XML_PATH_CASHAPP_PAY_ENABLE='payment/cashapp/active';
 
     private ScopeConfigInterface $scopeConfig;
     private WriterInterface $writer;
@@ -437,5 +440,67 @@ class Config
             $scopeId
         );
         return $this;
+    }
+
+    public function setPublicId(string $value, int $scopeId = 0): self
+    {
+        if ($scopeId) {
+            $this->writer->save(
+                self::XML_PATH_MPID,
+                $value,
+                ScopeInterface::SCOPE_WEBSITES,
+                $scopeId
+            );
+            return $this;
+        }
+        $this->writer->save(
+            self::XML_PATH_MPID,
+            $value
+        );
+        return $this;
+    }
+
+    public function getPublicId(?int $scopeCode = null): string
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_MPID,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+    }
+
+    public function setCashAppPayAvailable(int $value, int $scopeId = 0): self
+    {
+        if ($scopeId) {
+            $this->writer->save(
+                self::XML_PATH_CASHAPP_PAY_AVAILABLE,
+                $value,
+                ScopeInterface::SCOPE_WEBSITES,
+                $scopeId
+            );
+            return $this;
+        }
+        $this->writer->save(
+            self::XML_PATH_CASHAPP_PAY_AVAILABLE,
+            $value
+        );
+        return $this;
+    }
+
+    public function getCashAppPayAvailable(?int $scopeCode = null): bool
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XML_PATH_CASHAPP_PAY_AVAILABLE,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+    }
+    public function getCashAppPayEnabled(?int $scopeCode = null): bool
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XML_PATH_CASHAPP_PAY_ENABLE,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
     }
 }

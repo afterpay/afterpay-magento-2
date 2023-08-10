@@ -50,6 +50,11 @@
                         <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\CBTAvailableCurrencies</frontend_model>
                         <config_path>payment/afterpay/cbt_currency_limits</config_path>
                     </field>
+                    <field id="public_id" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Public Id</label>
+                        <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Form\Field\Disable</frontend_model>
+                        <config_path>payment/afterpay/public_id</config_path>
+                    </field>
                     <field id="update_order_limits" translate="button_label comment"  sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label/>
                         <button_label>Update Merchant Configuration</button_label>

@@ -50,6 +50,7 @@
             <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
             <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\CaptureHandler</argument>
             <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\CaptureResponseValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Afterpay\Afterpay\Gateway\ErrorMessageMapper\CaptureErrorMessageMapper</argument>
         </arguments>
     </virtualType>
     <virtualType name="Afterpay\Afterpay\Gateway\Command\AuthCommand" type="Afterpay\Afterpay\Gateway\Command\CaptureCommand">
@@ -167,6 +168,8 @@
                 <item name="limits" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\LimitConfigurationHandler</item>
                 <item name="specific_countries" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\SpecificCountriesConfigurationHandler</item>
                 <item name="cbt_available_currencies" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\CBTAvailableCurrenciesConfigurationHandler</item>
+                <item name="mpid" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\MpidConfigurationHandler</item>
+                <item name="channels" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\ChannelsConfigurationHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -227,7 +230,7 @@
     </virtualType>
     <virtualType name="Afterpay\Afterpay\Gateway\Http\ConfigTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
         <arguments>
-            <argument name="uriPath" xsi:type="string">v2/configuration?include=cbt</argument>
+            <argument name="uriPath" xsi:type="string">v2/configuration?include=cbt&amp;include=publicId&amp;include=channels</argument>
             <argument name="method" xsi:type="const">Afterpay\Afterpay\Gateway\Http\TransferFactory::METHOD_GET</argument>
         </arguments>
     </virtualType>
@@ -348,6 +351,11 @@
         </arguments>
     </type>
     <type name="Afterpay\Afterpay\Setup\Patch\Data\UpdateCbtInfoPatch">
+        <arguments>
+            <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
+        </arguments>
+    </type>
+    <type name="Afterpay\Afterpay\Setup\Patch\Data\UpdateMPIDInfoPatch">
         <arguments>
             <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper</argument>
         </arguments>

@@ -11,8 +11,8 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\CommandInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class PlaceOrder implements HttpPostActionInterface
 {
@@ -20,26 +20,26 @@ class PlaceOrder implements HttpPostActionInterface
     private ManagerInterface $messageManager;
     private Session $checkoutSession;
     private JsonFactory $jsonFactory;
-    private UrlInterface $url;
     private PlaceOrderProcessor $placeOrderProcessor;
     private CommandInterface $syncCheckoutDataCommand;
+    private StoreManagerInterface $storeManager;
 
     public function __construct(
-        RequestInterface    $request,
-        ManagerInterface    $messageManager,
-        Session             $checkoutSession,
-        JsonFactory         $jsonFactory,
-        UrlInterface        $url,
-        PlaceOrderProcessor $placeOrderProcessor,
-        CommandInterface    $syncCheckoutDataCommand
+        RequestInterface      $request,
+        ManagerInterface      $messageManager,
+        Session               $checkoutSession,
+        JsonFactory           $jsonFactory,
+        PlaceOrderProcessor   $placeOrderProcessor,
+        CommandInterface      $syncCheckoutDataCommand,
+        StoreManagerInterface $storeManager
     ) {
         $this->request = $request;
         $this->messageManager = $messageManager;
         $this->checkoutSession = $checkoutSession;
         $this->jsonFactory = $jsonFactory;
-        $this->url = $url;
         $this->placeOrderProcessor = $placeOrderProcessor;
         $this->syncCheckoutDataCommand = $syncCheckoutDataCommand;
+        $this->storeManager = $storeManager;
     }
 
     public function execute()
@@ -57,7 +57,7 @@ class PlaceOrder implements HttpPostActionInterface
             $errorMessage = (string)__('Afterpay payment is declined. Please select an alternative payment method.');
             $this->messageManager->addErrorMessage($errorMessage);
 
-            return $jsonResult->setData(['redirectUrl' => $this->url->getUrl('checkout/cart')]);
+            return $jsonResult->setData(['redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/cart')]);
         }
 
         try {
@@ -71,9 +71,9 @@ class PlaceOrder implements HttpPostActionInterface
                 : (string)__('Afterpay payment is declined. Please select an alternative payment method.');
             $this->messageManager->addErrorMessage($errorMessage);
 
-            return $jsonResult->setData(['redirectUrl' => $this->url->getUrl('checkout/cart')]);
+            return $jsonResult->setData(['redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/cart')]);
         }
 
-        return $jsonResult->setData(['redirectUrl' => $this->url->getUrl('checkout/onepage/success')]);
+        return $jsonResult->setData(['redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/onepage/success')]);
     }
 }
