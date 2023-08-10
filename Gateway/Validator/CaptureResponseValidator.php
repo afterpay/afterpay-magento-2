@@ -14,10 +14,7 @@ class CaptureResponseValidator extends \Magento\Payment\Gateway\Validator\Abstra
         if (isset($response['status']) && $response['status'] == self::STATUS_DECLINED) {
             return $this->createResult(
                 false,
-                [
-                __('%1 payment declined. Please select an alternative payment method.',
-                    ($validationSubject['payment'])->getPayment()->getMethodInstance()->getTitle())
-                ]
+                [self::STATUS_DECLINED]
             );
         }
 
