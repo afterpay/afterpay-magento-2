@@ -1,5 +1,5 @@
 <!-- ko if: ($data.dataCurrency)-->
-<afterpay-placement
+<square-placement
     data-bind="attr: {
             'id': id,
             'data-show-lower-limit': dataShowLowerLimit,
@@ -7,10 +7,13 @@
             'data-locale': dataLocale,
             'data-is-eligible': dataIsEligible,
             'data-amount': dataAmount,
-            'data-cbt-enabled': dataCbtEnabledString
+            'data-mpid':dataMPID,
+            'data-cbt-enabled': dataCbtEnabledString,
+            'data-platform': dataPlatform,
+            'data-page-type': pageType
         },
         afterRender: onRendered,
         visible: isVisible
 "
-></afterpay-placement>
+></square-placement>
 <!-- /ko -->

@@ -7,8 +7,8 @@ class ExpressCheckoutLibUrlProvider extends LibUrlProvider
     protected function buildUrl(): string
     {
         return $this->urlBuilder->build(
-            \Afterpay\Afterpay\Model\Url\UrlBuilder::TYPE_WEB_JS_LIB,
-            'afterpay.js?merchant_key=magento2'
+            \Afterpay\Afterpay\Model\Url\UrlBuilder::TYPE_JS_LIB,
+            'square-marketplace.js'
         );
     }
 }

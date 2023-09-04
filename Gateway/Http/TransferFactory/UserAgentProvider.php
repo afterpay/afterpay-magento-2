@@ -33,7 +33,8 @@ class UserAgentProvider
         $magentoVersion = $this->productMetadata->getVersion();
         $phpVersion = $this->util->getTrimmedPhpVersion();
         $afterpayMerchantId = $this->config->getMerchantId($websiteId);
-        $afterpayMPId = $this->config->getPublicId($websiteId);
+        $publicId = $this->config->getPublicId($websiteId);
+        $afterpayMPId=$publicId??"null";
         $websiteDomain = $this->store->getBaseUrl();
         $CashAppPayAvailable=(int)$this->config->getCashAppPayAvailable($websiteId);
         $CashAppPayEnabled=(int)$this->config->getCashAppPayEnabled($websiteId);

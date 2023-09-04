@@ -2,10 +2,12 @@
 
 namespace Afterpay\Afterpay\Model\Payment;
 
+use Afterpay\Afterpay\Gateway\ErrorMessageMapper\CaptureErrorMessageMapper;
 use Afterpay\Afterpay\Model\Payment\Capture\CancelOrderProcessor;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Payment;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -47,6 +49,10 @@ class PaymentErrorProcessor
                 return (int)$order->getEntityId();
             } catch (NoSuchEntityException $e) {
             }
+        }
+
+        if ($e instanceof CommandException && $e->getMessage() === CaptureErrorMessageMapper::STATUS_DECLINED_ERROR_MESSAGE) {
+            throw $e;
         }
 
         $this->cancelOrderProcessor->execute($payment, (int)$quote->getId());

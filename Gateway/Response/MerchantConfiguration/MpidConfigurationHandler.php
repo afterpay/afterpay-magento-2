@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Gateway\Response\MerchantConfiguration;
 
 class MpidConfigurationHandler implements \Magento\Payment\Gateway\Response\HandlerInterface
 {
-    private \Afterpay\Afterpay\Model\Config  $config;
+    private \Afterpay\Afterpay\Model\Config $config;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Config $config
@@ -15,7 +15,7 @@ class MpidConfigurationHandler implements \Magento\Payment\Gateway\Response\Hand
     public function handle(array $handlingSubject, array $response): void
     {
         $websiteId = (int)$handlingSubject['websiteId'];
-        $mpid =$response['publicId']??"null";
+        $mpid = $response['publicId'] ?? '';
         $this->config->setPublicId($mpid, $websiteId);
     }
 }

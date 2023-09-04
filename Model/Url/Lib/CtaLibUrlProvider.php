@@ -8,7 +8,7 @@ class CtaLibUrlProvider extends LibUrlProvider
     {
         return $this->urlBuilder->build(
             \Afterpay\Afterpay\Model\Url\UrlBuilder::TYPE_JS_LIB,
-            'afterpay-1.x.js'
+            'square-marketplace.js'
         );
     }
 }

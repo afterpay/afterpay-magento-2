@@ -23,7 +23,7 @@ class UrlFactoryTest extends \PHPUnit\Framework\TestCase
                     'CAD' => 'https://api.us-sandbox.afterpay.com/',
                     'default' => 'https://api-sandbox.afterpay.com/',
                 ],
-                'js_lib_url' => 'https://js.sandbox.afterpay.com/'
+                'js_lib_url' => 'https://js-sandbox.squarecdn.com/'
             ],
             'production' => [
                 'api_url' => [
@@ -31,7 +31,7 @@ class UrlFactoryTest extends \PHPUnit\Framework\TestCase
                     'CAD' => 'https://api.us.afterpay.com/',
                     'default' => 'https://api.afterpay.com/',
                 ],
-                'js_lib_url' => 'https://js.afterpay.com/'
+                'js_lib_url' => 'https://js.squarecdn.com/'
             ]
         ];
 
@@ -69,8 +69,8 @@ class UrlFactoryTest extends \PHPUnit\Framework\TestCase
     {
         return [
             ['production', 'api_url', 'https://api.us.afterpay.com/', 'USD'],
-            ['sandbox', 'js_lib_url', 'https://js.sandbox.afterpay.com/'],
-            ['production', 'js_lib_url', 'https://js.afterpay.com/'],
+            ['sandbox', 'js_lib_url', 'https://js-sandbox.squarecdn.com/'],
+            ['production', 'js_lib_url', 'https://js.squarecdn.com/'],
             ['sandbox', 'api_url', 'https://api-sandbox.afterpay.com/', 'UAH'],
             ['production', 'api_url', 'https://api.afterpay.com/', 'AUD']
         ];

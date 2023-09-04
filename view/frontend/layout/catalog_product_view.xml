@@ -53,6 +53,7 @@
                                 <item name="template" xsi:type="string">Afterpay_Afterpay/cta/cta</item>
                                 <item name="config" xsi:type="array">
                                     <item name="id" xsi:type="string">afterpay-cta-pdp</item>
+                                    <item name="pageType" xsi:type="string">product</item>
                                     <item name="modelContainerId" xsi:type="string">afterpay-pdp-container</item>
                                 </item>
                             </item>
