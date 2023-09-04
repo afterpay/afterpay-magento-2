@@ -17,8 +17,8 @@ class WidgetCheckoutLibUrlProvider extends LibUrlProvider
     protected function buildUrl(): string
     {
         return $this->urlBuilder->build(
-            \Afterpay\Afterpay\Model\Url\UrlBuilder::TYPE_WEB_JS_LIB,
-            'afterpay.js'
+            \Afterpay\Afterpay\Model\Url\UrlBuilder::TYPE_JS_LIB,
+            'square-marketplace.js'
         );
     }
 }

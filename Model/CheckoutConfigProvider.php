@@ -9,15 +9,18 @@ class CheckoutConfigProvider implements \Magento\Checkout\Model\ConfigProviderIn
     private $checkoutSession;
 
     private $checkCBTCurrencyAvailability;
+    private $config;
 
     public function __construct(
         \Magento\Framework\Locale\Resolver $localeResolver,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability
+        \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability,
+        \Afterpay\Afterpay\Model\Config $config
     ) {
         $this->localeResolver = $localeResolver;
         $this->checkoutSession = $checkoutSession;
         $this->checkCBTCurrencyAvailability = $checkCBTCurrencyAvailability;
+        $this->config = $config;
     }
 
     public function getConfig(): array
@@ -28,7 +31,9 @@ class CheckoutConfigProvider implements \Magento\Checkout\Model\ConfigProviderIn
             'payment' => [
                 'afterpay' => [
                     'locale' => $this->localeResolver->getLocale(),
-                    'isCBTCurrency' => $this->checkCBTCurrencyAvailability->checkByQuote($quote)
+                    'isCBTCurrency' => $this->checkCBTCurrencyAvailability->checkByQuote($quote),
+                    'consumerLendingEnabled' => $this->config->getConsumerLendingEnabled(),
+                    'consumerLendingMinimumAmount' => $this->config->getConsumerLendingMinAmount(),
                 ]
             ]
         ];

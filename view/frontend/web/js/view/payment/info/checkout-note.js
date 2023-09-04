@@ -18,6 +18,10 @@ define([
 
     return Component.extend({
         initWidget: function () {
+            if (!this._showWidget()) {
+                return;
+            }
+
             window.afterpayWidget = new AfterPay.Widgets.PaymentSchedule({
                 target: '#afterpay-widget-container',
                 locale: window.checkoutConfig.payment.afterpay.locale.replace('_', '-'),
@@ -61,6 +65,15 @@ define([
         },
         _showBaseCurrencyChargeInfo: function () {
             $('.opc-block-summary .totals.charge').show();
+        },
+        _showWidget: function () {
+            if (checkoutConfig.payment.afterpay.consumerLendingEnabled) {
+                if (totals.totals().base_grand_total >= window.checkoutConfig.payment.afterpay.consumerLendingMinimumAmount) {
+                    return false
+                }
+            }
+
+            return true;
         },
     });
 });

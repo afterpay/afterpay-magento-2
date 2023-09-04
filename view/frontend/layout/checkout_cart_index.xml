@@ -27,6 +27,7 @@
                                 <item name="template" xsi:type="string">Afterpay_Afterpay/cta/cta</item>
                                 <item name="config" xsi:type="array">
                                     <item name="id" xsi:type="string">afterpay-cta-cart</item>
+                                    <item name="pageType" xsi:type="string">cart</item>
                                     <item name="modelContainerId" xsi:type="string">afterpay-cart-container</item>
                                 </item>
                                 <item name="children" xsi:type="array">

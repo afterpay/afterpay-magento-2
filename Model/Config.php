@@ -33,9 +33,10 @@ class Config
     const XML_PATH_PAYPAL_MERCHANT_COUNTRY = 'paypal/general/merchant_country';
     const XML_PATH_ENABLE_REVERSAL = 'payment/afterpay/enable_reversal';
     const XML_PATH_MPID = 'payment/afterpay/public_id';
-    const XML_PATH_CASHAPP_PAY_AVAILABLE='payment/afterpay/cash_app_pay_available';
-    const XML_PATH_CASHAPP_PAY_ENABLE='payment/cashapp/active';
-
+    const XML_PATH_CASHAPP_PAY_AVAILABLE = 'payment/afterpay/cash_app_pay_available';
+    const XML_PATH_CASHAPP_PAY_ENABLE = 'payment/cashapp/active';
+    const XML_PATH_CONSUMER_LENDING_ENABLED = 'payment/afterpay/consumer_lending_enabled';
+    const XML_PATH_CONSUMER_LENDING_MIN_AMOUNT = 'payment/afterpay/consumer_lending_min_amount';
 
     private $scopeConfig;
     private $writer;
@@ -496,10 +497,69 @@ class Config
             $scopeCode
         );
     }
+
     public function getCashAppPayEnabled(?int $scopeCode = null): bool
     {
         return (bool)$this->scopeConfig->getValue(
             self::XML_PATH_CASHAPP_PAY_ENABLE,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+    }
+
+    public function setConsumerLendingEnabled(int $value, int $scopeId = 0): self
+    {
+        if ($scopeId) {
+            $this->writer->save(
+                self::XML_PATH_CONSUMER_LENDING_ENABLED,
+                $value,
+                ScopeInterface::SCOPE_WEBSITES,
+                $scopeId
+            );
+
+            return $this;
+        }
+        $this->writer->save(
+            self::XML_PATH_CONSUMER_LENDING_ENABLED,
+            $value
+        );
+
+        return $this;
+    }
+
+    public function getConsumerLendingEnabled(?int $scopeCode = null): bool
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XML_PATH_CONSUMER_LENDING_ENABLED,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+    }
+
+    public function setConsumerLendingMinAmount(string $value, int $scopeId = 0): self
+    {
+        if ($scopeId) {
+            $this->writer->save(
+                self::XML_PATH_CONSUMER_LENDING_MIN_AMOUNT,
+                $value,
+                ScopeInterface::SCOPE_WEBSITES,
+                $scopeId
+            );
+
+            return $this;
+        }
+        $this->writer->save(
+            self::XML_PATH_CONSUMER_LENDING_MIN_AMOUNT,
+            $value
+        );
+
+        return $this;
+    }
+
+    public function getConsumerLendingMinAmount(?int $scopeCode = null): bool
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XML_PATH_CONSUMER_LENDING_MIN_AMOUNT,
             ScopeInterface::SCOPE_WEBSITE,
             $scopeCode
         );

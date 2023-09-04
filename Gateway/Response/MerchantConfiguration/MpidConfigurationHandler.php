@@ -15,7 +15,7 @@ class MpidConfigurationHandler implements \Magento\Payment\Gateway\Response\Hand
     public function handle(array $handlingSubject, array $response): void
     {
         $websiteId = (int)$handlingSubject['websiteId'];
-        $mpid =$response['publicId']??"null";
+        $mpid = $response['publicId'] ?? '';
         $this->config->setPublicId($mpid, $websiteId);
     }
 }

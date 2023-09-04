@@ -30,6 +30,7 @@
                                             <item name="sortOrder" xsi:type="string">0</item>
                                             <item name="config" xsi:type="array">
                                                 <item name="id" xsi:type="string">afterpay-cta-mini-cart</item>
+                                                <item name="pageType" xsi:type="string">mini-cart</item>
                                                 <item name="modelContainerId" xsi:type="string">afterpay-mini-cart-container</item>
                                             </item>
                                             <item name="children" xsi:type="array">

@@ -170,6 +170,7 @@
                 <item name="cbt_available_currencies" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\CBTAvailableCurrenciesConfigurationHandler</item>
                 <item name="mpid" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\MpidConfigurationHandler</item>
                 <item name="channels" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\ChannelsConfigurationHandler</item>
+                <item name="consumer_lending" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\ConsumerLendingConfigurationHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -230,7 +231,7 @@
     </virtualType>
     <virtualType name="Afterpay\Afterpay\Gateway\Http\ConfigTransferFactory" type="Afterpay\Afterpay\Gateway\Http\TransferFactory">
         <arguments>
-            <argument name="uriPath" xsi:type="string">v2/configuration?include=cbt&amp;include=publicId&amp;include=channels</argument>
+            <argument name="uriPath" xsi:type="string">v2/configuration?include=cbt&amp;include=publicId&amp;include=channels&amp;include=consumerLending</argument>
             <argument name="method" xsi:type="const">Afterpay\Afterpay\Gateway\Http\TransferFactory::METHOD_GET</argument>
         </arguments>
     </virtualType>
@@ -325,13 +326,11 @@
             <argument name="environments" xsi:type="array">
                 <item name="sandbox" xsi:type="array">
                     <item name="api_url" xsi:type="string">https://global-api-sandbox.afterpay.com/</item>
-                    <item name="web_url" xsi:type="string">https://portal.sandbox.afterpay.com/</item>
-                    <item name="js_lib_url" xsi:type="string">https://js.sandbox.afterpay.com/</item>
+                    <item name="js_lib_url" xsi:type="string">https://js-sandbox.squarecdn.com/</item>
                 </item>
                 <item name="production" xsi:type="array">
                     <item name="api_url" xsi:type="string">https://global-api.afterpay.com/</item>
-                    <item name="web_url" xsi:type="string">https://portal.afterpay.com/</item>
-                    <item name="js_lib_url" xsi:type="string">https://js.afterpay.com/</item>
+                    <item name="js_lib_url" xsi:type="string">https://js.squarecdn.com/</item>
                 </item>
             </argument>
         </arguments>

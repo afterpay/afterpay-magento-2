@@ -6,7 +6,7 @@ class UrlBuilder
 {
     const TYPE_API = 'api_url';
     const TYPE_JS_LIB = 'js_lib_url';
-    const TYPE_WEB_JS_LIB = 'web_url';
+
 
     private $urlFactory;
 

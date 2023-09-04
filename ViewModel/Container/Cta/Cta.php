@@ -31,6 +31,8 @@ class Cta extends \Afterpay\Afterpay\ViewModel\Container\Container
             $config['dataLocale'] = $this->localeResolver->getLocale();
             $config['dataShowLowerLimit'] = $this->config->getMinOrderTotal() >= 1;
             $config['dataCbtEnabled'] = count($this->config->getSpecificCountries()) > 1;
+            $config['dataMPID'] = $this->config->getPublicId();
+            $config['dataPlatform'] = 'Magento';
         }
         return parent::updateJsLayout($jsLayoutJson, $remove, $containerNodeName, $config);
     }
