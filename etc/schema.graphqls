@@ -38,5 +38,6 @@ type afterpayConfigOutput {
     is_enabled_cta_pdp: Boolean
     is_enabled_cta_minicart: Boolean
     is_enabled_cta_checkout: Boolean
+    api_mode: String
     mpid: String
 }

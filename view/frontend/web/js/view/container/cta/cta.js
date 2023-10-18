@@ -9,7 +9,8 @@
     return Component.extend({
         defaults: {
             dataIsEligible: "true",
-            dataCbtEnabledString: "false"
+            dataCbtEnabledString: "false",
+            pageType: "product"
         },
         initialize: function () {
             const res = this._super();

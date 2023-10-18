@@ -21,6 +21,7 @@ class PlaceOrder implements HttpPostActionInterface
     private PlaceOrderProcessor $placeOrderProcessor;
     private CommandInterface $syncCheckoutDataCommand;
     private StoreManagerInterface $storeManager;
+    private ManagerInterface $messageManager;
 
     public function __construct(
         RequestInterface      $request,
@@ -28,7 +29,8 @@ class PlaceOrder implements HttpPostActionInterface
         JsonFactory           $jsonFactory,
         PlaceOrderProcessor   $placeOrderProcessor,
         CommandInterface      $syncCheckoutDataCommand,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        ManagerInterface      $messageManager
     ) {
         $this->request = $request;
         $this->checkoutSession = $checkoutSession;
@@ -36,6 +38,7 @@ class PlaceOrder implements HttpPostActionInterface
         $this->placeOrderProcessor = $placeOrderProcessor;
         $this->syncCheckoutDataCommand = $syncCheckoutDataCommand;
         $this->storeManager = $storeManager;
+        $this->messageManager = $messageManager;
     }
 
     public function execute()
@@ -73,6 +76,8 @@ class PlaceOrder implements HttpPostActionInterface
                 'redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/cart')
             ]);
         }
+
+        $this->messageManager->addSuccessMessage((string)__('Afterpay Transaction Completed.'));
 
         return $jsonResult->setData(['redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/onepage/success')]);
     }

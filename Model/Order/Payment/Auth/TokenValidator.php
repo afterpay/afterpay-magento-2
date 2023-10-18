@@ -2,29 +2,24 @@
 
 namespace Afterpay\Afterpay\Model\Order\Payment\Auth;
 
-use Afterpay\Afterpay\Api\Data\CheckoutInterface;
-use Afterpay\Afterpay\Gateway\Config\Config;
-use Magento\Framework\App\ResourceConnection;
+use Afterpay\Afterpay\Model\ResourceModel\Token;
 
 class TokenValidator
 {
-    private ResourceConnection $resourceConnection;
+    private array $results = [];
+    private Token $tokensResource;
 
-    public function __construct(ResourceConnection $resourceConnection)
+    public function __construct(Token $tokensResource)
     {
-        $this->resourceConnection = $resourceConnection;
+        $this->tokensResource = $tokensResource;
     }
 
     public function checkIsUsed(string $token): bool
     {
-        $salesOrderPaymentTable = $this->resourceConnection->getConnection()->getTableName('sales_order_payment');
-        $checkSelect = $this->resourceConnection->getConnection()->select()
-            ->from($salesOrderPaymentTable)
-            ->where('method = ?', Config::CODE)
-            ->where('base_amount_paid_online IS NOT NULL')
-            ->where('last_trans_id IS NOT NULL')
-            ->where('additional_information like ?', '%"' . CheckoutInterface::AFTERPAY_TOKEN . '":"' . $token . '%');
+        if (!isset($this->results[$token])) {
+            $this->results[$token] = (bool)$this->tokensResource->selectByToken($token);
+        }
 
-        return (bool)$this->resourceConnection->getConnection()->fetchOne($checkSelect);
+        return $this->results[$token];
     }
 }

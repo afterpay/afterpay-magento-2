@@ -39,6 +39,7 @@ class AfterpayConfig implements ResolverInterface
         $isEnabledCtaMinicart = $this->config->getIsEnableCtaMiniCart((int)$websiteId);
         $isEnabledCtaCheckout = $this->config->getIsEnableCtaCartPage((int)$websiteId);
         $publicId = $this->config->getPublicId((int)$websiteId);
+        $apiMode = $this->config->getApiMode((int)$websiteId);
 
         return [
             'max_amount'              => $maxAmount,
@@ -48,6 +49,7 @@ class AfterpayConfig implements ResolverInterface
             'is_enabled_cta_pdp'      => $isEnabledCtaProductPage,
             'is_enabled_cta_minicart' => $isEnabledCtaMinicart,
             'is_enabled_cta_checkout' => $isEnabledCtaCheckout,
+            'api_mode'                => $apiMode,
             'mpid' => $publicId,
         ];
     }

@@ -2,100 +2,76 @@
 
 namespace Afterpay\Afterpay\Model\Order\CreditMemo;
 
-use Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface;
+use Afterpay\Afterpay\Api\Data\TokenInterface;
+use Afterpay\Afterpay\Model\ResourceModel\Token\CollectionFactory;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\ResourceModel\Order\Collection;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 
 class OrdersRetriever
 {
-    private \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory;
-    private \Magento\Framework\App\ResourceConnection $resourceConnection;
-    private \Magento\Framework\Serialize\SerializerInterface $serializer;
-    private \Psr\Log\LoggerInterface $logger;
+    private OrderCollectionFactory $orderCollectionFactory;
+    private ResourceConnection $resourceConnection;
+    private CollectionFactory $tokensCollectionFactory;
+    private DateTime $dateTime;
 
     public function __construct(
-        \Magento\Framework\Serialize\SerializerInterface $serializer,
-        \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
-        \Magento\Framework\App\ResourceConnection $resourceConnection,
-        \Psr\Log\LoggerInterface $logger
+        OrderCollectionFactory $orderCollectionFactory,
+        ResourceConnection     $resourceConnection,
+        CollectionFactory      $tokensCollectionFactory,
+        DateTime               $dateTime
     ) {
-        $this->serializer = $serializer;
         $this->orderCollectionFactory = $orderCollectionFactory;
         $this->resourceConnection = $resourceConnection;
-        $this->logger = $logger;
+        $this->tokensCollectionFactory = $tokensCollectionFactory;
+        $this->dateTime = $dateTime;
     }
 
     /**
-     * @return \Magento\Sales\Model\Order[]
+     * @return Order[]
      */
     public function getAfterpayOrders(): array
     {
-        $orderCollection = $this->orderCollectionFactory->create();
-        $orderCollection
+        $tokensCollection = $this->tokensCollectionFactory->create()
+            ->addFieldToSelect(TokenInterface::ORDER_ID_FIELD)
+            ->addFieldToFilter(TokenInterface::EXPIRATION_DATE_FIELD, ['notnull' => true])
             ->addFieldToFilter(
-                'state',
-                ['eq' => \Magento\Sales\Model\Order::STATE_PROCESSING]
+                TokenInterface::EXPIRATION_DATE_FIELD,
+                [
+                    'date' => true,
+                    'from' => $this->dateTime->date('Y-m-d H:i:s', '-90 days'),
+                    'to'   => $this->dateTime->date('Y-m-d H:i:s')
+                ]
             );
-        $orderCollection = $this->joinAfterpayPaymentAdditionalInfo($orderCollection);
-        /** @var \Magento\Sales\Model\Order[] $items */
-        $items = $orderCollection->getItems();
-        $items = $this->getItemsWithAdditionalInfo($items);
-        return $items;
-    }
+        $ids = $tokensCollection->getColumnValues(TokenInterface::ORDER_ID_FIELD);
 
-    /**
-     * @var \Magento\Sales\Model\Order[] $items
-     * @return \Magento\Sales\Model\Order[]
-     */
-    private function getItemsWithAdditionalInfo(array $items): array
-    {
-        $itemsWithJsonAdditionalInfo = [];
-        foreach ($items as $item) {
-            $additionalInformation = $item->getData(
-                \Magento\Sales\Api\Data\OrderPaymentInterface::ADDITIONAL_INFORMATION
-            );
-            try {
-                $unserializedInfo = $this->serializer->unserialize($additionalInformation);
-                if (!is_array($unserializedInfo)) {
-                    continue;
-                }
-                /** @var array $unserializedInfo */
-                $item->setData(
-                    \Magento\Sales\Api\Data\OrderPaymentInterface::ADDITIONAL_INFORMATION,
-                    $unserializedInfo
-                );
-                $isAdditionalInfoFull =
-                    isset($unserializedInfo[AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE]) &&
-                    isset($unserializedInfo[AdditionalInformationInterface::AFTERPAY_OPEN_TO_CAPTURE_AMOUNT]) &&
-                    isset($unserializedInfo[AdditionalInformationInterface::AFTERPAY_AUTH_EXPIRY_DATE]);
-                if ($isAdditionalInfoFull) {
-                    $itemsWithJsonAdditionalInfo[] = $item;
-                }
-            } catch (\InvalidArgumentException $e) {
-                $this->logger->warning($e->getMessage());
-            }
-        }
-        return $itemsWithJsonAdditionalInfo;
+        $orderCollection = $this->orderCollectionFactory->create();
+        $orderCollection->addFieldToFilter(
+            OrderInterface::ENTITY_ID,
+            ['in' => $ids]
+        )->addFieldToFilter(
+            OrderInterface::STATE,
+            ['eq' => Order::STATE_PROCESSING]
+        );
+        $orderCollection = $this->joinAfterpayPaymentAdditionalInfo($orderCollection);
+
+        return $orderCollection->getItems();
     }
 
     private function joinAfterpayPaymentAdditionalInfo(
-        \Magento\Sales\Model\ResourceModel\Order\Collection $orderCollection
-    ): \Magento\Sales\Model\ResourceModel\Order\Collection {
-        $salesOrderPaymentTable = $this->resourceConnection->getConnection()->getTableName('sales_order_payment');
+        Collection $orderCollection
+    ): Collection {
+        $salesOrderPaymentTable = $this->resourceConnection->getTableName('sales_order_payment');
         $orderCollection->join(
             ['sop' => $salesOrderPaymentTable],
             'sop.parent_id = main_table.entity_id',
-            \Magento\Sales\Api\Data\OrderPaymentInterface::ADDITIONAL_INFORMATION
+            OrderPaymentInterface::ADDITIONAL_INFORMATION
         );
-        $selectSql = $orderCollection->getSelectSql();
-        /** @var \Magento\Framework\DB\Select $selectSql */
-        $selectSql
-            ->where(
-                'sop.method = ?',
-                \Afterpay\Afterpay\Gateway\Config\Config::CODE
-            )
-            ->where(
-                'sop.additional_information like ?',
-                '%' . AdditionalInformationInterface::AFTERPAY_AUTH_EXPIRY_DATE . '%'
-            );
+
         return $orderCollection;
     }
 }

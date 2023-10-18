@@ -1,8 +1,12 @@
 <?php
-
 namespace Afterpay\Afterpay\Model\Checks;
 
 interface PaymentMethodInterface
 {
-    public function isAfterPayMethod(\Magento\Sales\Model\Order\Payment $payment): bool;
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Quote\Api\Data\PaymentInterface $payment
+     *
+     * @return bool
+     */
+    public function isAfterPayMethod($payment): bool;
 }

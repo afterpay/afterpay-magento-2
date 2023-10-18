@@ -8,6 +8,7 @@
     <preference for="Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface" type="Afterpay\Afterpay\Model\Checks\IsCBTAvailable"/>
     <preference for="Afterpay\Afterpay\Model\Checks\PaymentMethodInterface" type="Afterpay\Afterpay\Model\Checks\PaymentMethod"/>
     <preference for="Afterpay\Afterpay\Api\Data\Quote\ExtendedShippingInformationInterface" type="Afterpay\Afterpay\Model\Quote\ExtendedShippingInformation"/>
+    <preference for="Afterpay\Afterpay\Api\Data\TokenInterface" type="Afterpay\Afterpay\Model\Token"/>
 
     <virtualType name="Afterpay\Afterpay\Model\Method\MethodFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -389,5 +390,8 @@
         <arguments>
             <argument name="logger" xsi:type="object">Afterpay\Afterpay\Logger</argument>
         </arguments>
+    </type>
+    <type name="Magento\Quote\Api\CartManagementInterface">
+        <plugin name="afterpay_check_is_redirect" type="Afterpay\Afterpay\Plugin\Quote\CheckoutManagement"/>
     </type>
 </config>

@@ -5,14 +5,14 @@ namespace Afterpay\Afterpay\Model\ResourceModel;
 class NotAllowedProductsProvider
 {
     private \Afterpay\Afterpay\Model\Config $config;
-    private \Magento\Framework\DB\Adapter\AdapterInterface $connection;
+    private \Magento\Framework\App\ResourceConnection $resourceConnection;
 
     public function __construct(
-        \Afterpay\Afterpay\Model\Config $config,
+        \Afterpay\Afterpay\Model\Config           $config,
         \Magento\Framework\App\ResourceConnection $resourceConnection
     ) {
         $this->config = $config;
-        $this->connection = $resourceConnection->getConnection();
+        $this->resourceConnection = $resourceConnection;
     }
 
     public function provideIds(?int $storeId = null): array
@@ -22,11 +22,12 @@ class NotAllowedProductsProvider
             return [];
         }
 
-        $select = $this->connection->select()->from(
-            ['cat' => $this->connection->getTableName('catalog_category_product')],
+        $connection = $this->resourceConnection->getConnection();
+        $select = $connection->select()->from(
+            ['cat' => $this->resourceConnection->getTableName('catalog_category_product')],
             'cat.product_id'
-        )->where($this->connection->prepareSqlCondition('cat.category_id', ['in' => $excludedCategoriesIds]));
+        )->where($connection->prepareSqlCondition('cat.category_id', ['in' => $excludedCategoriesIds]));
 
-        return $this->connection->fetchCol($select);
+        return $connection->fetchCol($select);
     }
 }

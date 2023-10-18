@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="afterpay_tokens_log" resource="sales" engine="innodb" comment="Afterpay tokens log">
+        <column xsi:type="int" name="log_id" unsigned="true" nullable="false" identity="true" comment="Log ID"/>
+        <column xsi:type="int" name="order_id" unsigned="true" nullable="false" identity="false" comment="Order ID"/>
+        <column xsi:type="varchar" name="token" nullable="true" length="64" comment="Token"/>
+        <column xsi:type="timestamp" name="expiration_date" nullable="true" comment="Token Expiration Date"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="log_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="AFTERPAY_TOKENS_LOG_ORDER_ID_SALES_ORDER_ENTITY_ID" table="afterpay_tokens_log"
+                    column="order_id" referenceTable="sales_order" referenceColumn="entity_id"
+                    onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="AFTERPAY_TOKENS_LOG_TOKEN">
+            <column name="token"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="AFTERPAY_TOKENS_LOG_ORDER_ID">
+            <column name="order_id"/>
+        </constraint>
+    </table>
+</schema>
