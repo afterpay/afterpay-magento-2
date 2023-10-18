@@ -1,0 +1,16 @@
+{
+    "afterpay_tokens_log": {
+        "column": {
+            "log_id": true,
+            "order_id": true,
+            "token": true,
+            "expiration_date": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AFTERPAY_TOKENS_LOG_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
+            "AFTERPAY_TOKENS_LOG_TOKEN": true,
+            "AFTERPAY_TOKENS_LOG_ORDER_ID": true
+        }
+    }
+}

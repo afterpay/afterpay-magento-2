@@ -51,7 +51,7 @@ class AdaptCapturedDiscounts implements \Magento\Framework\Setup\Patch\DataPatch
     {
         foreach ($ordersAdditionalInfo as $orderId => $additionalInfo) {
             $this->salesSetup->getConnection()->update(
-                $this->salesSetup->getConnection()->getTableName('sales_order_payment'),
+                $this->salesSetup->getTable('sales_order_payment'),
                 ['additional_information' => $this->json->serialize($additionalInfo)],
                 ['parent_id = ?' => $orderId]
             );
@@ -80,10 +80,10 @@ class AdaptCapturedDiscounts implements \Magento\Framework\Setup\Patch\DataPatch
         $connection = $this->salesSetup->getConnection();
         $select = $connection->select()
             ->from(
-                ['si' => $connection->getTableName('sales_invoice')],
+                ['si' => $this->salesSetup->getTable('sales_invoice')],
                 ['si.order_id', 'si.base_customer_balance_amount', 'si.base_gift_cards_amount']
             )->joinInner(
-                ['sop' => $connection->getTableName('sales_order_payment')],
+                ['sop' => $this->salesSetup->getTable('sales_order_payment')],
                 'si.order_id = sop.parent_id AND sop.method = "' . Config::CODE . '"'
                 . ' AND sop.additional_information NOT LIKE "%' . AdditionalInformationInterface::AFTERPAY_CAPTURED_DISCOUNT . '%"',
                 ['sop.additional_information']

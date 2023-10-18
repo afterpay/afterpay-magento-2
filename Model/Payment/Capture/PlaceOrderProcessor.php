@@ -4,46 +4,58 @@ namespace Afterpay\Afterpay\Model\Payment\Capture;
 
 use Afterpay\Afterpay\Api\Data\CheckoutInterface;
 use Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface;
+use Afterpay\Afterpay\Model\Order\Payment\Auth\TokenSaver;
 use Afterpay\Afterpay\Model\Order\Payment\Auth\TokenValidator;
+use Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface;
 use Afterpay\Afterpay\Model\Payment\PaymentErrorProcessor;
+use Magento\Checkout\Model\Session;
 use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 class PlaceOrderProcessor
 {
     private $cartManagement;
     private $paymentDataObjectFactory;
     private $checkCBTCurrencyAvailability;
-    private $tokenValidator;
     private $paymentErrorProcessor;
+    private $tokenValidator;
+    private $tokenSaver;
+    private $orderRepository;
+    private $checkoutSession;
 
     public function __construct(
         CartManagementInterface               $cartManagement,
         PaymentDataObjectFactoryInterface     $paymentDataObjectFactory,
         CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability,
+        PaymentErrorProcessor                 $paymentErrorProcessor,
         TokenValidator                        $tokenValidator,
-        PaymentErrorProcessor                 $paymentErrorProcessor
+        TokenSaver                            $tokenSaver,
+        OrderRepositoryInterface              $orderRepository,
+        Session                               $checkoutSession
     ) {
         $this->cartManagement = $cartManagement;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->checkCBTCurrencyAvailability = $checkCBTCurrencyAvailability;
-        $this->tokenValidator = $tokenValidator;
         $this->paymentErrorProcessor = $paymentErrorProcessor;
+        $this->tokenValidator = $tokenValidator;
+        $this->tokenSaver = $tokenSaver;
+        $this->orderRepository = $orderRepository;
+        $this->checkoutSession = $checkoutSession;
     }
 
-    public function execute(Quote $quote, CommandInterface $checkoutDataCommand, string $afterpayOrderToken): void
+    public function execute(Quote $quote, CommandInterface $checkoutDataCommand, string $afterpayOrderToken): int
     {
         if ($this->tokenValidator->checkIsUsed($afterpayOrderToken)) {
-            return;
+            return 0;
         }
 
         $payment = $quote->getPayment();
         try {
             $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_TOKEN, $afterpayOrderToken);
-
             $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
             $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY, $isCBTCurrencyAvailable);
             $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_CBT_CURRENCY, $quote->getQuoteCurrencyCode());
@@ -55,9 +67,23 @@ class PlaceOrderProcessor
             }
 
             $checkoutDataCommand->execute(['payment' => $this->paymentDataObjectFactory->create($payment)]);
-            $this->cartManagement->placeOrder($quote->getId());
+            $this->checkoutSession->setAfterpayRedirect(true);
+
+            $orderId = (int)$this->cartManagement->placeOrder($quote->getId());
         } catch (\Throwable $e) {
-            $this->paymentErrorProcessor->execute($quote, $e, $payment);
+            $orderId = $this->paymentErrorProcessor->execute($quote, $e, $payment);
         }
+
+        $order = $this->orderRepository->get($orderId);
+        /** @var \Magento\Payment\Model\InfoInterface $orderPayment */
+        $orderPayment = $order->getPayment();
+        $this->tokenSaver->execute(
+            $orderId,
+            $afterpayOrderToken,
+            $orderPayment->getAdditionalInformation(AdditionalInformationInterface::AFTERPAY_AUTH_EXPIRY_DATE)
+        );
+        $this->checkoutSession->setAfterpayRedirect(false);
+
+        return $orderId;
     }
 }

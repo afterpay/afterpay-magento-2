@@ -36,14 +36,9 @@ define([
             );
             let errorMessage = $.localStorage.get('express-error-message');
             if (errorMessage) {
-                customerData.set('messages', {
-                    messages: [{
-                        type: 'error',
-                        text: $t(errorMessage)
-                    }]
-                });
-                $.localStorage.remove('express-error-message');
+                this._handleError(errorMessage);
             }
+
             return res;
         },
         initAfterpay: function () {
@@ -103,7 +98,7 @@ define([
                 });
             }
         },
-        _fail: function(actions, afterpayConst) {
+        _fail: function (actions, afterpayConst) {
             actions.reject(afterpayConst);
             AfterPay.close();
         },
@@ -117,6 +112,45 @@ define([
             return (this.countryCode && window.AfterPay !== undefined && this.isProductAllowed() &&
                 !(this.currentPrice() > floatMaxOrderTotal || this.currentPrice() < floatMinOrderTotal) &&
                 !this._getIsVirtual()) && this._super();
+        },
+        _handleError: function (errorMessage) {
+            $(document).ready(function () {
+                setTimeout(function () {
+                    $('.message.error').fadeOut('slow');
+                }, 10000000);
+
+                var notNeedUpdateCount = 0;
+                var needUpdateCheck = setInterval(function () {
+                    if (notNeedUpdateCount === 40) { // ~10s
+                        clearInterval(needUpdateCheck);
+                    }
+                    let messages = customerData.get('messages');
+                    let newMessages = [];
+                    let needUpdate = true;
+                    $.each(messages().messages, function (key, value) {
+                        if (value.type === 'error' && value.text === errorMessage) {
+                            needUpdate = false;
+                            return false;
+                        }
+                        newMessages.push({
+                            type: value.type,
+                            text: value.text
+                        });
+                    });
+
+                    if (needUpdate) {
+                        newMessages.push({
+                            type: 'error',
+                            text: $t(errorMessage)
+                        });
+                        customerData.set('messages', {messages: newMessages});
+                    } else {
+                        notNeedUpdateCount++;
+                    }
+                }, 250);
+
+                $.localStorage.remove('express-error-message');
+            });
         }
     });
 });

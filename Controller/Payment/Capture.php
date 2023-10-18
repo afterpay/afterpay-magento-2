@@ -2,11 +2,20 @@
 
 namespace Afterpay\Afterpay\Controller\Payment;
 
-class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
+use Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Payment\Gateway\CommandInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
+class Capture implements HttpGetActionInterface
 {
     const CHECKOUT_STATUS_CANCELLED = 'CANCELLED';
     const CHECKOUT_STATUS_SUCCESS = 'SUCCESS';
-
     private $request;
     private $session;
     private $redirectFactory;
@@ -16,13 +25,13 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
     private $storeManager;
 
     public function __construct(
-        \Magento\Framework\App\RequestInterface $request,
-        \Magento\Checkout\Model\Session $session,
-        \Magento\Framework\Controller\Result\RedirectFactory $redirectFactory,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Afterpay\Afterpay\Model\Payment\Capture\PlaceOrderProcessor $placeOrderProcessor,
-        \Magento\Payment\Gateway\CommandInterface $validateCheckoutDataCommand,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        RequestInterface      $request,
+        Session               $session,
+        RedirectFactory       $redirectFactory,
+        ManagerInterface      $messageManager,
+        PlaceOrderProcessor   $placeOrderProcessor,
+        CommandInterface      $validateCheckoutDataCommand,
+        StoreManagerInterface $storeManager
     ) {
         $this->request = $request;
         $this->session = $session;
@@ -39,6 +48,7 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
             $this->messageManager->addErrorMessage(
                 (string)__('You have cancelled your Afterpay payment. Please select an alternative payment method.')
             );
+
             return $this->redirectFactory->create()->setPath('checkout/cart', [
                 '_scope' => $this->storeManager->getStore()
             ]);
@@ -47,6 +57,7 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
             $this->messageManager->addErrorMessage(
                 (string)__('Afterpay payment is declined. Please select an alternative payment method.')
             );
+
             return $this->redirectFactory->create()->setPath('checkout/cart', [
                 '_scope' => $this->storeManager->getStore()
             ]);
@@ -57,16 +68,18 @@ class Capture implements \Magento\Framework\App\Action\HttpGetActionInterface
             $afterpayOrderToken = $this->request->getParam('orderToken');
             $this->placeOrderProcessor->execute($quote, $this->validateCheckoutDataCommand, $afterpayOrderToken);
         } catch (\Throwable $e) {
-            $errorMessage = $e instanceof \Magento\Framework\Exception\LocalizedException
+            $errorMessage = $e instanceof LocalizedException
                 ? $e->getMessage()
                 : (string)__('Afterpay payment is declined. Please select an alternative payment method.');
             $this->messageManager->addErrorMessage($errorMessage);
+
             return $this->redirectFactory->create()->setPath('checkout/cart', [
                 '_scope' => $this->storeManager->getStore()
             ]);
         }
 
-        $this->messageManager->addSuccessMessage((string)__('Afterpay Transaction Completed'));
+        $this->messageManager->addSuccessMessage((string)__('Afterpay Transaction Completed.'));
+
         return $this->redirectFactory->create()->setPath('checkout/onepage/success');
     }
 }

@@ -407,7 +407,7 @@ class Config
             return true;
         }
         $connection = $this->resourceConnection->getConnection();
-        $coreConfigData = $connection->getTableName('core_config_data');
+        $coreConfigData = $this->resourceConnection->getTableName('core_config_data');
         $configsExistToCheck = array_merge(
             \Afterpay\Afterpay\Observer\Adminhtml\ConfigSaveAfter::AFTERPAY_CONFIGS,
             \Afterpay\Afterpay\Observer\Adminhtml\ConfigSaveAfter::CONFIGS_PATHS_TO_TRACK
@@ -556,9 +556,9 @@ class Config
         return $this;
     }
 
-    public function getConsumerLendingMinAmount(?int $scopeCode = null): bool
+    public function getConsumerLendingMinAmount(?int $scopeCode = null): float
     {
-        return (bool)$this->scopeConfig->getValue(
+        return (float)$this->scopeConfig->getValue(
             self::XML_PATH_CONSUMER_LENDING_MIN_AMOUNT,
             ScopeInterface::SCOPE_WEBSITE,
             $scopeCode
