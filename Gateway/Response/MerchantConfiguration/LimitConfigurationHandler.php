@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Gateway\Response\MerchantConfiguration;
 
 class LimitConfigurationHandler implements \Magento\Payment\Gateway\Response\HandlerInterface
 {
-    private \Afterpay\Afterpay\Model\Config  $config;
+    private \Afterpay\Afterpay\Model\Config $config;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Config $config

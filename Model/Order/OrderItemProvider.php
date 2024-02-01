@@ -6,8 +6,8 @@ use Magento\Sales\Model\Order\Item;
 
 class OrderItemProvider
 {
-    const ITEM_SHIPPED = 'shipped';
-    const ITEM_REFUNDED = 'refunded';
+    public const ITEM_SHIPPED = 'shipped';
+    public const ITEM_REFUNDED = 'refunded';
 
     private \Afterpay\Afterpay\Model\Order\OrderItemInterfaceFactory $orderItemFactory;
 

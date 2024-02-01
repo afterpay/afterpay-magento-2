@@ -13,8 +13,8 @@ use Magento\Payment\Gateway\CommandInterface;
 
 class Capture implements HttpGetActionInterface
 {
-    const CHECKOUT_STATUS_CANCELLED = 'CANCELLED';
-    const CHECKOUT_STATUS_SUCCESS = 'SUCCESS';
+    public const CHECKOUT_STATUS_CANCELLED = 'CANCELLED';
+    public const CHECKOUT_STATUS_SUCCESS = 'SUCCESS';
     private RequestInterface $request;
     private Session $session;
     private RedirectFactory $redirectFactory;

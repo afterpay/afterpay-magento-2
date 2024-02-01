@@ -19,6 +19,7 @@ class CreditMemo
     public function process(\Magento\Sales\Model\Order\Payment $payment): array
     {
         $amountToRefund = $amountToVoid = 0;
+
         $creditmemo = $payment->getCreditmemo();
         foreach ($creditmemo->getAllItems() as $creditmemoItem) {
             $orderItem = $creditmemoItem->getOrderItem();
@@ -44,6 +45,7 @@ class CreditMemo
             }
 
             $this->processForCapturedAndRefunded($payment, $orderItem, $creditmemoItem, $amountToRefund, $amountToVoid);
+
         }
 
         $this->processShipmentAmount($payment, $creditmemo, $amountToRefund, $amountToVoid);
@@ -61,7 +63,7 @@ class CreditMemo
         float &$amountToRefund): void
     {
         $additionalInfo = $payment->getAdditionalInformation();
-        $paymentState = $additionalInfo[\Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE] ?? '';
+        $paymentState = $additionalInfo[\Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE] ?? '';   // @codingStandardsIgnoreLine
         $creditmemo = $payment->getCreditmemo();
 
         if ($paymentState === \Afterpay\Afterpay\Model\PaymentStateInterface::AUTH_APPROVED) {
@@ -116,7 +118,7 @@ class CreditMemo
                     (float)($creditmemoItem->getQty() - $allowedToRefundQty)
                 );
             } else {
-                $amountToRefund += $this->calculateItemPrice($payment, $creditmemoItem, (float)$creditmemoItem->getQty());
+                $amountToRefund += $this->calculateItemPrice($payment, $creditmemoItem, (float)$creditmemoItem->getQty());   // @codingStandardsIgnoreLine
             }
         } else {
             $amountToVoid += $this->calculateItemPrice($payment, $creditmemoItem, (float)$creditmemoItem->getQty());
@@ -193,8 +195,8 @@ class CreditMemo
         \Magento\Sales\Model\Order\Creditmemo\Item $item,
         float $qty
     ): float {
-        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
-        $rowTotal = $isCBTCurrency ? $this->priceRenderer->getTotalAmount($item) : $this->priceRenderer->getBaseTotalAmount($item);
+        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);   // @codingStandardsIgnoreLine
+        $rowTotal = $isCBTCurrency ? $this->priceRenderer->getTotalAmount($item) : $this->priceRenderer->getBaseTotalAmount($item);  // @codingStandardsIgnoreLine
         $pricePerItem = $rowTotal / $item->getQty();
 
         return $qty * $pricePerItem;

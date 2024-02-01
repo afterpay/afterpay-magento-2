@@ -23,6 +23,7 @@
                 <expresscheckout>
                     <allowed_merchant_countries>AU,NZ,US,CA</allowed_merchant_countries>
                 </expresscheckout>
+                <add_last_selected_ship_rate>1</add_last_selected_ship_rate>
             </afterpay>
         </payment>
         <csp>

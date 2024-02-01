@@ -36,6 +36,7 @@ class Token extends AbstractDb
                 TokenInterface::ORDER_ID_FIELD        => $orderId,
                 TokenInterface::TOKEN_FIELD           => $token,
                 TokenInterface::EXPIRATION_DATE_FIELD => $expiryDate,
-            ]);
+            ]
+        );
     }
 }

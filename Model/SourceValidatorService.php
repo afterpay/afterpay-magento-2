@@ -8,13 +8,13 @@ class SourceValidatorService implements \Afterpay\Afterpay\Model\Spi\SourceValid
     private \Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface $getStockItemConfiguration;
     private \Magento\InventorySourceDeductionApi\Model\GetSourceItemBySourceCodeAndSku $getSourceItemBySourceCodeAndSku;
 
-    /**
-     * We avoid strict types in constructor for create instances dynamically look at
-     * \Afterpay\Afterpay\Model\StockItemsValidator\StockItemsValidatorProxy
-     * @param \Magento\InventorySourceDeductionApi\Model\GetSourceItemBySourceCodeAndSku $getSourceItemBySourceCodeAndSku
-     * @param \Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface $getStockItemConfiguration
-     * @param \Magento\InventorySalesApi\Api\GetStockBySalesChannelInterface $getStockBySalesChannel
-     */
+/**
+ * We avoid strict types in constructor for create instances dynamically look at
+ * \Afterpay\Afterpay\Model\StockItemsValidator\StockItemsValidatorProxy
+ * @param \Magento\InventorySourceDeductionApi\Model\GetSourceItemBySourceCodeAndSku $getSourceItemBySourceCodeAndSku
+ * @param \Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface $getStockItemConfiguration
+ * @param \Magento\InventorySalesApi\Api\GetStockBySalesChannelInterface $getStockBySalesChannel
+ */
     public function __construct(
         $getSourceItemBySourceCodeAndSku,
         $getStockItemConfiguration,
@@ -31,7 +31,7 @@ class SourceValidatorService implements \Afterpay\Afterpay\Model\Spi\SourceValid
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\InventoryConfigurationApi\Exception\SkuIsNotAssignedToStockException
      */
-    public function execute(\Magento\InventorySourceDeductionApi\Model\SourceDeductionRequestInterface $sourceDeductionRequest): void
+    public function execute(\Magento\InventorySourceDeductionApi\Model\SourceDeductionRequestInterface $sourceDeductionRequest): void  // @codingStandardsIgnoreLine
     {
         $sourceCode = $sourceDeductionRequest->getSourceCode();
         $salesChannel = $sourceDeductionRequest->getSalesChannel();

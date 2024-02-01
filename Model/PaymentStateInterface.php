@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Model;
 
 interface PaymentStateInterface
 {
-    const AUTH_APPROVED = 'AUTH_APPROVED';
-    const PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
-    const CAPTURED = 'CAPTURED';
-    const VOIDED = 'VOIDED';
+    public const AUTH_APPROVED = 'AUTH_APPROVED';
+    public const PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
+    public const CAPTURED = 'CAPTURED';
+    public const VOIDED = 'VOIDED';
 }

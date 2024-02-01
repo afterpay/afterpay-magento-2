@@ -14,5 +14,5 @@ interface SourceValidatorServiceInterface
      * @param SourceDeductionRequestInterface $sourceDeductionRequest
      * @return void
      */
-    public function execute(\Magento\InventorySourceDeductionApi\Model\SourceDeductionRequestInterface $sourceDeductionRequest): void;
+    public function execute(\Magento\InventorySourceDeductionApi\Model\SourceDeductionRequestInterface $sourceDeductionRequest): void;   // @codingStandardsIgnoreLine
 }

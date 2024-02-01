@@ -10,33 +10,36 @@ use Magento\Store\Model\ScopeInterface;
 
 class Config
 {
-    const XML_PATH_PAYMENT_ACTIVE = 'payment/afterpay/active';
-    const XML_PATH_API_MODE = 'payment/afterpay/api_mode';
-    const XML_PATH_DEBUG = 'payment/afterpay/debug';
-    const XML_PATH_ENABLE_CTA_PRODUCT = 'payment/afterpay/enable_cta_product_page';
-    const XML_PATH_ENABLE_CTA_MINI_CART = 'payment/afterpay/enable_cta_mini_cart';
-    const XML_PATH_ENABLE_CTA_CART_PAGE = 'payment/afterpay/enable_cta_cart_page';
-    const XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_PRODUCT = 'payment/afterpay/enable_express_checkout_product_page';
-    const XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_MINI_CART = 'payment/afterpay/enable_express_checkout_mini_cart';
-    const XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_CART_PAGE = 'payment/afterpay/enable_express_checkout_cart_page';
-    const XML_PATH_MERCHANT_ID = 'payment/afterpay/merchant_id';
-    const XML_PATH_MERCHANT_KEY = 'payment/afterpay/merchant_key';
-    const XML_PATH_PAYMENT_FLOW = 'payment/afterpay/payment_flow';
-    const XML_PATH_MIN_LIMIT = 'payment/afterpay/min_order_total';
-    const XML_PATH_MAX_LIMIT = 'payment/afterpay/max_order_total';
-    const XML_PATH_CBT_CURRENCY_LIMITS = 'payment/afterpay/cbt_currency_limits';
-    const XML_PATH_EXCLUDE_CATEGORIES = 'payment/afterpay/exclude_categories';
-    const XML_PATH_ALLOW_SPECIFIC_COUNTRIES = 'payment/afterpay/allowspecific';
-    const XML_PATH_SPECIFIC_COUNTRIES = 'payment/afterpay/specificcountry';
-    const XML_PATH_ALLOWED_MERCHANT_COUNTRIES = 'payment/afterpay/allowed_merchant_countries';
-    const XML_PATH_ALLOWED_MERCHANT_CURRENCIES = 'payment/afterpay/allowed_merchant_currencies';
-    const XML_PATH_PAYPAL_MERCHANT_COUNTRY = 'paypal/general/merchant_country';
-    const XML_PATH_ENABLE_REVERSAL = 'payment/afterpay/enable_reversal';
-    const XML_PATH_MPID = 'payment/afterpay/public_id';
-    const XML_PATH_CASHAPP_PAY_AVAILABLE = 'payment/afterpay/cash_app_pay_available';
-    const XML_PATH_CASHAPP_PAY_ENABLE = 'payment/cashapp/active';
-    const XML_PATH_CONSUMER_LENDING_ENABLED = 'payment/afterpay/consumer_lending_enabled';
-    const XML_PATH_CONSUMER_LENDING_MIN_AMOUNT = 'payment/afterpay/consumer_lending_min_amount';
+
+    public const XML_PATH_PAYMENT_ACTIVE = 'payment/afterpay/active';
+    public const XML_PATH_API_MODE = 'payment/afterpay/api_mode';
+    public const XML_PATH_DEBUG = 'payment/afterpay/debug';
+    public const XML_PATH_ENABLE_CTA_PRODUCT = 'payment/afterpay/enable_cta_product_page';
+    public const XML_PATH_ENABLE_CTA_MINI_CART = 'payment/afterpay/enable_cta_mini_cart';
+    public const XML_PATH_ENABLE_CTA_CART_PAGE = 'payment/afterpay/enable_cta_cart_page';
+    public const XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_PRODUCT = 'payment/afterpay/enable_express_checkout_product_page';
+    public const XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_MINI_CART = 'payment/afterpay/enable_express_checkout_mini_cart';
+    public const XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_CART_PAGE = 'payment/afterpay/enable_express_checkout_cart_page';
+    public const XML_PATH_ADD_LAST_SELECTED_SHIP_RATE = 'payment/afterpay/add_last_selected_ship_rate';
+    public const XML_PATH_MERCHANT_ID = 'payment/afterpay/merchant_id';
+    public const XML_PATH_MERCHANT_KEY = 'payment/afterpay/merchant_key';
+    public const XML_PATH_PAYMENT_FLOW = 'payment/afterpay/payment_flow';
+    public const XML_PATH_MIN_LIMIT = 'payment/afterpay/min_order_total';
+    public const XML_PATH_MAX_LIMIT = 'payment/afterpay/max_order_total';
+    public const XML_PATH_CBT_CURRENCY_LIMITS = 'payment/afterpay/cbt_currency_limits';
+    public const XML_PATH_EXCLUDE_CATEGORIES = 'payment/afterpay/exclude_categories';
+    public const XML_PATH_ALLOW_SPECIFIC_COUNTRIES = 'payment/afterpay/allowspecific';
+    public const XML_PATH_SPECIFIC_COUNTRIES = 'payment/afterpay/specificcountry';
+    public const XML_PATH_ALLOWED_MERCHANT_COUNTRIES = 'payment/afterpay/allowed_merchant_countries';
+    public const XML_PATH_ALLOWED_MERCHANT_CURRENCIES = 'payment/afterpay/allowed_merchant_currencies';
+    public const XML_PATH_PAYPAL_MERCHANT_COUNTRY = 'paypal/general/merchant_country';
+    public const XML_PATH_ENABLE_REVERSAL = 'payment/afterpay/enable_reversal';
+    public const XML_PATH_MPID = 'payment/afterpay/public_id';
+    public const XML_PATH_CASHAPP_PAY_AVAILABLE = 'payment/afterpay/cash_app_pay_available';
+    public const XML_PATH_CASHAPP_PAY_ACTIVE = 'payment/cashapp/active';
+    public const XML_PATH_CONSUMER_LENDING_ENABLED = 'payment/afterpay/consumer_lending_enabled';
+    public const XML_PATH_CONSUMER_LENDING_MIN_AMOUNT = 'payment/afterpay/consumer_lending_min_amount';
+
     private ScopeConfigInterface $scopeConfig;
     private WriterInterface $writer;
     private ResourceConnection $resourceConnection;
@@ -500,7 +503,7 @@ class Config
     public function getCashAppPayEnabled(?int $scopeCode = null): bool
     {
         return (bool)$this->scopeConfig->getValue(
-            self::XML_PATH_CASHAPP_PAY_ENABLE,
+            self::XML_PATH_CASHAPP_PAY_ACTIVE,
             ScopeInterface::SCOPE_WEBSITE,
             $scopeCode
         );
@@ -559,6 +562,42 @@ class Config
     {
         return (float)$this->scopeConfig->getValue(
             self::XML_PATH_CONSUMER_LENDING_MIN_AMOUNT,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+    }
+
+    public function getAddLastSelectedShipRate(?int $scopeCode = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_ADD_LAST_SELECTED_SHIP_RATE,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+    }
+
+    public function setCashAppPayActive(int $value, int $scopeId = 0): self
+    {
+        if ($scopeId) {
+            $this->writer->save(
+                self::XML_PATH_CASHAPP_PAY_ACTIVE,
+                $value,
+                ScopeInterface::SCOPE_WEBSITES,
+                $scopeId
+            );
+            return $this;
+        }
+        $this->writer->save(
+            self::XML_PATH_CASHAPP_PAY_ACTIVE,
+            $value
+        );
+        return $this;
+    }
+
+    public function getCashAppPayActive(?int $scopeCode = null): bool
+    {
+        return (bool)$this->scopeConfig->isSetFlag(
+            self::XML_PATH_CASHAPP_PAY_ACTIVE,
             ScopeInterface::SCOPE_WEBSITE,
             $scopeCode
         );

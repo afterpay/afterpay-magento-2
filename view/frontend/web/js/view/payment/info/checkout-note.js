@@ -18,23 +18,24 @@ define([
 
     return Component.extend({
         initWidget: function () {
-            if (!this._showWidget()) {
-                return;
-            }
+            let widgetAmount = this._getWidgetAmount(totals.totals());
 
-            window.afterpayWidget = new AfterPay.Widgets.PaymentSchedule({
-                target: '#afterpay-widget-container',
-                locale: window.checkoutConfig.payment.afterpay.locale.replace('_', '-'),
-                amount: this._getWidgetAmount(totals.totals()),
-                onError: (event) => console.log(event.data.error)
-            })
+            window.afterpayWidget = new Square.Marketplace.SquarePlacement();
+            afterpayWidget.mpid = window.checkoutConfig.payment.afterpay.mpid;
+            afterpayWidget.pageType = 'checkout';
+            afterpayWidget.amount = widgetAmount.amount;
+            afterpayWidget.currency = widgetAmount.currency;
+            afterpayWidget.type = 'payment-schedule';
+            afterpayWidget.platform = 'Magento';
+
+            document.getElementById('afterpay-widget-container').appendChild(afterpayWidget);
+
             totals.totals.subscribe((totals) => {
                 if (afterpayWidget) {
-                    afterpayWidget.update({
-                        amount: this._getWidgetAmount(totals),
-                    })
+                    afterpayWidget.setAttribute('data-amount', this._getWidgetAmount(totals).amount);
                 }
             });
+
             if (checkoutData.getSelectedPaymentMethod() == 'afterpay'
                 && checkoutConfig.payment.afterpay.isCBTCurrency === true) {
                 this._hideBaseCurrencyChargeInfo();
@@ -65,15 +66,6 @@ define([
         },
         _showBaseCurrencyChargeInfo: function () {
             $('.opc-block-summary .totals.charge').show();
-        },
-        _showWidget: function () {
-            if (checkoutConfig.payment.afterpay.consumerLendingEnabled) {
-                if (totals.totals().base_grand_total >= window.checkoutConfig.payment.afterpay.consumerLendingMinimumAmount) {
-                    return false
-                }
-            }
-
-            return true;
         },
     });
 });

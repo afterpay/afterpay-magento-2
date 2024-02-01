@@ -87,6 +87,12 @@ class CreditMemoTest extends \PHPUnit\Framework\TestCase
             ->getMock();
         $shipmentCollection->expects($this->atLeastOnce())->method('count')->willReturn(0);
 
+        $store = $this->createMock(\Magento\Store\Model\Store::class);
+        $store->expects($this->any())->method("getWebsiteId")->willReturn(1);
+
+        $this->order->expects($this->any())->method("getStore")
+            ->with()
+            ->willReturn($store);
         $this->order->expects($this->any())->method("getPayment")
             ->with()
             ->willReturn($this->payment);

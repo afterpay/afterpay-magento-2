@@ -7,7 +7,7 @@ class AdjustmentAmountValidation
     public function beforeRefund(
         \Magento\Sales\Api\CreditmemoManagementInterface $subject,
         \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo,
-        $offlineRequested
+        $offlineRequested = false
     ) {
         $order = $creditmemo->getOrder();
         if (($creditmemo->getBaseAdjustmentPositive() != 0 || $creditmemo->getBaseAdjustmentNegative() != 0)

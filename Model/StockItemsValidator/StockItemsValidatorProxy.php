@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Model\StockItemsValidator;
 
 use Magento\Framework\App\ObjectManager;
 
-class StockItemsValidatorProxy implements \Afterpay\Afterpay\Model\Spi\StockItemsValidatorInterface, \Magento\Framework\ObjectManager\NoninterceptableInterface
+class StockItemsValidatorProxy implements \Afterpay\Afterpay\Model\Spi\StockItemsValidatorInterface, \Magento\Framework\ObjectManager\NoninterceptableInterface  // @codingStandardsIgnoreLine
 {
     private ?\Afterpay\Afterpay\Model\Spi\StockItemsValidatorInterface $subject = null;
     private \Afterpay\Afterpay\Gateway\Validator\StockItemsValidatorFactory $stockItemValidatorFactory;
@@ -46,15 +46,15 @@ class StockItemsValidatorProxy implements \Afterpay\Afterpay\Model\Spi\StockItem
         if ($this->subject == null) {
             $objectManager = ObjectManager::getInstance();
             $sourceValidatorService = $this->sourceValidatorServiceFactory->create([
-               'getSourceItemBySourceCodeAndSku' => $objectManager->create('\\Magento\\InventorySourceDeductionApi\\Model\\GetSourceItemBySourceCodeAndSku'),
-               'getStockItemConfiguration' => $objectManager->create('\\Magento\\InventoryConfigurationApi\\Api\\GetStockItemConfigurationInterface'),
+               'getSourceItemBySourceCodeAndSku' => $objectManager->create('\\Magento\\InventorySourceDeductionApi\\Model\\GetSourceItemBySourceCodeAndSku'), // @codingStandardsIgnoreLine
+               'getStockItemConfiguration' => $objectManager->create('\\Magento\\InventoryConfigurationApi\\Api\\GetStockItemConfigurationInterface'), // @codingStandardsIgnoreLine
                'getStockBySalesChannel' => $objectManager->create('\\Magento\\InventorySalesApi\\Api\\GetStockBySalesChannelInterface'),
             ]);
             $this->subject = $this->stockItemValidatorFactory->create([
-                'isSingleSourceMode' => $objectManager->create('\\Magento\\InventoryCatalogApi\\Model\\IsSingleSourceModeInterface'),
-                'defaultSourceProvider' => $objectManager->create('\\Magento\\InventoryCatalogApi\\Api\\DefaultSourceProviderInterface'),
-                'getItemsToDeductFromShipment' => $objectManager->create('\\Magento\\InventoryShipping\\Model\\GetItemsToDeductFromShipment'),
-                'sourceDeductionRequestFromShipmentFactory' => $objectManager->create('\\Magento\\InventoryShipping\\Model\\SourceDeductionRequestFromShipmentFactory'),
+                'isSingleSourceMode' => $objectManager->create('\\Magento\\InventoryCatalogApi\\Model\\IsSingleSourceModeInterface'),  // @codingStandardsIgnoreLine
+                'defaultSourceProvider' => $objectManager->create('\\Magento\\InventoryCatalogApi\\Api\\DefaultSourceProviderInterface'),  // @codingStandardsIgnoreLine
+                'getItemsToDeductFromShipment' => $objectManager->create('\\Magento\\InventoryShipping\\Model\\GetItemsToDeductFromShipment'),  // @codingStandardsIgnoreLine
+                'sourceDeductionRequestFromShipmentFactory' => $objectManager->create('\\Magento\\InventoryShipping\\Model\\SourceDeductionRequestFromShipmentFactory'),  // @codingStandardsIgnoreLine
                 'sourceValidatorService' => $sourceValidatorService,
             ]);
         }

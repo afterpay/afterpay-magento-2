@@ -7,7 +7,7 @@ use Magento\Store\Model\ScopeInterface;
 
 class GetMerchantConfigurationCommandWrapper implements \Magento\Payment\Gateway\CommandInterface
 {
-    const DEFAULT_WEBSITE_ID = 0;
+    public const DEFAULT_WEBSITE_ID = 0;
 
     private \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand;
     private \Afterpay\Afterpay\Model\Config $afterpayConfig;
@@ -48,6 +48,10 @@ class GetMerchantConfigurationCommandWrapper implements \Magento\Payment\Gateway
             }
             $this->checkCountry($scope, $websiteId);
             $this->checkCurrency($scope, $websiteId);
+            // Disable Cash App Pay if Afterpay is disabled
+            if($this->afterpayConfig->getIsPaymentActive($websiteId)===false){
+                $this->afterpayConfig->setCashAppPayActive(0,$websiteId);
+            }
             $this->debugLogger->setForceDebug($this->afterpayConfig->getIsDebug($websiteId));
             return $this->merchantConfigurationCommand->execute($commandSubject);
         } catch (\Magento\Payment\Gateway\Command\CommandException $e) {

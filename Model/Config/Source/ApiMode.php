@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Model\Config\Source;
 
 class ApiMode implements \Magento\Framework\Data\OptionSourceInterface
 {
-    const SANDBOX = 'sandbox';
-    const PRODUCTION = 'production';
+    public const SANDBOX = 'sandbox';
+    public const PRODUCTION = 'production';
 
     public function toOptionArray(): array
     {

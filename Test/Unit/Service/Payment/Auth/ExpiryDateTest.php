@@ -22,7 +22,7 @@ class ExpiryDateTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider datesProvider
      */
-    public function testIsExpired(string $expireDate, ?string $dateToCheck = null, bool $result)
+    public function testIsExpired(string $expireDate, ?string $dateToCheck, bool $result)
     {
         if (!$dateToCheck) {
             $this->timezone->expects($this->once())->method("date")->willReturn(new \DateTime());

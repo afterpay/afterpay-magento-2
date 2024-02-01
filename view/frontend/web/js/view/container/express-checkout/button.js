@@ -38,6 +38,7 @@ define([
             if (errorMessage) {
                 this._handleError(errorMessage);
             }
+
             return res;
         },
         initAfterpay: function () {

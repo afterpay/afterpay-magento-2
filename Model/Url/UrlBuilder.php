@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Model\Url;
 
 class UrlBuilder
 {
-    const TYPE_API = 'api_url';
-    const TYPE_JS_LIB = 'js_lib_url';
+    public const TYPE_API = 'api_url';
+    public const TYPE_JS_LIB = 'js_lib_url';
 
     private UrlBuilder\UrlFactory $urlFactory;
 

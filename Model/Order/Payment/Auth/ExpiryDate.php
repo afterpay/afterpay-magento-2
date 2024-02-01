@@ -4,7 +4,7 @@ namespace Afterpay\Afterpay\Model\Order\Payment\Auth;
 
 class ExpiryDate
 {
-    const FORMAT = 'Y-m-d H:i T';
+    public const FORMAT = 'Y-m-d H:i T';
 
     private \Magento\Framework\Stdlib\DateTime\TimezoneInterface $timezone;
 

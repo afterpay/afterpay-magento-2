@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Gateway\Validator;
 
 class CaptureResponseValidator extends \Magento\Payment\Gateway\Validator\AbstractValidator
 {
-    const STATUS_DECLINED = 'DECLINED';
-    const STATUS_APPROVED = 'APPROVED';
+    public const STATUS_DECLINED = 'DECLINED';
+    public const STATUS_APPROVED = 'APPROVED';
 
     public function validate(array $validationSubject): \Magento\Payment\Gateway\Validator\ResultInterface
     {

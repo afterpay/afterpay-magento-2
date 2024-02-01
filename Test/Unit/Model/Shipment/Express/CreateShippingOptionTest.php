@@ -25,6 +25,10 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
      * @var \Magento\Quote\Model\Quote|\PHPUnit\Framework\MockObject\MockObject
      */
     private $quote;
+    /**
+     * @var \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface
+     */
+    private $checkCBTCurrencyAvailability;
 
     protected function setUp(): void
     {
@@ -42,7 +46,16 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
         $this->totalsInformation->method("setShippingCarrierCode")->willReturnSelf();
         $this->totalsInformation->method("setShippingMethodCode")->willReturnSelf();
         $this->totalsInformationFactory->method("create")->willReturn($this->totalsInformation);
-        $this->quote =  $this->createMock(\Magento\Quote\Model\Quote::class);
+        $this->checkCBTCurrencyAvailability = $this->createMock(
+            \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface::class
+        );
+        $this->checkCBTCurrencyAvailability->method("checkByQuote")->willReturn(false);
+        $this->quote = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
+            ->disableOriginalConstructor()
+            ->disableOriginalClone()
+            ->disableArgumentCloning()
+            ->setMethods(['getGrandTotal', 'getBaseGrandTotal', 'getShippingAddress'])
+            ->getMock();
         $this->quote->method("getShippingAddress")
             ->willReturn(
                 $this->createMock(\Magento\Quote\Api\Data\AddressInterface::class)
@@ -50,7 +63,8 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
         $this->createShippingOption = new \Afterpay\Afterpay\Model\Shipment\Express\CreateShippingOption(
             $this->config,
             $this->totalsInformationManagement,
-            $this->totalsInformationFactory
+            $this->totalsInformationFactory,
+            $this->checkCBTCurrencyAvailability
         );
     }
 
@@ -76,6 +90,8 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
         $this->totalsInformationManagement->expects($this->once())
             ->method("calculate")
             ->willReturn($calculatedTotals);
+        $this->quote->method("getGrandTotal")->willReturn($calculatedTotals->getGrandTotal());
+        $this->quote->method("getBaseGrandTotal")->willReturn($calculatedTotals->getBaseGrandTotal());
         $this->assertEquals($result, $this->createShippingOption->create($this->quote, $shippingMethod));
     }
 
@@ -84,6 +100,7 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
         $carrierCode = 'carrierCode';
         $carrierMethod = 'carrierMethod';
         $carrierTitle = 'carrierTitle';
+        $grandTotal = 10000;
         $baseGrandTotal = 10000;
         $baseShippingAmount = 20;
         $baseTaxAmount = 10;
@@ -91,35 +108,35 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
             [
                 "0",
                 "1000",
-                $this->createCalculatedTotals($baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
+                $this->createCalculatedTotals($grandTotal, $baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 null,
             ],
             [
                 "10000",
                 "1000",
-                $this->createCalculatedTotals($baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
+                $this->createCalculatedTotals($grandTotal, $baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 null,
             ],
             [
                 null,
                 "1000",
-                $this->createCalculatedTotals($baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
+                $this->createCalculatedTotals($grandTotal, $baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 null,
             ],
             [
                 "0",
                 null,
-                $this->createCalculatedTotals($baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
+                $this->createCalculatedTotals($grandTotal, $baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 null,
             ],
             [
                 null,
                 null,
-                $this->createCalculatedTotals($baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
+                $this->createCalculatedTotals($grandTotal, $baseGrandTotal, $baseShippingAmount, $baseTaxAmount),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 null,
             ]
@@ -131,6 +148,7 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
         $carrierCode = 'carrierCode';
         $carrierMethod = 'carrierMethod';
         $carrierTitle = 'carrierTitle';
+        $grandTotal = 10000;
         $baseGrandTotal = 10000;
         $baseShippingAmount = 20;
         $baseTaxAmount = 10;
@@ -138,14 +156,14 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
             [
                 "0",
                 "100000",
-                $this->createCalculatedTotals(null, $baseShippingAmount, $baseTaxAmount),
+                $this->createCalculatedTotals(null,null, $baseShippingAmount, $baseTaxAmount),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 null
             ],
             [
                 "0",
                 "100000",
-                $this->createCalculatedTotals($baseGrandTotal, null, $baseTaxAmount),
+                $this->createCalculatedTotals($grandTotal, $baseGrandTotal, null, $baseTaxAmount),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 [
                     'id' => $carrierCode . "_" . $carrierMethod,
@@ -168,7 +186,7 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
             [
                 "0",
                 "100000",
-                $this->createCalculatedTotals($baseGrandTotal, $baseShippingAmount, null),
+                $this->createCalculatedTotals($grandTotal, $baseGrandTotal, $baseShippingAmount, null),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 [
                     'id' => $carrierCode . "_" . $carrierMethod,
@@ -191,7 +209,7 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
             [
                 "0",
                 "100000",
-                $this->createCalculatedTotals($baseGrandTotal, null, null),
+                $this->createCalculatedTotals($grandTotal, $baseGrandTotal, null, null),
                 $this->createShippingMethod($carrierCode, $carrierMethod, $carrierTitle),
                 [
                     'id' => $carrierCode . "_" . $carrierMethod,
@@ -220,7 +238,7 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
             [
                 "123",
                 "1234",
-                $this->createCalculatedTotals(1233.11, 12.13, 11.15),
+                $this->createCalculatedTotals(1233.11,1233.11, 12.13, 11.15),
                 $this->createShippingMethod("carrierCode1", "carrierMethod1", "carrierTitle1"),
                 [
                     'id' => "carrierCode1" . "_" . "carrierMethod1",
@@ -243,7 +261,7 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
             [
                 "22222",
                 "55555",
-                $this->createCalculatedTotals(33333.33, 324.13, 534.234),
+                $this->createCalculatedTotals(33333.33, 33333.33,324.13, 534.234),
                 $this->createShippingMethod("carrierCode2", "carrierMethod2", "carrierTitle2"),
                 [
                     'id' => "carrierCode2" . "_" . "carrierMethod2",
@@ -267,11 +285,13 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
     }
 
     private function createCalculatedTotals(
+        ?float $grandTotal = 0,
         ?float $baseGrandTotal = 0,
         ?float $baseShippingAmount = 0,
         ?float $baseTaxAmount = 0
     ) {
         $calculatedTotals = $this->createMock(\Magento\Quote\Api\Data\TotalsInterface::class);
+        $calculatedTotals->expects($this->any())->method("getGrandTotal")->willReturn($grandTotal);
         $calculatedTotals->expects($this->any())->method("getBaseGrandTotal")->willReturn($baseGrandTotal);
         $calculatedTotals->expects($this->any())->method("getBaseTaxAmount")->willReturn($baseTaxAmount);
         $calculatedTotals->expects($this->any())->method("getBaseShippingAmount")->willReturn($baseShippingAmount);
