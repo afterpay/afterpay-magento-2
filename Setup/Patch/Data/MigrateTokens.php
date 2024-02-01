@@ -50,22 +50,24 @@ class MigrateTokens implements DataPatchInterface
         $tokenEntries = [];
         foreach ($payments as $payment) {
             if (!empty($payment[OrderPaymentInterface::ADDITIONAL_INFORMATION])) {
-                $additionalInfo = $this->serializer->unserialize($payment[OrderPaymentInterface::ADDITIONAL_INFORMATION]);
-                $token = $additionalInfo[CheckoutInterface::AFTERPAY_TOKEN];
-                $expiration = $additionalInfo[AdditionalInformationInterface::AFTERPAY_AUTH_EXPIRY_DATE] ?? null;
-                if ($expiration) {
-                    $expiration = $this->dateTime->formatDate($expiration);
+                $additionalInfo = $this->serializer->unserialize($payment[OrderPaymentInterface::ADDITIONAL_INFORMATION]); // @codingStandardsIgnoreLine
+                $token = $additionalInfo[CheckoutInterface::AFTERPAY_TOKEN] ?? null;
+                if ($token) {
+                    $expiration = $additionalInfo[AdditionalInformationInterface::AFTERPAY_AUTH_EXPIRY_DATE] ?? null;
+                    if ($expiration) {
+                        $expiration = $this->dateTime->formatDate($expiration);
+                    }
+                    $tokenEntries[] = [
+                        TokenInterface::ORDER_ID_FIELD        => $payment['parent_id'],
+                        TokenInterface::TOKEN_FIELD           => $token,
+                        TokenInterface::EXPIRATION_DATE_FIELD => $expiration
+                    ];
                 }
-                $tokenEntries[] = [
-                    TokenInterface::ORDER_ID_FIELD        => $payment['parent_id'],
-                    TokenInterface::TOKEN_FIELD           => $token,
-                    TokenInterface::EXPIRATION_DATE_FIELD => $expiration
-                ];
             }
         }
 
         if (!empty($tokenEntries)) {
-            $this->tokensResource->getConnection()->insertOnDuplicate($this->tokensResource->getMainTable(), $tokenEntries);
+            $this->tokensResource->getConnection()->insertOnDuplicate($this->tokensResource->getMainTable(), $tokenEntries);// @codingStandardsIgnoreLine
         }
 
         return $this;

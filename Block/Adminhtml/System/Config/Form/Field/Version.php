@@ -8,7 +8,7 @@ use Magento\Backend\Block\Template\Context;
 
 class Version extends \Magento\Config\Block\System\Config\Form\Field
 {
-    const MODULE_NAME = "Afterpay_Afterpay";
+    public const MODULE_NAME = "Afterpay_Afterpay";
 
     private $resource;
 

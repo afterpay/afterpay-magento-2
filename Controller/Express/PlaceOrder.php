@@ -80,6 +80,6 @@ class PlaceOrder implements HttpPostActionInterface
 
         $this->messageManager->addSuccessMessage((string)__('Afterpay Transaction Completed.'));
 
-        return $jsonResult->setData(['redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/onepage/success')]);
+        return $jsonResult->setData(['redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/onepage/success')]);// @codingStandardsIgnoreLine
     }
 }

@@ -33,8 +33,8 @@ class Order
         \Magento\Sales\Model\Order\Item $item,
         float $qty
     ): float {
-        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
-        $rowTotal = $isCBTCurrency ? $this->priceRenderer->getTotalAmount($item) : $this->priceRenderer->getBaseTotalAmount($item);
+        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);// @codingStandardsIgnoreLine
+        $rowTotal = $isCBTCurrency ? $this->priceRenderer->getTotalAmount($item) : $this->priceRenderer->getBaseTotalAmount($item);// @codingStandardsIgnoreLine
         $pricePerItem = $rowTotal / $item->getQtyOrdered();
 
         return $qty * $pricePerItem;

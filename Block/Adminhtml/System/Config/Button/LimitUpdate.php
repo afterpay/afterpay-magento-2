@@ -6,7 +6,7 @@ namespace Afterpay\Afterpay\Block\Adminhtml\System\Config\Button;
 
 class LimitUpdate extends \Magento\Config\Block\System\Config\Form\Field
 {
-    const TEMPLATE = 'Afterpay_Afterpay::system/config/button/update.phtml';
+    public const TEMPLATE = 'Afterpay_Afterpay::system/config/button/update.phtml';
 
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {

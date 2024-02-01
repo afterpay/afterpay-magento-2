@@ -44,7 +44,7 @@ class CreateCheckout implements \Magento\Framework\App\Action\HttpPostActionInte
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Throwable $e) {
             $this->logger->error($e->getMessage());
-            $this->messageManager->addErrorMessage((string)__('Afterpay payment declined. Please select an alternative payment method.'));
+            $this->messageManager->addErrorMessage((string)__('Afterpay payment is declined. Please select an alternative payment method.'));
         }
         return $result;
     }

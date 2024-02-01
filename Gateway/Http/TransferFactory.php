@@ -6,10 +6,10 @@ use Afterpay\Afterpay\Model\Url\UrlBuilder;
 
 class TransferFactory implements \Magento\Payment\Gateway\Http\TransferFactoryInterface
 {
-    const METHOD_POST = "post";
-    const METHOD_GET = "get";
+    public const METHOD_POST = "post";
+    public const METHOD_GET = "get";
 
-    const ARGS = [
+    public const ARGS = [
         'orderId',
         'websiteId',
         'storeId',
@@ -42,7 +42,7 @@ class TransferFactory implements \Magento\Payment\Gateway\Http\TransferFactoryIn
         $this->method = $method;
     }
 
-    public function create(array $request): \Magento\Payment\Gateway\Http\TransferInterface
+    public function create(array $request): \Magento\Payment\Gateway\Http\TransferInterface // @codingStandardsIgnoreLine
     {
         $args = $this->removeAndReturnArgs($request);
 

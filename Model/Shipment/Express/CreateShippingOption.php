@@ -62,7 +62,7 @@ class CreateShippingOption
             : $totals->getBaseShippingAmount());
 
         return [
-            'id' => $shippingMethod->getCarrierCode() . "_" . $shippingMethod->getMethodCode(),
+            'id' => implode('_', [$shippingMethod->getCarrierCode(), $shippingMethod->getMethodCode()]),
             'name' => $shippingMethod->getCarrierTitle(),
             'description' => $shippingMethod->getCarrierTitle(),
             'shippingAmount' => [

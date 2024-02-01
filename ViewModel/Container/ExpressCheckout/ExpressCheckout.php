@@ -4,22 +4,13 @@ namespace Afterpay\Afterpay\ViewModel\Container\ExpressCheckout;
 
 class ExpressCheckout extends \Afterpay\Afterpay\ViewModel\Container\Container
 {
-    const COUNTRY_CURRENCY_MAP = [
+    public const COUNTRY_CURRENCY_MAP = [
         'AUD' => 'AU',
         'NZD' => 'NZ',
         'USD' => 'US',
         'CAD' => 'CA',
         'GBP' => 'GB'
     ];
-
-    public function __construct(
-        \Magento\Framework\Serialize\SerializerInterface $serializer,
-        \Afterpay\Afterpay\Model\Config $config,
-        \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider $notAllowedProductsProvider,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
-    ) {
-        parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager);
-    }
 
     public function updateJsLayout(
         string $jsLayoutJson,

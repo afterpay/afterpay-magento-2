@@ -34,8 +34,8 @@ class CBTAvailableCurrencies extends \Magento\Config\Block\System\Config\Form\Fi
             }
 
             foreach ($CbtAvailableCurrencies as $currencyCode => $currency) {
-                $newValue .= $currencyCode . '(min:' . $currency['minimumAmount']['amount']
-                    . ',max:' . $currency['maximumAmount']['amount'] . ') ';
+                $min = $currency['minimumAmount']['amount'] ?? '0';
+                $newValue .= $currencyCode . '(min:' . $min . ',max:' . $currency['maximumAmount']['amount'] . ') ';
             }
             $element->setValue($newValue);
         } catch (\Exception $e) {

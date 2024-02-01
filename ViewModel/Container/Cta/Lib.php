@@ -27,7 +27,7 @@ class Lib extends \Afterpay\Afterpay\ViewModel\Container\Lib
         $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
         $cbtLimits = $this->config->getCbtCurrencyLimits();
         if (isset($cbtLimits[$currencyCode])) {
-            return $cbtLimits[$currencyCode]['minimumAmount']['amount'];
+            return $cbtLimits[$currencyCode]['minimumAmount']['amount'] ?? '0';
         }
 
         return $this->config->getMinOrderTotal();

@@ -10,7 +10,7 @@ class CheckoutItemsAmountValidationHandler implements \Magento\Payment\Gateway\R
         $payment = $paymentDO->getPayment();
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $payment->getQuote();
-        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
+        $isCBTCurrency = $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);  // @codingStandardsIgnoreLine
         $grandTotal = $isCBTCurrency ? $quote->getGrandTotal() : $quote->getBaseGrandTotal();
 
         if (round(1 * $grandTotal, 2) != round(1 * $response['amount']['amount'], 2)) {

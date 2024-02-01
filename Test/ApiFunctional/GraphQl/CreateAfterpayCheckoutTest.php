@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Afterpay\Afterpay\Test\ApiFunctional\Model\GraphQl;
+namespace Afterpay\Afterpay\Test\ApiFunctional\GraphQl;
 
 use Afterpay\Afterpay\Api\Data\CheckoutInterface;
 
@@ -18,12 +18,12 @@ class CreateAfterpayCheckoutTest extends \Magento\TestFramework\TestCase\GraphQl
     }
 
     /**
-     * @magentoApiDataFixture Magento/Checkout/_files/quote_with_items_saved.php
+     * @magentoApiDataFixture Magento/Sales/_files/guest_quote_with_addresses.php
      * @magentoConfigFixture default/payment/afterpay/active 1
      */
     public function testCreateAfterpayCheckoutReturnData()
     {
-        $maskedQuoteId = $this->getMaskedQuoteIdByReservedOrderId->execute('test_order_item_with_items');
+        $maskedQuoteId = $this->getMaskedQuoteIdByReservedOrderId->execute('guest_quote');
 
         $mutation = $this->createAfterpayCheckoutMutation($maskedQuoteId);
         $response = $this->graphQlMutation($mutation);

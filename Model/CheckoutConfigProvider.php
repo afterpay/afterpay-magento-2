@@ -34,6 +34,7 @@ class CheckoutConfigProvider implements \Magento\Checkout\Model\ConfigProviderIn
                     'isCBTCurrency' => $this->checkCBTCurrencyAvailability->checkByQuote($quote),
                     'consumerLendingEnabled' => $this->config->getConsumerLendingEnabled(),
                     'consumerLendingMinimumAmount' => $this->config->getConsumerLendingMinAmount(),
+                    'mpid' => $this->config->getPublicId(),
                 ]
             ]
         ];

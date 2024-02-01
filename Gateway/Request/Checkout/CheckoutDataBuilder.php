@@ -151,7 +151,7 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
     {
         $itemsImages = [];
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('entity_id', array_map(static function ($item) {return $item->getProduct()->getId();}, $items), 'in')
+            ->addFilter('entity_id', array_map(static function ($item) {return $item->getProduct()->getId();}, $items), 'in') // @codingStandardsIgnoreLine
             ->create();
         $products = $this->productRepository->getList($searchCriteria)->getItems();
 

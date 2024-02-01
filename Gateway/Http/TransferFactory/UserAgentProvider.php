@@ -41,5 +41,6 @@ class UserAgentProvider
 
         return "AfterpayMagento2Plugin $moduleVersion ($magentoProductName $magentoProductEdition $magentoVersion) " .
             "PHPVersion: PHP/$phpVersion MerchantID: $afterpayMerchantId; MPID/$afterpayMPId; CAPAvailable/$CashAppPayAvailable; CAPEnabled/$CashAppPayEnabled; URL: $websiteDomain";
+
     }
 }

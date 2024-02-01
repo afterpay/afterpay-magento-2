@@ -3,9 +3,16 @@
         <input type="radio"
                name="payment[method]"
                class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-        <label data-bind="attr: {'for': getCode()}" class="label">
-            <img src="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png" srcset="https://static.afterpay.com/integration/logo-afterpay-colour-221x46.png 1x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@2x.png 2x,https://static.afterpay.com/integration/logo-afterpay-colour-221x46@3x.png 3x" class="payment-icon" alt="Afterpay" height="40"/>
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()">
+        <label data-bind="attr: {'for': getCode()}" class="label afterpay-checkout-label">
+            <square-placement
+                    data-bind="attr: {
+            'data-currency': getCurrency(),
+            'data-mpid':getMPID(),
+            'data-platform': 'Magento',
+            'data-page-type': 'checkout',
+            'data-type':'logo'}
+        "></square-placement>
         </label>
     </div>
     <div class="payment-method-content">

@@ -4,8 +4,8 @@ namespace Afterpay\Afterpay\Model\Config\Source;
 
 class PaymentFlow implements \Magento\Framework\Data\OptionSourceInterface
 {
-    const IMMEDIATE = 'immediate';
-    const DEFERRED = 'deferred';
+    public const IMMEDIATE = 'immediate';
+    public const DEFERRED = 'deferred';
 
     public function toOptionArray(): array
     {

@@ -11,11 +11,11 @@ interface CheckoutInterface
     /**#@+
      * Checkout result keys
      */
-    const AFTERPAY_TOKEN = 'afterpay_token';
-    const AFTERPAY_AUTH_TOKEN_EXPIRES = 'afterpay_expires';
-    const AFTERPAY_REDIRECT_CHECKOUT_URL = 'afterpay_redirectCheckoutUrl';
-    const AFTERPAY_IS_CBT_CURRENCY = 'afterpay_is_cbt_currency';
-    const AFTERPAY_CBT_CURRENCY = 'afterpay_cbt_currency';
+    public const AFTERPAY_TOKEN = 'afterpay_token';
+    public const AFTERPAY_AUTH_TOKEN_EXPIRES = 'afterpay_expires';
+    public const AFTERPAY_REDIRECT_CHECKOUT_URL = 'afterpay_redirectCheckoutUrl';
+    public const AFTERPAY_IS_CBT_CURRENCY = 'afterpay_is_cbt_currency';
+    public const AFTERPAY_CBT_CURRENCY = 'afterpay_cbt_currency';
     /**#@-*/
 
     /**

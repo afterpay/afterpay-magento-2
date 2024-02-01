@@ -36,7 +36,8 @@ class PaymentErrorProcessor
     public function execute(Quote $quote, \Throwable $e, Payment $payment): int
     {
         $this->logger->critical('Order placement is failed with error: ' . PHP_EOL . $e);
-        if (($this->checkoutSession->getLastSuccessQuoteId() == $quote->getId()) && $this->checkoutSession->getLastOrderId()) {
+        if (($this->checkoutSession->getLastSuccessQuoteId() == $quote->getId()) &&
+            $this->checkoutSession->getLastOrderId()) {
             try {
                 $order = $this->orderRepository->get((int)$this->checkoutSession->getLastOrderId());
                 $order->addCommentToStatusHistory(
@@ -48,10 +49,12 @@ class PaymentErrorProcessor
 
                 return (int)$order->getEntityId();
             } catch (NoSuchEntityException $e) {
+                throw $e;
             }
         }
 
-        if ($e instanceof CommandException && $e->getMessage() === CaptureErrorMessageMapper::STATUS_DECLINED_ERROR_MESSAGE) {
+        if ($e instanceof CommandException &&
+            $e->getMessage() === CaptureErrorMessageMapper::STATUS_DECLINED_ERROR_MESSAGE) {
             throw $e;
         }
 

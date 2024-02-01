@@ -41,7 +41,7 @@ class CancelOrderProcessor
             throw new \Magento\Framework\Exception\LocalizedException(
                 __(
                     'There was a problem placing your order. Your Afterpay order %1 is refunded.',
-                    $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface::AFTERPAY_ORDER_ID)
+                    $payment->getAdditionalInformation(\Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface::AFTERPAY_ORDER_ID)// @codingStandardsIgnoreLine
                 )
             );
         }

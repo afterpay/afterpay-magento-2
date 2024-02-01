@@ -56,7 +56,7 @@ class CaptureOperation
         $invoice
     ) {
         if ($this->ckeckPaymentMethod->isAfterPayMethod($payment)
-            && $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY)) {
+            && $payment->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY)) { // @codingStandardsIgnoreLine
             /**
              * @var $payment Payment
              */
