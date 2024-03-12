@@ -9,6 +9,7 @@
     <type name="Afterpay\Afterpay\Controller\Payment\Capture">
         <arguments>
             <argument name="validateCheckoutDataCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\ValidateCheckoutDataCommand</argument>
+            <argument name="logger" xsi:type="object">Afterpay\Afterpay\Logger</argument>
         </arguments>
     </type>
     <type name="Magento\Sales\Block\Order\Totals">
@@ -22,7 +23,9 @@
     <virtualType name="Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\PDPLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
         <arguments>
             <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\ExpressCheckoutLibUrlProvider</argument>
-            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_PRODUCT</argument>
+            <argument name="containerConfigPath" xsi:type="const">
+                Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_PRODUCT
+            </argument>
         </arguments>
     </virtualType>
     <virtualType name="Afterpay\Afterpay\ViewModel\WidgetCheckout\Lib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
@@ -33,13 +36,17 @@
     <virtualType name="Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\CartLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
         <arguments>
             <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\ExpressCheckoutLibUrlProvider</argument>
-            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_CART_PAGE</argument>
+            <argument name="containerConfigPath" xsi:type="const">
+                Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_CART_PAGE
+            </argument>
         </arguments>
     </virtualType>
     <virtualType name="Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\MiniCartLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
         <arguments>
             <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\ExpressCheckoutLibUrlProvider</argument>
-            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_MINI_CART</argument>
+            <argument name="containerConfigPath" xsi:type="const">
+                Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_MINI_CART
+            </argument>
         </arguments>
     </virtualType>
 
@@ -62,7 +69,7 @@
         </arguments>
     </virtualType>
     <type name="Magento\Checkout\CustomerData\AbstractItem">
-        <plugin name="afterpay_item_additional_attributes" type="Afterpay\Afterpay\Plugin\Checkout\CustomerData\Cart" />
+        <plugin name="afterpay_item_additional_attributes" type="Afterpay\Afterpay\Plugin\Checkout\CustomerData\Cart"/>
     </type>
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>

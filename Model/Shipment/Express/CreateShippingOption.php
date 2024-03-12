@@ -63,8 +63,8 @@ class CreateShippingOption
 
         return [
             'id' => implode('_', [$shippingMethod->getCarrierCode(), $shippingMethod->getMethodCode()]),
-            'name' => $shippingMethod->getCarrierTitle(),
-            'description' => $shippingMethod->getCarrierTitle(),
+            'name' => !empty($shippingMethod->getCarrierTitle()) ? $shippingMethod->getCarrierTitle() : $shippingMethod->getMethodTitle(),
+            'description' => !empty($shippingMethod->getCarrierTitle()) ? $shippingMethod->getCarrierTitle() : $shippingMethod->getMethodTitle(),
             'shippingAmount' => [
                 'amount' => $this->formatPrice($shippingAmount),
                 'currency' => $currency

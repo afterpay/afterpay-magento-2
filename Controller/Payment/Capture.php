@@ -10,6 +10,7 @@ use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Payment\Gateway\CommandInterface;
+use Psr\Log\LoggerInterface;
 
 class Capture implements HttpGetActionInterface
 {
@@ -21,6 +22,7 @@ class Capture implements HttpGetActionInterface
     private ManagerInterface $messageManager;
     private PlaceOrderProcessor $placeOrderProcessor;
     private CommandInterface $validateCheckoutDataCommand;
+    private LoggerInterface $logger;
 
     public function __construct(
         RequestInterface    $request,
@@ -28,7 +30,8 @@ class Capture implements HttpGetActionInterface
         RedirectFactory     $redirectFactory,
         ManagerInterface    $messageManager,
         PlaceOrderProcessor $placeOrderProcessor,
-        CommandInterface    $validateCheckoutDataCommand
+        CommandInterface    $validateCheckoutDataCommand,
+        LoggerInterface     $logger
     ) {
         $this->request = $request;
         $this->session = $session;
@@ -36,10 +39,12 @@ class Capture implements HttpGetActionInterface
         $this->messageManager = $messageManager;
         $this->placeOrderProcessor = $placeOrderProcessor;
         $this->validateCheckoutDataCommand = $validateCheckoutDataCommand;
+        $this->logger = $logger;
     }
 
     public function execute()
     {
+        $afterpayOrderToken = $this->request->getParam('orderToken');
         if ($this->request->getParam('status') == self::CHECKOUT_STATUS_CANCELLED) {
             $this->messageManager->addErrorMessage(
                 (string)__('You have cancelled your Afterpay payment. Please select an alternative payment method.')
@@ -51,13 +56,16 @@ class Capture implements HttpGetActionInterface
             $this->messageManager->addErrorMessage(
                 (string)__('Afterpay payment is declined. Please select an alternative payment method.')
             );
+            $this->logger->info(
+                'Afterpay payment(' . $afterpayOrderToken . ') response status is "' . $this->request->getParam('status')
+                . '".' . 'Customer has been redirected to the cart page.'
+            );
 
             return $this->redirectFactory->create()->setPath('checkout/cart');
         }
 
         try {
             $quote = $this->session->getQuote();
-            $afterpayOrderToken = $this->request->getParam('orderToken');
             $this->placeOrderProcessor->execute($quote, $this->validateCheckoutDataCommand, $afterpayOrderToken);
         } catch (\Throwable $e) {
             $errorMessage = $e instanceof LocalizedException

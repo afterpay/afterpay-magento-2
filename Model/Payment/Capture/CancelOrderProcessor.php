@@ -2,6 +2,10 @@
 
 namespace Afterpay\Afterpay\Model\Payment\Capture;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Gateway\Command\CommandException;
+use Magento\Quote\Model\Quote\Payment;
+
 class CancelOrderProcessor
 {
     private \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory;
@@ -27,7 +31,17 @@ class CancelOrderProcessor
         $this->quotePaidStorage = $quotePaidStorage;
     }
 
-    public function execute(\Magento\Quote\Model\Quote\Payment $payment, int $quoteId): void
+    /**
+     * @param Payment         $payment
+     * @param int             $quoteId
+     * @param \Throwable|null $e
+     *
+     * @return void
+     * @throws CommandException
+     * @throws LocalizedException
+     * @throws \Throwable
+     */
+    public function execute(\Magento\Quote\Model\Quote\Payment $payment, int $quoteId, \Throwable $e = null): void
     {
         if (!$this->config->getIsReversalEnabled()) {
             return;
@@ -48,6 +62,10 @@ class CancelOrderProcessor
 
         $afterpayPayment = $this->quotePaidStorage->getAfterpayPaymentIfQuoteIsPaid($quoteId);
         if (!$afterpayPayment) {
+            if ($e instanceof LocalizedException) {
+                throw $e;
+            }
+
             throw new \Magento\Framework\Exception\LocalizedException(
                 __(
                     'Afterpay payment is declined. Please select an alternative payment method.'

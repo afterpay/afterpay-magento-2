@@ -15,14 +15,14 @@ class CheckoutItemsAmountValidationHandler implements \Magento\Payment\Gateway\R
 
         if (round(1 * $grandTotal, 2) != round(1 * $response['amount']['amount'], 2)) {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('There are issues when processing your payment. Invalid Amount')
+                __('There was a issue with the processing of your payment. Invalid amount.')
             );
         }
 
         $quoteItems = $quote->getAllVisibleItems();
         $responseItems = $response['items'];
 
-        $invalidCartItemsExceptionMessage = __('There are issues when processing your payment. Invalid Cart Items');
+        $invalidCartItemsExceptionMessage = __('There was a issue with the processing of your payment. Invalid cart items.');
 
         if (count($quoteItems) != count($responseItems)) {
             throw new \Magento\Framework\Exception\LocalizedException($invalidCartItemsExceptionMessage);

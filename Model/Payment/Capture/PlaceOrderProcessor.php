@@ -55,21 +55,21 @@ class PlaceOrderProcessor
 
         $payment = $quote->getPayment();
         try {
-          $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_TOKEN, $afterpayOrderToken);
-          $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
-          $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY, $isCBTCurrencyAvailable);
-          $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_CBT_CURRENCY, $quote->getQuoteCurrencyCode());
+            $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_TOKEN, $afterpayOrderToken);
+            $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
+            $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY, $isCBTCurrencyAvailable);
+            $payment->setAdditionalInformation(CheckoutInterface::AFTERPAY_CBT_CURRENCY, $quote->getQuoteCurrencyCode());
 
-        if (!$quote->getCustomerId()) {
-            $quote->setCustomerEmail($quote->getBillingAddress()->getEmail())
-                ->setCustomerIsGuest(true)
-                ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
-        }
+            if (!$quote->getCustomerId()) {
+                $quote->setCustomerEmail($quote->getBillingAddress()->getEmail())
+                    ->setCustomerIsGuest(true)
+                    ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
+            }
 
-        $checkoutDataCommand->execute(['payment' => $this->paymentDataObjectFactory->create($payment)]);
-        $this->checkoutSession->setAfterpayRedirect(true);
+            $checkoutDataCommand->execute(['payment' => $this->paymentDataObjectFactory->create($payment)]);
+            $this->checkoutSession->setAfterpayRedirect(true);
 
-        $orderId = (int)$this->cartManagement->placeOrder($quote->getId());
+            $orderId = (int)$this->cartManagement->placeOrder($quote->getId());
         } catch (\Throwable $e) {
             $orderId = $this->paymentErrorProcessor->execute($quote, $e, $payment);
         }
