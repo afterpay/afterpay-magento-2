@@ -10,7 +10,7 @@ define([
         },
         updatePrice: function (newPrices) {
             const res = this._super(newPrices);
-            if (this._checkIsFinalPriceDefined() && this.element.closest('product-info-main')) {
+            if (this._checkIsFinalPriceDefined() && this.element.closest('.product-info-main').length > 0) {
                 containerModel.setCurrentProductId(this.element.data('productId'));
                 containerModel.setPrice(this.cache.displayPrices.finalPrice.amount);
             }
