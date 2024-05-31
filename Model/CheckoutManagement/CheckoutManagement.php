@@ -38,7 +38,6 @@ class CheckoutManagement implements \Afterpay\Afterpay\Api\CheckoutManagementInt
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->getActiveQuoteByCartOrQuoteId($cartId);
 
-        $this->cartRepository->save($quote->reserveOrderId());
         if ($this->checkoutValidator !== null) {
             $this->checkoutValidator->validate($quote);
         }
@@ -52,7 +51,6 @@ class CheckoutManagement implements \Afterpay\Afterpay\Api\CheckoutManagementInt
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->getActiveQuoteByCartOrQuoteId($cartId);
 
-        $this->cartRepository->save($quote->reserveOrderId());
         if ($this->expressCheckoutValidator !== null) {
             $this->expressCheckoutValidator->validate($quote);
         }
