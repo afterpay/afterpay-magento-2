@@ -83,31 +83,31 @@ define([
         },
         _getCheckoutUrl: function (checkoutUrl) {
 
-            let deviceData=$.mage.cookies.get("apt_pixel");
-            let args="";
+            let deviceData = $.mage.cookies.get("apt_pixel");
+            let args = "";
             // Append params from the cookie
-            if (deviceData !== undefined && deviceData !=null && deviceData.length>0) {
+            if (deviceData !== undefined && deviceData !== null && deviceData.length > 0) {
 
-                let queryParams=checkoutUrl.split("?")[1];
+                let queryParams = checkoutUrl.split("?")[1];
                 const searchParams = new URLSearchParams(queryParams);
 
-                let device=JSON.parse(atob(deviceData));
+                let device = JSON.parse(atob(deviceData));
                 if (device.hasOwnProperty('deviceId') &&
                     (/^[0-9a-z-]*$/i).test(device.deviceId) &&
-                    searchParams.has('device_id')===false) {
-                    args="&device_id="+device.deviceId;
+                    searchParams.has('device_id') === false) {
+                    args = "&device_id=" + device.deviceId;
                 }
 
-                if (device.hasOwnProperty('checkout') ) {
-                    for (var prop in device.checkout){
-                        let val=device.checkout[prop];
-                        if ((/^[0-9a-z]+$/i).test(prop) && (/^[0-9a-z-]*$/i).test(val) && searchParams.has(prop)===false) {
-                            args+="&"+prop+"="+val;
+                if (device.hasOwnProperty('checkout')) {
+                    for (let prop in device.checkout) {
+                        let val = device.checkout[prop];
+                        if ((/^[0-9a-z]+$/i).test(prop) && (/^[0-9a-z-]*$/i).test(val) && searchParams.has(prop) === false) {
+                            args += "&" + prop + "=" + val;
                         }
                     }
                 }
             }
-            return checkoutUrl+args;
+            return checkoutUrl + args;
         },
     });
 });

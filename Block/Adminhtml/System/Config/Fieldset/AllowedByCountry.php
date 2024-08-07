@@ -39,10 +39,6 @@ class AllowedByCountry extends \Magento\Config\Block\System\Config\Form\Fieldset
         $scope = $fieldSetForm->getScope();
         $scopeCode = $fieldSetForm->getScopeCode();
 
-        if ($countryCode = $this->getRequest()->getParam('paypal_country')) {
-            return $countryCode;
-        }
-
         return $this->config->getMerchantCountry($scope, (int)$scopeCode);
     }
 }

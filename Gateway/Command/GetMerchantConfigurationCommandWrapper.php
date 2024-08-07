@@ -44,16 +44,21 @@ class GetMerchantConfigurationCommandWrapper implements \Magento\Payment\Gateway
         try {
             if (!$websiteHasOwnConfig) {
                 $this->eraseMerchantConfiguration($websiteId, $websiteHasOwnConfig);
+
                 return null;
             }
-            $this->checkCountry($scope, $websiteId);
-            $this->checkCurrency($scope, $websiteId);
-            // Disable Cash App Pay if Afterpay is disabled
-            if($this->afterpayConfig->getIsPaymentActive($websiteId)===false){
-                $this->afterpayConfig->setCashAppPayActive(0,$websiteId);
+
+            if ($this->afterpayConfig->getIsPaymentActive($websiteId) === true) {
+                $this->checkCountry($scope, $websiteId);
+                $this->checkCurrency($scope, $websiteId);
+                $this->debugLogger->setForceDebug($this->afterpayConfig->getIsDebug($websiteId));
+
+                return $this->merchantConfigurationCommand->execute($commandSubject);
             }
-            $this->debugLogger->setForceDebug($this->afterpayConfig->getIsDebug($websiteId));
-            return $this->merchantConfigurationCommand->execute($commandSubject);
+            // Disable Cash App Pay if Afterpay is disabled
+            $this->afterpayConfig->setCashAppPayActive(0, $websiteId);
+
+            return null;
         } catch (\Magento\Payment\Gateway\Command\CommandException $e) {
             $this->eraseMerchantConfiguration($websiteId, $websiteHasOwnConfig);
             $this->logger->notice($e->getMessage());

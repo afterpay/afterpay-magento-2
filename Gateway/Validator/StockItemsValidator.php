@@ -16,20 +16,20 @@ class StockItemsValidator implements \Afterpay\Afterpay\Model\Spi\StockItemsVali
      * @param \Magento\InventoryCatalogApi\Model\IsSingleSourceModeInterface $isSingleSourceMode
      * @param \Magento\InventoryCatalogApi\Api\DefaultSourceProviderInterface $defaultSourceProvider
      * @param \Magento\InventoryShipping\Model\GetItemsToDeductFromShipment $getItemsToDeductFromShipment
-     * @param \Magento\InventoryShipping\Model\SourceDeductionRequestFromShipmentFactory $sourceDeductionRequestFromShipmentFactory
+     * @param \Magento\InventoryShipping\Model\SourceDeductionRequestFromShipmentFactory $shipmentFactory
      * @param \Afterpay\Afterpay\Model\Spi\SourceValidatorServiceInterface $sourceValidatorService
      */
     public function __construct(
         $isSingleSourceMode,
         $defaultSourceProvider,
         $getItemsToDeductFromShipment,
-        $sourceDeductionRequestFromShipmentFactory,
+        $shipmentFactory,
         $sourceValidatorService
     ) {
         $this->isSingleSourceMode = $isSingleSourceMode;
         $this->defaultSourceProvider = $defaultSourceProvider;
         $this->getItemsToDeductFromShipment = $getItemsToDeductFromShipment;
-        $this->sourceDeductionRequestFromShipmentFactory = $sourceDeductionRequestFromShipmentFactory;
+        $this->shipmentFactory = $shipmentFactory;
         $this->sourceValidatorService = $sourceValidatorService;
     }
 
@@ -52,7 +52,7 @@ class StockItemsValidator implements \Afterpay\Afterpay\Model\Spi\StockItemsVali
         $shipmentItems = $this->getItemsToDeductFromShipment->execute($shipment);
 
         if (!empty($shipmentItems)) {
-            $sourceDeductionRequest = $this->sourceDeductionRequestFromShipmentFactory->execute(
+            $sourceDeductionRequest = $this->shipmentFactory->execute(
                 $shipment,
                 $sourceCode,
                 $shipmentItems

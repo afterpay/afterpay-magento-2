@@ -7,7 +7,7 @@ use Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapperInterface;
 
 class CaptureErrorMessageMapper implements ErrorMessageMapperInterface
 {
-    public const STATUS_DECLINED_ERROR_MESSAGE = 'Aftepay payment declined. Please select an alternative payment method.'; // @codingStandardsIgnoreLine
+    public const STATUS_DECLINED_ERROR_MESSAGE = 'Afterpay payment declined. Please select an alternative payment method.'; // @codingStandardsIgnoreLine
 
     public function getMessage(string $code)
     {

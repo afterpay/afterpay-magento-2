@@ -50,7 +50,7 @@ define([
         },
         _getWidgetAmount: function (totals) {
             let amount = window.checkoutConfig.payment.afterpay.isCBTCurrency
-                ? totals.grand_total + totals.tax_amount
+                ? totals.grand_total
                 : totals.base_grand_total;
             let currency = window.checkoutConfig.payment.afterpay.isCBTCurrency
                 ? totals.quote_currency_code
