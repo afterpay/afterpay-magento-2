@@ -363,13 +363,6 @@ class Config
         ?int   $scopeCode = null
     ): ?string {
         if ($countryCode = $this->scopeConfig->getValue(
-            self::XML_PATH_PAYPAL_MERCHANT_COUNTRY,
-            $scope,
-            $scopeCode
-        )) {
-            return $countryCode;
-        }
-        if ($countryCode = $this->scopeConfig->getValue(
             \Magento\Directory\Helper\Data::XML_PATH_DEFAULT_COUNTRY,
             $scope,
             $scopeCode

@@ -36,9 +36,9 @@ class CreateAfterpayCheckout implements ResolverInterface
     {
         try {
             /** @phpstan-ignore-next-line */
-            $storeId = $context->getExtensionAttributes()->getStore()->getId();
+            $websiteId = $context->getExtensionAttributes()->getStore()->getWebsiteId();
 
-            if (!$this->config->getIsPaymentActive((int)$storeId)) {
+            if (!$this->config->getIsPaymentActive((int)$websiteId)) {
                 throw new GraphQlInputException(__('Afterpay payment method is not active'));
             }
 

@@ -30,10 +30,8 @@ class CreditMemoProcessor
     public function processOrder(\Magento\Sales\Model\Order $order): void
     {
         $additionalInformation = $order->getData('additional_information');
-        $expireDate = $additionalInformation[
-            AdditionalInformationInterface::AFTERPAY_AUTH_EXPIRY_DATE
-        ];
-        if (!$this->expiryDate->isExpired($expireDate)) {
+        $expireDate = $additionalInformation[AdditionalInformationInterface::AFTERPAY_AUTH_EXPIRY_DATE] ?? null;
+        if (!$expireDate || !$this->expiryDate->isExpired($expireDate)) {
             return;
         }
         /** @var \Magento\Payment\Model\InfoInterface $payment */
@@ -45,7 +43,8 @@ class CreditMemoProcessor
         ];
         if ($paymentState !== PaymentStateInterface::CAPTURED &&
             $paymentState !== PaymentStateInterface::PARTIALLY_CAPTURED &&
-            $paymentState !== PaymentStateInterface::VOIDED) {
+            $paymentState !== PaymentStateInterface::VOIDED &&
+            $paymentState !== PaymentStateInterface::EXPIRED) {
             return;
         }
         $creditmemo = $this->creditMemoInitiator->init($order);

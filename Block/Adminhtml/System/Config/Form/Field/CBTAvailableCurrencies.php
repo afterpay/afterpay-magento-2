@@ -25,17 +25,19 @@ class CBTAvailableCurrencies extends \Magento\Config\Block\System\Config\Form\Fi
     protected function _renderValue(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         try {
-            $CbtAvailableCurrencies = $this->serializer->unserialize($element->getValue());
-            $newValue = '';
-            if (!$CbtAvailableCurrencies) {
-                return parent::_renderValue($element);
-            }
+            if (!empty($element->getValue())) {
+                $CbtAvailableCurrencies = $this->serializer->unserialize($element->getValue());
+                $newValue = '';
+                if (!$CbtAvailableCurrencies) {
+                    return parent::_renderValue($element);
+                }
 
-            foreach ($CbtAvailableCurrencies as $currencyCode => $currency) {
-                $min = $currency['minimumAmount']['amount'] ?? '0';
-                $newValue .= $currencyCode . '(min:' . $min . ',max:' . $currency['maximumAmount']['amount'] . ') ';
+                foreach ($CbtAvailableCurrencies as $currencyCode => $currency) {
+                    $min = $currency['minimumAmount']['amount'] ?? '0';
+                    $newValue .= $currencyCode . '(min:' . $min . ',max:' . $currency['maximumAmount']['amount'] . ') ';
+                }
+                $element->setValue($newValue);
             }
-            $element->setValue($newValue);
         } catch (\Exception $e) {
             $this->logger->critical($e);
         }

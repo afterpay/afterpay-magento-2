@@ -8,4 +8,5 @@ interface PaymentStateInterface
     public const PARTIALLY_CAPTURED = 'PARTIALLY_CAPTURED';
     public const CAPTURED = 'CAPTURED';
     public const VOIDED = 'VOIDED';
+    public const EXPIRED = 'EXPIRED';
 }

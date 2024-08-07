@@ -67,11 +67,11 @@ class StockItemsValidatorProxy implements StockItemsValidatorInterface, Noninter
                 'getStockBySalesChannel'          => $objectManager->create(GetStockBySalesChannelInterface::class),
             ]);
             $this->subject = $this->stockItemValidatorFactory->create([
-                'isSingleSourceMode'                        => $objectManager->create(IsSingleSourceModeInterface::class),
-                'defaultSourceProvider'                     => $objectManager->create(DefaultSourceProviderInterface::class),
-                'getItemsToDeductFromShipment'              => $objectManager->create(GetItemsToDeductFromShipment::class),
-                'sourceDeductionRequestFromShipmentFactory' => $objectManager->create(SourceDeductionRequestFactory::class),
-                'sourceValidatorService'                    => $sourceValidatorService,
+                'isSingleSourceMode'           => $objectManager->create(IsSingleSourceModeInterface::class),
+                'defaultSourceProvider'        => $objectManager->create(DefaultSourceProviderInterface::class),
+                'getItemsToDeductFromShipment' => $objectManager->create(GetItemsToDeductFromShipment::class),
+                'shipmentFactory'              => $objectManager->create(SourceDeductionRequestFactory::class),
+                'sourceValidatorService'       => $sourceValidatorService,
             ]);
         }
 

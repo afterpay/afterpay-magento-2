@@ -25,20 +25,36 @@ class CheckoutDataToQuoteHandler implements \Magento\Payment\Gateway\Response\Ha
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $paymentDO->getPayment()->getQuote();
 
+        $consumerEmail = $response['consumer']['email'];
+        $consumerName = $response['consumer']['givenNames'];
+        $consumerLastname = $response['consumer']['surname'];
         if (!$quote->getCustomerId()) {
-            $quote->setCustomerEmail($response['consumer']['email']);
-            $quote->setCustomerFirstname($response['consumer']['givenNames']);
-            $quote->setCustomerLastname($response['consumer']['surname']);
+            $quote->setCustomerEmail($consumerEmail);
+            $quote->setCustomerFirstname($consumerName);
+            $quote->setCustomerLastname($consumerLastname);
         }
 
         /** @var \Magento\Checkout\Api\Data\ShippingInformationInterface $shippingInformation */
         $shippingInformation = $this->shippingInformationFactory->create();
 
+        if (!empty($response['shipping']['name'])) {
+            $nameArray = explode(' ', $response['shipping']['name']);
+            $firstname = $nameArray[0] ?? $consumerName;
+            if (!empty($nameArray[1])) {
+                $lastname = implode(' ', array_slice($nameArray, 1));
+            } else {
+                $lastname = $firstname;
+            }
+        } else {
+            $firstname = $consumerName;
+            $lastname = $consumerLastname;
+        }
+
         /** @var \Magento\Quote\Api\Data\AddressInterface $address */
         $address = $this->addressInterfaceFactory->create();
-        $address->setEmail($response['consumer']['email'])
-            ->setFirstname($response['consumer']['givenNames'])
-            ->setLastname($response['consumer']['surname'])
+        $address->setEmail($consumerEmail)
+            ->setFirstname($firstname)
+            ->setLastname($lastname)
             ->setTelephone($response['shipping']['phoneNumber'] ?? $response['consumer']['phoneNumber'])
             ->setCity($response['shipping']['area1'])
             ->setCountryId($response['shipping']['countryCode'])
