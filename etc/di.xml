@@ -7,7 +7,6 @@
     <preference for="Afterpay\Afterpay\Model\Order\OrderItemInterface" type="Afterpay\Afterpay\Model\Order\OrderItem"/>
     <preference for="Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface" type="Afterpay\Afterpay\Model\Checks\IsCBTAvailable"/>
     <preference for="Afterpay\Afterpay\Model\Checks\PaymentMethodInterface" type="Afterpay\Afterpay\Model\Checks\PaymentMethod"/>
-    <preference for="Afterpay\Afterpay\Api\Data\Quote\ExtendedShippingInformationInterface" type="Afterpay\Afterpay\Model\Quote\ExtendedShippingInformation"/>
     <preference for="Afterpay\Afterpay\Api\Data\TokenInterface" type="Afterpay\Afterpay\Model\Token"/>
 
     <virtualType name="Afterpay\Afterpay\Model\Method\MethodFacade" type="Magento\Payment\Model\Method\Adapter">
@@ -172,6 +171,7 @@
                 <item name="mpid" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\MpidConfigurationHandler</item>
                 <item name="channels" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\ChannelsConfigurationHandler</item>
                 <item name="consumer_lending" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\ConsumerLendingConfigurationHandler</item>
+                <item name="enable_creditmemo_grandtotal_only" xsi:type="string">Afterpay\Afterpay\Gateway\Response\MerchantConfiguration\CreditMemoOnGrandTotalConfigurationHandler</item>
             </argument>
         </arguments>
     </virtualType>

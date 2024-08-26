@@ -4,14 +4,16 @@ namespace Afterpay\Afterpay\Model\GraphQl\Resolver;
 
 use Afterpay\Afterpay\Model\Config;
 use Magento\Framework\GraphQl\Config\Element\Field;
+use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
+use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Store\Model\StoreManagerInterface;
 
 class AfterpayConfig implements ResolverInterface
 {
-    private Config $config;
-    private StoreManagerInterface $storeManager;
+    protected Config $config;
+    protected StoreManagerInterface $storeManager;
 
     public function __construct(
         Config                $config,
@@ -21,6 +23,18 @@ class AfterpayConfig implements ResolverInterface
         $this->storeManager = $storeManager;
     }
 
+    /**
+     * Fetches the data from persistence models and format it according to the GraphQL schema.
+     *
+     * @param Field            $field
+     * @param ContextInterface $context
+     * @param ResolveInfo      $info
+     * @param array|null       $value
+     * @param array|null       $args
+     *
+     * @return array|Value
+     * @throws \Exception
+     */
     public function resolve(
         Field       $field,
                     $context,

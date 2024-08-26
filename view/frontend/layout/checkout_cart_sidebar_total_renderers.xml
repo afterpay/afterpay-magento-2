@@ -16,6 +16,22 @@
                 </arguments>
             </block>
         </referenceBlock>
+        <referenceBlock name="head.additional">
+            <block name="afterpay.cta.mini.cart.headless" class="Afterpay\Afterpay\Block\Cta\MiniCartHeadless" template="Afterpay_Afterpay::cta/minicart/headless.phtml" before="-" ifconfig="payment/afterpay/enable_mini_cart_headless">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\Headless</argument>
+                </arguments>
+            </block>
+            <block name="afterpay.minicart.express.checkout.headless"
+                   class="Afterpay\Afterpay\Block\ExpressCheckout\MiniCartHeadless"
+                   template="Afterpay_Afterpay::express-checkout/minicart-headless.phtml"
+                   after="-"
+                   ifconfig="payment/afterpay/enable_mini_cart_headless">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
         <referenceBlock name="minicart">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">

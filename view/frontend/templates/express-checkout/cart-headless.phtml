@@ -1,0 +1,34 @@
+<?php
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Magento\Framework\Escaper $escaper */
+/** @var Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless $viewModel */
+
+$viewModel = $block->getViewModel();
+$jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/express-checkout/cart/headless.js');
+$externalJsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/express-checkout/cart/express-checkout-cart-widget.js');
+?>
+
+<script>
+    if (typeof afterpayCartId === 'undefined') {
+        var afterpayCartId = "<?= /* @noEscape */ $viewModel->getCartId() ?>";
+    }
+    if (typeof afterpayStoreId === 'undefined') {
+        var afterpayStoreId = "<?= /* @noEscape */ $viewModel->getStoreId() ?>";
+    }
+    if (typeof afterpayLocaleCode === 'undefined') {
+        var afterpayLocaleCode = "<?= /* @noEscape */ $viewModel->getCountryCode() ?>";
+    }
+</script>
+
+<script src="<?= $escaper->escapeUrl($jsUrl) ?>" async></script>
+<script src="<?= $escaper->escapeUrl($externalJsUrl) ?>" async></script>
+
+<section id="headless-afterpay-cart-ec" class="headless-afterpay-ec hidden headless-afterpay-cart-ec">
+        <div class="afterpay-express-checkout-product-wrapper">
+            <button class="afterpay-express-button-cart">
+                <img src="https://static.afterpay.com/button/checkout-with-afterpay/white-on-black.svg"
+                     alt="<?= /* @noEscape */  __('Checkout with Afterpay') ?>" style="width: 267px;"/>
+            </button>
+            <div class="hiidden" id="afterpay-button-cart" data-afterpay-entry-point="cart"></div>
+        </div>
+</section>

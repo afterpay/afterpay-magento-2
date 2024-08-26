@@ -1,0 +1,28 @@
+<?php
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Magento\Framework\Escaper $escaper */
+/** @var Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless $viewModel */
+
+$viewModel = $block->getViewModel();
+$jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/express-checkout/minicart/headless.js');
+$externalJsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/express-checkout/minicart/express-checkout-minicart-widget.js');
+?>
+
+<script>
+    if (typeof afterpayLocaleCode === 'undefined') {
+        var afterpayLocaleCode = "<?= /* @noEscape */ $viewModel->getCountryCode() ?>";
+    }
+</script>
+
+<script src="<?= $escaper->escapeUrl($jsUrl) ?>" async></script>
+<script src="<?= $escaper->escapeUrl($externalJsUrl) ?>" async></script>
+
+<section id="headless-afterpay-minicart-ec" class="headless-afterpay-ec hidden headless-afterpay-minicart-ec">
+        <div class="afterpay-express-checkout-product-wrapper">
+            <button class="afterpay-express-button-minicart">
+                <img src="https://static.afterpay.com/button/checkout-with-afterpay/white-on-black.svg"
+                     alt="<?= /* @noEscape */ __('Checkout with Afterpay') ?>" style="width: 100%;"/>
+            </button>
+            <div class="hiidden" id="afterpay-button-minicart" data-afterpay-entry-point="mini-cart"></div>
+        </div>
+</section>

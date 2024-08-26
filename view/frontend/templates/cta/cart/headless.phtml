@@ -1,0 +1,21 @@
+<?php
+/** @var Afterpay\Afterpay\Block\Cta\CartHeadless $block */
+/** @var Afterpay\Afterpay\ViewModel\Container\Cta\Headless $viewModel */
+$viewModel = $block->getViewModel();
+$jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/cta/cart/headless.js');
+?>
+<script>
+    if (typeof afterpayCartId === 'undefined') {
+        var afterpayCartId = "<?= /* @noEscape */ $viewModel->getCartId() ?>";
+    }
+    if (typeof afterpayStoreId === 'undefined') {
+        var afterpayStoreId = "<?= /* @noEscape */ $viewModel->getStoreId() ?>";
+    }
+    if (typeof afterpayCurrency === 'undefined') {
+        var afterpayCurrency = "<?= /* @noEscape */ $viewModel->getCurrency() ?>";
+    }
+    if (typeof afterpayLocale === 'undefined') {
+        var afterpayLocale = "<?= /* @noEscape */ $viewModel->getLocale() ?>";
+    }
+</script>
+<script src="<?= /** @noEscape */ $jsUrl ?>" async></script>

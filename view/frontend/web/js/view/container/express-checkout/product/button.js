@@ -47,7 +47,7 @@ define([
                 }
                 this.onCartUpdated = $.Deferred();
                 this.onCartUpdated.done(() => parentOnCommenceCheckoutAfterpayMethod(actions))
-                    .fail(() => this._fail(actions, AfterPay.constants.SERVICE_UNAVAILABLE));
+                    .fail(() => this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE));
             }
         },
         _getOnComplete: function () {

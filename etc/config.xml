@@ -24,6 +24,18 @@
                     <allowed_merchant_countries>AU,NZ,US,CA</allowed_merchant_countries>
                 </expresscheckout>
                 <add_last_selected_ship_rate>1</add_last_selected_ship_rate>
+                <enable_product_page_headless>0</enable_product_page_headless>
+                <pdp_placement_after_selector>.product-info-main .product-info-price</pdp_placement_after_selector>
+                <pdp_placement_price_selector>.product-info-main .price-final_price .price-wrapper .price</pdp_placement_price_selector>
+                <pdp_placement_after_selector_bundle>#bundleSummary .price-configured_price</pdp_placement_after_selector_bundle>
+                <pdp_placement_price_selector_bundle>#bundleSummary .price-as-configured .price</pdp_placement_price_selector_bundle>
+                <enable_mini_cart_headless>0</enable_mini_cart_headless>
+                <mini_cart_placement_container_selector>#minicart-content-wrapper</mini_cart_placement_container_selector>
+                <mini_cart_placement_after_selector>#minicart-content-wrapper .subtotal</mini_cart_placement_after_selector>
+                <mini_cart_placement_price_selector>#minicart-content-wrapper .subtotal .price</mini_cart_placement_price_selector>
+                <enable_cart_page_headless>0</enable_cart_page_headless>
+                <cart_page_placement_after_selector>.cart-container .cart-summary #cart-totals</cart_page_placement_after_selector>
+                <cart_page_placement_price_selector>#cart-totals .grand.totals .price</cart_page_placement_price_selector>
             </afterpay>
         </payment>
         <csp>

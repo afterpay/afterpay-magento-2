@@ -30,6 +30,24 @@ type Query {
     afterpayConfig: afterpayConfigOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfig") @doc(description:"return Afterpay config")
 }
 
+type Mutation {
+    getAfterpayConfigPdp(input: getAfterpayConfigPdpInput): afterpayConfigPdpOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigPdp") @doc(description:"return Afterpay PDP config")
+    getAfterpayConfigCart(input: getAfterpayConfigCartInput): afterpayConfigCartOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigCart") @doc(description:"return Afterpay Cart config")
+    getAfterpayConfigMiniCart(input: getAfterpayConfigCartInput): afterpayConfigMiniCartOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigMiniCart") @doc(description:"return Afterpay Mini Cart config")
+}
+
+
+input getAfterpayConfigPdpInput {
+    store_id: String!
+    product_sku: String!
+}
+
+input getAfterpayConfigCartInput {
+    store_id: String!
+    cart_id: String!
+}
+
+
 type afterpayConfigOutput {
     max_amount: String
     min_amount: String
@@ -40,4 +58,56 @@ type afterpayConfigOutput {
     is_enabled_cta_checkout: Boolean
     api_mode: String
     mpid: String
+}
+
+type afterpayConfigPdpOutput {
+    max_amount: String
+    min_amount: String
+    allowed_currencies: [String]
+    is_enabled: Boolean
+    api_mode: String
+    mpid: String
+    is_enabled_cta_pdp_headless: Boolean
+    is_enabled_ec_pdp_headless: Boolean
+    product_type: String
+    show_lover_limit: Boolean
+    is_product_allowed: Boolean
+    is_cbt_enabled: Boolean
+    placement_after_selector: String
+    placement_after_selector_bundle: String
+    price_selector: String
+    price_selector_bundle: String
+}
+
+type afterpayConfigCartOutput {
+    allowed_currencies: [String]
+    is_enabled: Boolean
+    mpid: String
+    is_enabled_cta_cart_page_headless: Boolean
+    is_enabled_ec_cart_page_headless: Boolean
+    show_lover_limit: Boolean
+    is_product_allowed: Boolean
+    is_cbt_enabled: Boolean
+    placement_after_selector: String
+    price_selector: String
+    max_amount: String
+    min_amount: String
+    is_virtual: Boolean
+}
+
+type afterpayConfigMiniCartOutput {
+    allowed_currencies: [String]
+    is_enabled: Boolean
+    mpid: String
+    is_enabled_cta_minicart_headless: Boolean
+    is_enabled_ec_minicart_headless: Boolean
+    show_lover_limit: Boolean
+    is_product_allowed: Boolean
+    is_cbt_enabled: Boolean
+    placement_wrapper: String
+    placement_after_selector: String
+    price_selector: String
+    max_amount: String
+    min_amount: String
+    is_virtual: Boolean
 }

@@ -1,0 +1,13 @@
+<?php
+/** @var Afterpay\Afterpay\Block\Cta\ProductHeadless $block */
+/** @var Afterpay\Afterpay\ViewModel\Container\Cta\Headless $viewModel */
+$viewModel = $block->getViewModel();
+$jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/cta/pdp/headless.js');
+?>
+<script>
+    var afterpayProductSku = "<?= /* @noEscape */ $viewModel->getProductSku() ?>";
+    var afterpayStoreId = "<?= /* @noEscape */ $viewModel->getStoreId() ?>";
+    var afterpayCurrency = "<?= /* @noEscape */ $viewModel->getCurrency() ?>";
+    var afterpayLocale = "<?= /* @noEscape */ $viewModel->getLocale() ?>";
+</script>
+<script src="<?= /** @noEscape */ $jsUrl ?>" async></script>

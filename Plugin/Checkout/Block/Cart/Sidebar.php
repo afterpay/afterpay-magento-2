@@ -33,15 +33,18 @@ class Sidebar
         ) {
             $result = $this->ctaContainerViewModel->updateJsLayout(
                 $result,
-                !($this->config->getIsEnableCtaMiniCart() &&
-                    $this->ctaContainerViewModel->isContainerEnable())
+                !($this->config->getIsEnableCtaMiniCart()
+                    && $this->ctaContainerViewModel->isContainerEnable()
+                    && !$this->config->getIsEnableMiniCartHeadless())
             );
             $result = $this->expressCheckoutViewModel->updateJsLayout(
                 $result,
                 !($this->config->getIsEnableExpressCheckoutMiniCart() &&
-                    $this->expressCheckoutViewModel->isContainerEnable())
+                    $this->expressCheckoutViewModel->isContainerEnable()
+                    && !$this->config->getIsEnableMiniCartHeadless())
             );
         }
+
         return $result;
     }
 }

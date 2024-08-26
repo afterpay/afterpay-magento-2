@@ -53,10 +53,10 @@ define([
                     if (response && response.afterpay_token) {
                         actions.resolve(response.afterpay_token);
                     } else {
-                        this._fail(actions, AfterPay.constants.SERVICE_UNAVAILABLE);
+                        this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE);
                     }
                 }).fail(
-                    () => this._fail(actions, AfterPay.constants.SERVICE_UNAVAILABLE)
+                    () => this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE)
                 );
             }
         },
@@ -69,10 +69,10 @@ define([
                     if (response.success && Array.isArray(response.shippingOptions)) {
                         actions.resolve(response.shippingOptions);
                     } else {
-                        this._fail(actions, AfterPay.constants.SHIPPING_ADDRESS_UNSUPPORTED);
+                        this._fail(actions, Square.Marketplace.constants.SHIPPING_ADDRESS_UNSUPPORTED);
                     }
                 }).fail(
-                    () => this._fail(actions, AfterPay.constants.SHIPPING_ADDRESS_UNRECOGNIZED)
+                    () => this._fail(actions, Square.Marketplace.constants.SHIPPING_ADDRESS_UNRECOGNIZED)
                 );
             }
         },

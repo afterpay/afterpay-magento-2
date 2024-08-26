@@ -10,6 +10,11 @@
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\PDPLib</argument>
                 </arguments>
             </block>
+            <block name="afterpay.cta.pdp.headless" class="Afterpay\Afterpay\Block\Cta\ProductHeadless" template="Afterpay_Afterpay::cta/pdp/headless.phtml" before="-" ifconfig="payment/afterpay/enable_product_page_headless">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\Headless</argument>
+                </arguments>
+            </block>
             <block name="afterpay.express.checkout.pdp.lib" template="Afterpay_Afterpay::express-checkout/lib.phtml" before="-" >
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\PDPLib</argument>
@@ -17,7 +22,12 @@
             </block>
         </referenceBlock>
         <referenceContainer name="product.info.main">
-            <block name="afterpay.product.express.checkout" template="Afterpay_Afterpay::express-checkout/button.phtml" after="product.info.price" ifconfig="payment/afterpay/enable_express_checkout_product_page">
+            <block name="afterpay.product.express.checkout.headless" class="Afterpay\Afterpay\Block\ExpressCheckout\ProductHeadless" template="Afterpay_Afterpay::express-checkout/headless.phtml" after="product.info.price" ifconfig="payment/afterpay/enable_product_page_headless">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless</argument>
+                </arguments>
+            </block>
+            <block name="afterpay.product.express.checkout" class="Afterpay\Afterpay\Block\ExpressCheckout\Product" template="Afterpay_Afterpay::express-checkout/button.phtml" after="product.info.price" ifconfig="payment/afterpay/enable_express_checkout_product_page">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\ExpressCheckoutPdp</argument>
                     <argument name="jsLayout" xsi:type="array">
@@ -43,7 +53,7 @@
                     </argument>
                 </arguments>
             </block>
-            <block name="afterpay.product.cta" template="Afterpay_Afterpay::cta/container.phtml" before="afterpay.product.express.checkout" after="product.info.price" ifconfig="payment/afterpay/enable_cta_product_page">
+            <block name="afterpay.product.cta" class="Afterpay\Afterpay\Block\Cta\Product" template="Afterpay_Afterpay::cta/container.phtml" before="afterpay.product.express.checkout" after="product.info.price" ifconfig="payment/afterpay/enable_cta_product_page">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\Cta</argument>
                     <argument name="jsLayout" xsi:type="array">

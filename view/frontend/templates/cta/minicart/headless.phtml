@@ -1,0 +1,15 @@
+<?php
+/** @var Afterpay\Afterpay\Block\Cta\MiniCartHeadless $block */
+/** @var Afterpay\Afterpay\ViewModel\Container\Cta\Headless $viewModel */
+$viewModel = $block->getViewModel();
+$jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/cta/minicart/headless.js');
+?>
+<script>
+    if (typeof afterpayCurrency === 'undefined') {
+        var afterpayCurrency = "<?= /* @noEscape */ $viewModel->getCurrency() ?>";
+    }
+    if (typeof afterpayLocale === 'undefined') {
+        var afterpayLocale = "<?= /* @noEscape */ $viewModel->getLocale() ?>";
+    }
+</script>
+<script src="<?= /** @noEscape */ $jsUrl ?>" async></script>

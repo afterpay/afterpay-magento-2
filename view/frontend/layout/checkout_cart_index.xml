@@ -10,14 +10,37 @@
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\CartLib</argument>
                 </arguments>
             </block>
+            <block name="afterpay.cta.cart.page.headless" class="Afterpay\Afterpay\Block\Cta\CartHeadless" template="Afterpay_Afterpay::cta/cart/headless.phtml" before="-" ifconfig="payment/afterpay/enable_cart_page_headless">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\Headless</argument>
+                </arguments>
+            </block>
             <block name="afterpay.express.checkout.cart.lib" template="Afterpay_Afterpay::express-checkout/lib.phtml" before="-" >
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\CartLib</argument>
                 </arguments>
             </block>
+            <block name="afterpay.cart.express.checkout.headless"
+                   class="Afterpay\Afterpay\Block\ExpressCheckout\CartHeadless"
+                   template="Afterpay_Afterpay::express-checkout/cart-headless.phtml"
+                   after="-"
+                   ifconfig="payment/afterpay/enable_cart_page_headless">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless</argument>
+                </arguments>
+            </block>
+            <block name="afterpay.minicart.express.checkout.headless"
+                   class="Afterpay\Afterpay\Block\ExpressCheckout\MiniCartHeadless"
+                   template="Afterpay_Afterpay::express-checkout/minicart-headless.phtml"
+                   after="-"
+                   ifconfig="payment/afterpay/enable_mini_cart_headless">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless</argument>
+                </arguments>
+            </block>
         </referenceBlock>
         <referenceContainer name="checkout.cart.totals.container">
-            <block name="afterpay.cart.cta" template="Afterpay_Afterpay::cta/container.phtml" after="-" ifconfig="payment/afterpay/enable_cta_cart_page">
+            <block name="afterpay.cart.cta" class="Afterpay\Afterpay\Block\Cta\Cart"  template="Afterpay_Afterpay::cta/container.phtml" after="-" ifconfig="payment/afterpay/enable_cta_cart_page">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\Cta\Cta</argument>
                     <argument name="jsLayout" xsi:type="array">
@@ -43,7 +66,7 @@
                     </argument>
                 </arguments>
             </block>
-            <block name="afterpay.cart.express.checkout" template="Afterpay_Afterpay::express-checkout/button.phtml" after="-" ifconfig="payment/afterpay/enable_express_checkout_cart_page">
+            <block name="afterpay.cart.express.checkout" class="Afterpay\Afterpay\Block\ExpressCheckout\Cart" template="Afterpay_Afterpay::express-checkout/button.phtml" after="-" ifconfig="payment/afterpay/enable_express_checkout_cart_page">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\ExpressCheckout</argument>
                     <argument name="jsLayout" xsi:type="array">

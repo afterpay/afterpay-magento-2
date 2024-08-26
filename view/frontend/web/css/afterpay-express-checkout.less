@@ -13,9 +13,57 @@
 }
 .afterpay-express-checkout-minicart-wraper {
     margin: 0 10px 15px;
+    position: relative;
+    z-index: 9;
     .afterpay-express-button, button.afterpay-express-button:hover {
         width: 100%;
         cursor: pointer;
         text-align: center;
     }
+}
+
+.headless-afterpay-ec .afterpay-express-button,
+.headless-afterpay-ec button.afterpay-express-button:hover,
+.headless-afterpay-ec .afterpay-express-button-minicart, 
+.headless-afterpay-ec button.afterpay-express-button-minicart:hover {
+    background-image: none;
+    background: #000;
+    border: 1px solid #000;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-block;
+    float: none;
+    width: 267px;
+    max-width: 100%;
+    margin-top: 10px;
+}
+
+.headless-afterpay-ec .afterpay-express-button-minicart, 
+.headless-afterpay-ec button.afterpay-express-button-minicart:hover {
+    margin: 0 10px;
+    width: 100%;
+    max-width: 328px;
+    padding: 2px 15px;
+}
+
+.headless-afterpay-ec .afterpay-express-button-cart, 
+.headless-afterpay-ec button.afterpay-express-button-cart:hover {
+    background: #000;
+    border: none;
+}
+
+.headless-afterpay-ec.hidden {
+    display: none;
+}
+
+.checkout-onepage-success .success.message {
+    display: none;
+}
+
+.checkout-onepage-success .success.message.show-message {
+    display: block;
+}
+
+.hyva_checkout-index-index #payment-method-option-afterpay {
+    display: none;
 }

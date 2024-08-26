@@ -68,7 +68,9 @@ class CheckoutDataToQuoteHandler implements \Magento\Payment\Gateway\Response\Ha
         }
 
         $shippingInformation->setBillingAddress($address);
-        if (!$quote->isVirtual()) {
+        if ($quote->isVirtual()) {
+            $shippingInformation->setShippingAddress($address); // to avoid an error with gift cart registry
+        } else {
             $explodedShippingOption = explode('_', $response['shippingOptionIdentifier']);
             $carrierCode = array_shift($explodedShippingOption);
             $methodCode = implode('_', $explodedShippingOption);

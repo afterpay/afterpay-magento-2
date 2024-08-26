@@ -6,7 +6,7 @@
             <group id="afterpay" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Afterpay</label>
                 <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
-                <group id="basic" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                <group id="basic" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Basic Settings</label>
                     <field id="module_version" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Module Version</label>
@@ -95,10 +95,6 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/afterpay/enable_cta_mini_cart</config_path>
                     </field>
-                    <field id="sort_order" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Sort Order</label>
-                        <config_path>payment/afterpay/sort_order</config_path>
-                    </field>
                     <field id="exclude_categories" translate="label" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Exclude Categories</label>
                         <source_model>Afterpay\Afterpay\Model\Config\Source\Category</source_model>
@@ -119,23 +115,118 @@
                         <comment><![CDATA[In the event that Magento throws an exception while attempting to finalise an order after payment is approved by Afterpay, the payment can be reversed automatically. This may help to prevent scenarios where customers pay for orders that can't be fulfilled. <b>Not recommended if an external Order Management System (OMS) is in use.</b>]]></comment>
                     </field>
                 </group>
-                <group id="expresscheckout" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="expresscheckout" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Express Checkout Settings</label>
                     <frontend_model>Afterpay\Afterpay\Block\Adminhtml\System\Config\Fieldset\ExpressCheckout</frontend_model>
-                    <field id="enable_express_checkout_page" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="enable_express_checkout_page" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Display on Product Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/afterpay/enable_express_checkout_product_page</config_path>
                     </field>
-                    <field id="enable_express_checkout_cart_page" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="enable_express_checkout_cart_page" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Display on Cart Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/afterpay/enable_express_checkout_cart_page</config_path>
                     </field>
-                    <field id="enable_express_checkout_mini_cart" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="enable_express_checkout_mini_cart" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Display on Mini Cart</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/afterpay/enable_express_checkout_mini_cart</config_path>
+                    </field>
+                </group>
+                <group id="headless_settings" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Advanced Frontend Settings</label>
+                    <comment><![CDATA[These advanced settings facilitate the use of Afterpay assets for custom-built themes, such as Hyvä.]]></comment>
+
+                    <field id="enable_product_page_headless" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable for Product Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpay/enable_product_page_headless</config_path>
+                        <tooltip>Enable advanced assets settings for the Product Page.</tooltip>
+                    </field>
+                    <field id="pdp_placement_after_selector" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Placement selector (Product Page)</label>
+                        <config_path>payment/afterpay/pdp_placement_after_selector</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar  themes: <b style="white-space: nowrap;">.product-info-main .product-info-price</b><br> Default for Hyvä or similar  themes: <b style="white-space: nowrap;">.price-box.price-final_price</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_product_page_headless">1</field>
+                        </depends>
+                    </field>
+                    <field id="pdp_placement_price_selector" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Price selector (Product Page)</label>
+                        <config_path>payment/afterpay/pdp_placement_price_selector</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">.product-info-main .price-final_price .price-wrapper .price</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">.final-price .price-wrapper .price</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_product_page_headless">1</field>
+                        </depends>
+                    </field>
+                    <field id="pdp_placement_after_selector_bundle" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Placement selector (Bundle Product Page)</label>
+                        <config_path>payment/afterpay/pdp_placement_after_selector_bundle</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#bundleSummary .price-configured_price</b style="white-space: nowrap;"><br/> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#bundleSummary .product-details</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_product_page_headless">1</field>
+                        </depends>
+                    </field>
+                    <field id="pdp_placement_price_selector_bundle" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Price selector (Bundle Product Page)</label>
+                        <config_path>payment/afterpay/pdp_placement_price_selector_bundle</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#bundleSummary .price-as-configured .price</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#bundleSummary .price-wrapper .price</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_product_page_headless">1</field>
+                        </depends>
+                    </field>
+                    <field id="enable_cart_page_headless" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable for Cart Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpay/enable_cart_page_headless</config_path>
+                        <tooltip>Enable advanced assets settings for the Cart Page.</tooltip>
+                    </field>
+                    <field id="cart_page_placement_after_selector" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Placement selector (Cart Page)</label>
+                        <config_path>payment/afterpay/cart_page_placement_after_selector</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#cart-totals</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#cart-totals</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_cart_page_headless">1</field>
+                        </depends>
+                    </field>
+                    <field id="cart_page_placement_price_selector" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Price selector (Cart Page)</label>
+                        <config_path>payment/afterpay/cart_page_placement_price_selector</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#cart-totals .grand.totals .price</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#cart-totals > div:last-child [x-text="hyva.formatPrice(segment.value)"]</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_cart_page_headless">1</field>
+                        </depends>
+                    </field>
+                    <field id="enable_mini_cart_headless" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable for Mini cart</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/afterpay/enable_mini_cart_headless</config_path>
+                        <tooltip>Enable advanced assets settings for the Mini Cart.</tooltip>
+                    </field>
+                    <field id="mini_cart_placement_after_selector" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Placement selector (Mini Cart)</label>
+                        <config_path>payment/afterpay/mini_cart_placement_after_selector</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper .subtotal</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#cart-drawer [x-ref="cartDialogContent"] > div > div:last-child > div > div</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_mini_cart_headless">1</field>
+                        </depends>
+                    </field>
+                    <field id="mini_cart_placement_container_selector" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Container selector (Mini Cart)</label>
+                        <config_path>payment/afterpay/mini_cart_placement_container_selector</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#cart-drawer</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_mini_cart_headless">1</field>
+                        </depends>
+                    </field>
+                    <field id="mini_cart_placement_price_selector" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Price selector (Mini Cart)</label>
+                        <config_path>payment/afterpay/mini_cart_placement_price_selector</config_path>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper .subtotal .price</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">[x-html="cart.subtotal"]</b>]]></tooltip>
+                        <depends>
+                            <field id="enable_mini_cart_headless">1</field>
+                        </depends>
                     </field>
                 </group>
             </group>
