@@ -5,15 +5,17 @@ namespace Afterpay\Afterpay\Model\Payment\AmountProcessor;
 class CreditMemo
 {
     private \Afterpay\Afterpay\Model\Order\OrderItemProvider $orderItemProvider;
-
     private \Magento\Weee\Block\Item\Price\Renderer $priceRenderer;
+    private \Afterpay\Afterpay\Model\Config $config;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Order\OrderItemProvider $orderItemProvider,
-        \Magento\Weee\Block\Item\Price\Renderer $priceRenderer
+        \Magento\Weee\Block\Item\Price\Renderer          $priceRenderer,
+        \Afterpay\Afterpay\Model\Config                  $config
     ) {
         $this->orderItemProvider = $orderItemProvider;
         $this->priceRenderer = $priceRenderer;
+        $this->config = $config;
     }
 
     public function process(\Magento\Sales\Model\Order\Payment $payment): array
@@ -268,5 +270,4 @@ class CreditMemo
                 break;
         }
     }
-
 }
