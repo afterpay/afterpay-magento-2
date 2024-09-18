@@ -1,7 +1,3 @@
-type Mutation {
-    createAfterpayCheckout(input: createAfterpayCheckoutInput): createAfterpayCheckoutOutput @resolver(class: "\\Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\CreateAfterpayCheckout") @doc(description:"Creates an Afterpay Checkout.")
-}
-
 input createAfterpayCheckoutInput {
     cart_id: String!
     redirect_path: AfterpayRedirectPathInput! @doc(description:"A set of relative URLs that Afterpay uses in response to various actions during the authorization process")
@@ -31,6 +27,7 @@ type Query {
 }
 
 type Mutation {
+    createAfterpayCheckout(input: createAfterpayCheckoutInput): createAfterpayCheckoutOutput @resolver(class: "\\Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\CreateAfterpayCheckout") @doc(description:"Creates an Afterpay Checkout.")
     getAfterpayConfigPdp(input: getAfterpayConfigPdpInput): afterpayConfigPdpOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigPdp") @doc(description:"return Afterpay PDP config")
     getAfterpayConfigCart(input: getAfterpayConfigCartInput): afterpayConfigCartOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigCart") @doc(description:"return Afterpay Cart config")
     getAfterpayConfigMiniCart(input: getAfterpayConfigCartInput): afterpayConfigMiniCartOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigMiniCart") @doc(description:"return Afterpay Mini Cart config")
