@@ -60,7 +60,7 @@ class CaptureCommand
             $order->setState($state);
             $order->setStatus($status);
 
-            return __($message, $order->getBaseCurrency()->formatTxt($amount));
+            return __($message, $order->getOrderCurrency()->formatTxt($amount));
         }
 
         return $proceed($payment, $amount, $order);
