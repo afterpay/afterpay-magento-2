@@ -44,9 +44,9 @@ class DiscountHandler implements \Magento\Payment\Gateway\Response\HandlerInterf
         );
 
         if ($isCBTCurrency) {
-            return (float)($order->getGiftCardsAmount() + $order->getCustomerBalanceAmount());
+            return (float)($order->getGiftCardsAmount() + $order->getCustomerBalanceAmount() + $order->getRewardCurrencyAmount());
         } else {
-            return (float)($order->getBaseGiftCardsAmount() + $order->getBaseCustomerBalanceAmount());
+            return (float)($order->getBaseGiftCardsAmount() + $order->getBaseCustomerBalanceAmount() + $order->getBaseRewardCurrencyAmount());
         }
     }
 }

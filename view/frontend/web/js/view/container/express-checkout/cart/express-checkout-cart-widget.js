@@ -13,12 +13,14 @@ window.addEventListener("load", () => {
             ecButtonPlace: document.querySelector(".cart-container .cart-totals"),
             wrapElement: document.querySelector("#headless-afterpay-cart-ec"),
             isVirtual: false,
+            configData: '',
 
             init() {
                 let self = this;
                 document.addEventListener('showHeadlessCart', (event) => {
                     setTimeout(() => {
                         self.extractSectionData(event.detail.afterpayConfig);
+                        self.configData = event.detail.afterpayConfig;
                     }, 1000);
                 });
 
@@ -27,6 +29,19 @@ window.addEventListener("load", () => {
                         setTimeout(function() {
                             document.dispatchEvent(window.reloadCartPage);
                         }, 1000);
+                    }
+
+                    let element = e.target;
+
+                    while (element) {
+                        if (element.id === 'discount-coupon-form') {
+                            setTimeout(function() {
+                                self.extractSectionData(self.configData);
+                            }, 2000);
+                            break;
+                        }
+                        
+                        element = element.parentElement;
                     }
                 });
             },
@@ -44,9 +59,6 @@ window.addEventListener("load", () => {
                 }
 
                 if (this.ecButtonPlace) {
-                    if (document.querySelector('#afterpay-cta-cart')) {
-                        this.ecButtonPlace = document.querySelector('#afterpay-cta-cart');
-                    }
                     let afterpaySection = document.querySelector('.headless-afterpay-cart-ec');
                     if(!afterpaySection) {
                         afterpaySection = self.wrapElement;
@@ -99,10 +111,10 @@ window.addEventListener("load", () => {
             },
 
             getCurrentSubtotal () {
-                let currentCartData = JSON.parse(localStorage.getItem("mage-cache-storage"))?.cart;
+                let currentCartData = window?.checkoutConfig?.totalsData?.base_grand_total;
 
-                if(currentCartData && currentCartData?.subtotalAmount) {
-                    return +currentCartData?.subtotalAmount;
+                if(currentCartData) {
+                    return +currentCartData;
                 }
 
                 return 0;

@@ -12,10 +12,11 @@ class ExpressCheckoutPdp extends ExpressCheckout
         \Afterpay\Afterpay\Model\Config $config,
         \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider $notAllowedProductsProvider,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\Locale\Resolver $localeResolver,
         \Magento\Catalog\Helper\Data $catalogHelper,
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
     ) {
-        parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager);
+        parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager, $localeResolver);
         $this->catalogHelper = $catalogHelper;
         $this->productCollectionFactory = $productCollectionFactory;
     }
@@ -31,6 +32,8 @@ class ExpressCheckoutPdp extends ExpressCheckout
             if ($product) {
                 $config['isVirtual'] = $this->isProductVirtual($product);
             }
+            $config['buttonImageUrl'] = 'https://static.afterpay.com/'.str_replace("_","-",$this->localeResolver->getLocale()).'/integration/button/checkout-with-afterpay/white-on-black.svg';
+
         }
         return parent::updateJsLayout($jsLayoutJson, $remove, $containerNodeName, $config);
     }

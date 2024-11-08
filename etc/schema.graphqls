@@ -1,5 +1,8 @@
 type Mutation {
     createAfterpayCheckout(input: createAfterpayCheckoutInput): createAfterpayCheckoutOutput @resolver(class: "\\Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\CreateAfterpayCheckout") @doc(description:"Creates an Afterpay Checkout.")
+    getAfterpayConfigPdp(input: getAfterpayConfigPdpInput): afterpayConfigPdpOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigPdp") @doc(description:"return Afterpay PDP config")
+    getAfterpayConfigCart(input: getAfterpayConfigCartInput): afterpayConfigCartOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigCart") @doc(description:"return Afterpay Cart config")
+    getAfterpayConfigMiniCart(input: getAfterpayConfigCartInput): afterpayConfigMiniCartOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigMiniCart") @doc(description:"return Afterpay Mini Cart config")
 }
 
 input createAfterpayCheckoutInput {
@@ -29,13 +32,6 @@ input AfterpayInput {
 type Query {
     afterpayConfig: afterpayConfigOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfig") @doc(description:"return Afterpay config")
 }
-
-type Mutation {
-    getAfterpayConfigPdp(input: getAfterpayConfigPdpInput): afterpayConfigPdpOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigPdp") @doc(description:"return Afterpay PDP config")
-    getAfterpayConfigCart(input: getAfterpayConfigCartInput): afterpayConfigCartOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigCart") @doc(description:"return Afterpay Cart config")
-    getAfterpayConfigMiniCart(input: getAfterpayConfigCartInput): afterpayConfigMiniCartOutput @resolver(class: "Afterpay\\Afterpay\\Model\\GraphQl\\Resolver\\AfterpayConfigMiniCart") @doc(description:"return Afterpay Mini Cart config")
-}
-
 
 input getAfterpayConfigPdpInput {
     store_id: String!
@@ -77,6 +73,7 @@ type afterpayConfigPdpOutput {
     placement_after_selector_bundle: String
     price_selector: String
     price_selector_bundle: String
+    is_in_stock: Boolean
 }
 
 type afterpayConfigCartOutput {

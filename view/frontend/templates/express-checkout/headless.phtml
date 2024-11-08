@@ -26,7 +26,7 @@ $externalJsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/ex
 <section id="headless-afterpay-pdp-ec" class="headless-afterpay-ec hidden headless-afterpay-pdp-ec">
         <div class="afterpay-express-checkout-product-wrapper">
             <button class="afterpay-express-button afterpay-express-pdp-button">
-                <img src="https://static.afterpay.com/button/checkout-with-afterpay/white-on-black.svg"
+                <img src="https://static.afterpay.com/<?= /* @noEscape */ str_replace('_','-',$viewModel->getStoreLocale()) ?>/integration/button/checkout-with-afterpay/white-on-black.svg"
                      alt="<?= /* @noEscape */ __('Checkout with Afterpay') ?>" style="width: 267px;"/>
             </button>
             <div class="hiidden" id="afterpay-button-pdp" data-afterpay-entry-point="product-page"></div>

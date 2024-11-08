@@ -6,22 +6,33 @@ class PaymentDetailsHandler implements \Magento\Payment\Gateway\Response\Handler
 {
     private \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate $authExpiryDate;
 
+    private \Afterpay\Afterpay\Model\Order\CreditMemo\PaymentUpdater\Proxy $paymentUpdater;
+
     public function __construct(
-        \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate $authExpiryDate
+        \Afterpay\Afterpay\Model\Order\Payment\Auth\ExpiryDate   $authExpiryDate,
+        \Afterpay\Afterpay\Model\Order\CreditMemo\PaymentUpdater\Proxy $paymentUpdater
     ) {
         $this->authExpiryDate = $authExpiryDate;
+        $this->paymentUpdater = $paymentUpdater;
     }
 
     public function handle(array $handlingSubject, array $response): void
     {
         if (!isset($response['id'])) {
-            throw new \Magento\Payment\Gateway\Command\CommandException(
-                __(
-                    'Afterpay response error: Code: %1, Id: %2',
-                    $response['errorCode'] ?? '',
-                    $response['errorId'] ?? ''
-                )
-            );
+            if (isset($response['errorCode'], $response['errorId'])) {
+                throw new \Magento\Payment\Gateway\Command\CommandException(
+                    __(
+                        'Afterpay response error: Code: %1, Id: %2',
+                        $response['errorCode'],
+                        $response['errorId']
+                    )
+                );
+            }
+
+            $paymentDO = \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($handlingSubject);
+            $this->paymentUpdater->updatePayment($paymentDO->getPayment());
+
+            return;
         }
 
         $paymentDO = \Magento\Payment\Gateway\Helper\SubjectReader::readPayment($handlingSubject);

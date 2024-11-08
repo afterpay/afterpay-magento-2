@@ -72,7 +72,7 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
             'merchantReference' => $quote->getReservedOrderId(),
             'taxAmount' => [
                 'amount' => $this->formatPrice(
-                    $billingTaxAmount ?: $shippingTaxAmount
+                    (float)$billingTaxAmount ?: $shippingTaxAmount
                 ),
                 'currency' => $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode()
             ],

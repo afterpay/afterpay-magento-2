@@ -77,6 +77,7 @@
             <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\PaymentAction\RefundAndVoidDataBuilder</argument>
             <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\RefundTransferFactory</argument>
             <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler</argument>
             <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\RefundResponseValidator</argument>
         </arguments>
     </virtualType>
@@ -85,6 +86,7 @@
             <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\PaymentAction\ReversalDataBuilder</argument>
             <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\ReversalTransferFactory</argument>
             <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler</argument>
             <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\ReversalResponseValidator</argument>
         </arguments>
     </virtualType>

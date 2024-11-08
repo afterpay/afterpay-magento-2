@@ -9,6 +9,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\Registry;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Locale\Resolver;
 
 class Headless extends ExpressCheckout
 {
@@ -21,10 +22,11 @@ class Headless extends ExpressCheckout
         Config                     $config,
         NotAllowedProductsProvider $notAllowedProductsProvider,
         StoreManagerInterface      $storeManager,
+        Resolver                   $localeResolver,
         Session                    $checkoutSession,
         Registry                   $registry
     ) {
-        parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager);
+        parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager,$localeResolver);
         $this->checkoutSession = $checkoutSession;
         $this->registry = $registry;
     }
@@ -43,4 +45,10 @@ class Headless extends ExpressCheckout
     {
         return (string)$this->checkoutSession->getQuoteId();
     }
+
+    public function getStoreLocale(): string
+    {
+        return $this->localeResolver->getLocale();
+    }
+
 }

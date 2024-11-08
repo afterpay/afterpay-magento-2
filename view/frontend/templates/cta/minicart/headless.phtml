@@ -6,7 +6,7 @@ $jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/cta/minica
 ?>
 <script>
     if (typeof afterpayCurrency === 'undefined') {
-        var afterpayCurrency = "<?= /* @noEscape */ $viewModel->getCurrency() ?>";
+        window.afterpayCurrency = "<?= /* @noEscape */ $viewModel->getCurrency() ?>";
     }
     if (typeof afterpayLocale === 'undefined') {
         var afterpayLocale = "<?= /* @noEscape */ $viewModel->getLocale() ?>";

@@ -12,7 +12,7 @@ $jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/cta/cart/h
         var afterpayStoreId = "<?= /* @noEscape */ $viewModel->getStoreId() ?>";
     }
     if (typeof afterpayCurrency === 'undefined') {
-        var afterpayCurrency = "<?= /* @noEscape */ $viewModel->getCurrency() ?>";
+        window.afterpayCurrency = "<?= /* @noEscape */ $viewModel->getCurrency() ?>";
     }
     if (typeof afterpayLocale === 'undefined') {
         var afterpayLocale = "<?= /* @noEscape */ $viewModel->getLocale() ?>";

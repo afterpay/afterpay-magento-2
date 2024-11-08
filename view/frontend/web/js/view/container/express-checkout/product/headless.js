@@ -18,6 +18,7 @@
                         min_amount
                         price_selector
                         price_selector_bundle
+                        is_in_stock
                     }
                 }`;
 
@@ -42,7 +43,7 @@
                     }
                     const afterpayConfig = data.data.getAfterpayConfigPdp;
 
-                    if(afterpayConfig) {
+                    if (afterpayConfig && afterpayConfig?.is_in_stock && afterpayConfig?.is_product_allowed && afterpayConfig?.product_type != "grouped") {
                         const event = new CustomEvent('showHeadlessEC', { detail: { afterpayConfig} });
                         document.dispatchEvent(event);
                     }
