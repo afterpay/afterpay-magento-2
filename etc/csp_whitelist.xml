@@ -3,42 +3,51 @@
     <policies>
         <policy id="script-src">
             <values>
-                <value id="afterpay-sandbox-consumer-portal" type="host">https://portal.sandbox.afterpay.com</value>
-                <value id="afterpay-production-consumer-portal" type="host">https://portal.afterpay.com</value>
-                <value id="afterpay-cdn" type="host">https://static.afterpay.com</value>
+                <value id="afterpay" type="host">*.afterpay.com</value>
+                <value id="afterpay-cdn" type="host">*.afterpaycdn.com</value>
                 <value id="square-jslib" type="host">*.squarecdn.com</value>
-                <value id="hbiq-jslib" type="host">https://hbiq.net</value>
+                   <value id="cash-cdn" type="host">*.cash.app</value>
             </values>
         </policy>
 		<policy id="connect-src">
             <values>
                 <value id="afterpay-connect" type="host">*.afterpay.com</value>
+                <value id="afterpay-beta-connect" type="host">*.afterpay-beta.com</value>
+                <value id="afterpay-cdn-connect" type="host">*.afterpaycdn.com</value>
                 <value id="square-jslib-connect" type="host">*.squarecdn.com</value>
-                <value id="hbiq-jslib-connect" type="host">https://hbiq.net</value>
-                <value id="iq-sbox-connect" type="host">https://iq.afterpay-beta.com</value>
-                <value id="iq-prod-connect" type="host">https://iq.afterpay.com</value>
+                <value id="cash-cdn-connect" type="host">*.cash.app</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
-                <value id="afterpay-widget-connect" type="host">widgets.sandbox.afterpay.com</value>
+                <value id="afterpay-frame" type="host">*.afterpay.com</value>
+                <value id="afterpay-cdn-frame" type="host">*.afterpaycdn.com</value>
+                <value id="square-frame" type="host">*.squarecdn.com</value>
+                <value id="cash-cdn-frame" type="host">*.cash.app</value>
             </values>
         </policy>
 		<policy id="style-src">
         		<values>
-            		<value id="afterpay-cdn-style" type="host">static.afterpay.com/</value>
-            		<value id="square-jslib-style" type="host">*.squarecdn.com</value>
+            		<value id="afterpay-style" type="host">*.afterpay.com/</value>
+                    <value id="afterpay-cdn-style" type="host">*.afterpaycdn.com</value>
+                    <value id="square-jslib-style" type="host">*.squarecdn.com</value>
+                    <value id="cash-cdn-style" type="host">*.cash.app</value>
         		</values>
     	</policy>
 		<policy id="img-src">
             <values>
                 <value id="afterpay-img" type="host">*.afterpay.com/</value>
+                <value id="afterpay-cdn-img" type="host">*.afterpaycdn.com</value>
+                <value id="square-img" type="host">*.squarecdn.com</value>
+                <value id="cash-cdn-img" type="host">*.cash.app</value>
             </values>
         </policy>
         <policy id="font-src">
             <values>
+                <value id="afterpay-font" type="host">*.afterpay.com/</value>
+                <value id="afterpay-cdn-font" type="host">*.afterpaycdn.com</value>
                 <value id="square-cdn-font" type="host">*.squarecdn.com</value>
-            </values>
+                <value id="cash-cdn-font" type="host">*.cash.app</value>            </values>
         </policy>
     </policies>
 </csp_whitelist>
