@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="afterpay.cta.pdp.lib" remove="true"/>
+        <referenceBlock name="afterpay.cta.pdp.headless" remove="true"/>
+        <referenceBlock name="afterpay.express.checkout.pdp.lib" remove="true"/>
+        <referenceBlock name="afterpay.product.express.checkout.headless" remove="true"/>
+        <referenceBlock name="afterpay.product.express.checkout" remove="true"/>
+        <referenceBlock name="afterpay.product.cta" remove="true"/>
+    </body>
+</page>

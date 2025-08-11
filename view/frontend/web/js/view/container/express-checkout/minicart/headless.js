@@ -1,9 +1,7 @@
 (function (d, w, s) {
     let graphqlEndpoint = window.location.origin + '/graphql';
-    let configData,
-        cartId = '',
+    let cartId = '',
         storeId = '';
-    let lastKnownPrice = null;
 
     function fetchConfigData() {
         const query = `mutation {

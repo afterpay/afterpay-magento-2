@@ -20,9 +20,9 @@ $externalJsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/ex
 <section id="headless-afterpay-minicart-ec" class="headless-afterpay-ec hidden headless-afterpay-minicart-ec">
         <div class="afterpay-express-checkout-product-wrapper">
             <button class="afterpay-express-button-minicart">
-                <img src="https://static.afterpay.com/button/checkout-with-afterpay/white-on-black.svg"
-                     alt="<?= /* @noEscape */ __('Checkout with Afterpay') ?>" style="width: 100%;"/>
+                <img src="<?= $escaper->escapeUrl($viewModel->getImageurl()) ?>"
+                     alt="<?= /* @noEscape */ __('Checkout with Afterpay') ?>"/>
             </button>
-            <div class="hiidden" id="afterpay-button-minicart" data-afterpay-entry-point="mini-cart"></div>
+            <div class="hidden" id="afterpay-button-minicart" data-afterpay-entry-point="mini-cart"></div>
         </div>
 </section>

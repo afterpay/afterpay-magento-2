@@ -6,7 +6,7 @@ class UrlBuilder
 {
     public const TYPE_API = 'api_url';
     public const TYPE_JS_LIB = 'js_lib_url';
-
+    public const TYPE_FEATURE_FLAG_API = 'feature_flag_api_url';
     private UrlBuilder\UrlFactory $urlFactory;
 
     public function __construct(

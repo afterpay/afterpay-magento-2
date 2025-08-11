@@ -47,7 +47,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">Afterpay\Afterpay\Gateway\Request\PaymentAction\CaptureDataBuilder</argument>
             <argument name="transferFactory" xsi:type="object">Afterpay\Afterpay\Gateway\Http\CaptureTransferFactory</argument>
-            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\Client</argument>
+            <argument name="client" xsi:type="object">Afterpay\Afterpay\Gateway\Http\Client\CaptureClient</argument>
             <argument name="handler" xsi:type="object">Afterpay\Afterpay\Gateway\Response\CaptureHandler</argument>
             <argument name="validator" xsi:type="object">Afterpay\Afterpay\Gateway\Validator\CaptureResponseValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Afterpay\Afterpay\Gateway\ErrorMessageMapper\CaptureErrorMessageMapper</argument>
@@ -327,10 +327,12 @@
                 <item name="sandbox" xsi:type="array">
                     <item name="api_url" xsi:type="string">https://global-api-sandbox.afterpay.com/</item>
                     <item name="js_lib_url" xsi:type="string">https://js-sandbox.squarecdn.com/</item>
+                    <item name="feature_flag_api_url" xsi:type="string">https://ecommerce-api.sandbox.afterpay.com/feature-flag/</item>
                 </item>
                 <item name="production" xsi:type="array">
                     <item name="api_url" xsi:type="string">https://global-api.afterpay.com/</item>
                     <item name="js_lib_url" xsi:type="string">https://js.squarecdn.com/</item>
+                    <item name="feature_flag_api_url" xsi:type="string">https://ecommerce-api.afterpay.com/feature-flag/</item>
                 </item>
             </argument>
         </arguments>
@@ -395,5 +397,33 @@
     </type>
     <type name="Magento\Quote\Api\CartManagementInterface">
         <plugin name="afterpay_check_is_redirect" type="Afterpay\Afterpay\Plugin\Quote\CheckoutManagement"/>
+    </type>
+    <type name="Afterpay\Afterpay\Observer\AuthCaptureBeforeCompleteOrder">
+        <arguments>
+            <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
+        </arguments>
+    </type>
+
+    <type name="Afterpay\Afterpay\Model\FeatureFlag\Client">
+        <arguments>
+            <argument name="debugLogger" xsi:type="object">AfterpayDebugLogger</argument>
+            <argument name="client" xsi:type="object" shared="false">Magento\Framework\HTTP\ClientInterface</argument>
+        </arguments>
+    </type>
+
+    <type name="Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler">
+        <arguments>
+            <argument name="paymentUpdater" xsi:type="object">Afterpay\Afterpay\Model\Order\CreditMemo\PaymentUpdater\Proxy</argument>
+        </arguments>
+    </type>
+
+    <type name="Afterpay\Afterpay\Model\Url\UrlBuilder">
+        <arguments>
+            <argument name="urlFactory" xsi:type="object">Afterpay\Afterpay\Model\Url\UrlBuilder\UrlFactory\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Handler\State">
+        <plugin name="afterpay_around_order_state_handler"
+                type="Afterpay\Afterpay\Plugin\Sales\ResourceModel\Order\Handler\State"/>
     </type>
 </config>

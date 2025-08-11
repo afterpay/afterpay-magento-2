@@ -40,7 +40,7 @@ window.addEventListener("load", () => {
                             }, 2000);
                             break;
                         }
-                        
+
                         element = element.parentElement;
                     }
                 });
@@ -59,6 +59,10 @@ window.addEventListener("load", () => {
                 }
 
                 if (this.ecButtonPlace) {
+                    if (document.querySelector('#afterpay-cta-cart')) {
+                        this.ecButtonPlace = document.querySelector('#afterpay-cta-cart');
+                    }
+
                     let afterpaySection = document.querySelector('.headless-afterpay-cart-ec');
                     if(!afterpaySection) {
                         afterpaySection = self.wrapElement;

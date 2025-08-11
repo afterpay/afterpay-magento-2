@@ -3,6 +3,7 @@ var config = {
         '*': {
             "afterpayBaseContainer": "Afterpay_Afterpay/js/view/container/container",
             "afterpayCta": "Afterpay_Afterpay/js/view/container/cta/cta",
+            "afterpayCtaPdp": "Afterpay_Afterpay/js/view/container/cta/pdp/cta",
             "afterpayExpressCheckoutButton": "Afterpay_Afterpay/js/view/container/express-checkout/button",
             "afterpayExpressCheckoutButtonPdp": "Afterpay_Afterpay/js/view/container/express-checkout/product/button"
         }

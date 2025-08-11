@@ -59,8 +59,8 @@
                     <argument name="jsLayout" xsi:type="array">
                         <item name="components" xsi:type="array">
                             <item name="afterpay.cta" xsi:type="array">
-                                <item name="component" xsi:type="string">afterpayCta</item>
-                                <item name="template" xsi:type="string">Afterpay_Afterpay/cta/cta</item>
+                                <item name="component" xsi:type="string">afterpayCtaPdp</item>
+                                <item name="template" xsi:type="string">Afterpay_Afterpay/cta/pdp/cta</item>
                                 <item name="config" xsi:type="array">
                                     <item name="id" xsi:type="string">afterpay-cta-pdp</item>
                                     <item name="pageType" xsi:type="string">product</item>

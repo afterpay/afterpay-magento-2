@@ -13,7 +13,7 @@ class IsCBTAvailable implements \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAva
         $this->config = $config;
     }
 
-    public function check(string $currencyCode, float $amount = null): bool
+    public function check(string $currencyCode, ?float $amount = null): bool
     {
         $cbtCurrencies = $this->config->getCbtCurrencyLimits();
 

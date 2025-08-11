@@ -6,9 +6,9 @@ class Client implements \Magento\Payment\Gateway\Http\ClientInterface
 {
     protected \Magento\Framework\HTTP\ClientInterface $client;
     protected \Magento\Framework\Serialize\SerializerInterface $serializer;
-    private \Psr\Log\LoggerInterface $logger;
-    private \Magento\Payment\Model\Method\Logger $debugLogger;
-    private \Magento\Framework\App\RequestInterface $request;
+    protected \Psr\Log\LoggerInterface $logger;
+    protected \Magento\Payment\Model\Method\Logger $debugLogger;
+    protected \Magento\Framework\App\RequestInterface $request;
 
     public function __construct(
         \Magento\Framework\HTTP\ClientInterface          $client,

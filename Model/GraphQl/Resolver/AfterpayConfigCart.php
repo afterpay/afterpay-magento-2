@@ -42,11 +42,11 @@ class AfterpayConfigCart extends AfterpayConfig implements ResolverInterface
      * @throws \Exception
      */
     public function resolve(
-        Field       $field,
-                    $context,
+        Field $field,
+        $context,
         ResolveInfo $info,
-        array       $value = null,
-        array       $args = null
+        ?array $value = null,
+        ?array $args = null
     ) {
         if (!$args || !$args['input']) {
             throw new \InvalidArgumentException('Required params cart_id and redirect_path are missing');

@@ -109,5 +109,9 @@ define([
             }
             return checkoutUrl + args;
         },
+
+        isUs: function () {
+            return this.getCurrency() === 'USD';
+        },
     });
 });

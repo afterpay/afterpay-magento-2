@@ -16,4 +16,7 @@
         <observer name="afterpay_auth_capture_after_creditmemo"
                   instance="Afterpay\Afterpay\Observer\AuthCaptureAfterCreditMemo"/>
     </event>
+    <event name="sales_order_save_before">
+        <observer name="afterpay_auth_capture_before_complete_order" instance="Afterpay\Afterpay\Observer\AuthCaptureBeforeCompleteOrder"/>
+    </event>
 </config>

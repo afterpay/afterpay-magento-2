@@ -32,8 +32,13 @@ class CreateAfterpayCheckout implements ResolverInterface
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null): array
-    {
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        ?array $value = null,
+        ?array $args = null
+    ): array {
         try {
             /** @phpstan-ignore-next-line */
             $websiteId = $context->getExtensionAttributes()->getStore()->getWebsiteId();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Afterpay\Afterpay\ViewModel\Container\ExpressCheckout;
 
 use Afterpay\Afterpay\Model\Config;
+use Afterpay\Afterpay\Model\Config\Source\ApiMode;
 use Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Registry;
@@ -46,9 +47,11 @@ class Headless extends ExpressCheckout
         return (string)$this->checkoutSession->getQuoteId();
     }
 
-    public function getStoreLocale(): string
+    public function getImageurl(): string
     {
-        return $this->localeResolver->getLocale();
-    }
+        $urlPrefix = $this->config->getApiMode() === ApiMode::SANDBOX ? 'static.sandbox' : 'static';
+        $localePart = str_replace('_', '-', $this->localeResolver->getLocale());
 
+        return "https://$urlPrefix.afterpay.com/$localePart/integration/button/checkout-with-afterpay/white-on-black.svg";
+    }
 }

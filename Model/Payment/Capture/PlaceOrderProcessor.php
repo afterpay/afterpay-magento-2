@@ -66,6 +66,10 @@ class PlaceOrderProcessor
                     ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
             }
 
+            if (!$payment->getQuote() || !$payment->getQuote()->getId()) {
+                $payment->setQuote($quote);
+            }
+
             $checkoutDataCommand->execute(['payment' => $this->paymentDataObjectFactory->create($payment)]);
             $this->checkoutSession->setAfterpayRedirect(true);
 

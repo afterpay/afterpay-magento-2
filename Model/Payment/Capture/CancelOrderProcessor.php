@@ -41,7 +41,7 @@ class CancelOrderProcessor
      * @throws LocalizedException
      * @throws \Throwable
      */
-    public function execute(\Magento\Quote\Model\Quote\Payment $payment, int $quoteId, \Throwable $e = null): void
+    public function execute(\Magento\Quote\Model\Quote\Payment $payment, int $quoteId, ?\Throwable $e = null): void
     {
         if (!$this->config->getIsReversalEnabled()) {
             return;

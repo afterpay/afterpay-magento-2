@@ -52,8 +52,8 @@ class ShippingAddressUpdater
             $quoteShippingAddress->setCity($shippingAddress['suburb']);
             $quoteShippingAddress->setPostcode($shippingAddress['postcode']);
             $quoteShippingAddress->setRegionId(
-                $this->region->loadByCode($shippingAddress['state'], $shippingAddress['countryCode'])
-                    ->getId()
+                $this->region->loadByCode($shippingAddress['state'], $shippingAddress['countryCode'])->getId()
+                ?? $this->region->loadByName($shippingAddress['state'], $shippingAddress['countryCode'])->getId()
             );
             $quoteShippingAddress->setRegion($shippingAddress['state']);
             $quoteShippingAddress->setTelephone($shippingAddress['phoneNumber']);

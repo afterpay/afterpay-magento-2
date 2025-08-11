@@ -17,7 +17,7 @@ class Logger extends \Magento\Payment\Model\Method\Logger
     /**
      * @inheritDoc
      */
-    public function debug(array $data, array $maskKeys = null, $forceDebug = null)
+    public function debug(array $data, ?array $maskKeys = null, $forceDebug = null)
     {
         if ($forceDebug === null) {
             $forceDebug = $this->forceDebug ? true : null;

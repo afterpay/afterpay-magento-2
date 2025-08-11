@@ -23,18 +23,18 @@ class ExpressCheckoutPdp extends ExpressCheckout
 
     public function updateJsLayout(
         string $jsLayoutJson,
-        bool $remove = false,
+        bool   $remove = false,
         string $containerNodeName = 'afterpay.express.checkout',
-        array $config = []
+        array  $config = []
     ): string {
         if (!$remove && $this->isContainerEnable()) {
             $product = $this->catalogHelper->getProduct();
             if ($product) {
                 $config['isVirtual'] = $this->isProductVirtual($product);
             }
-            $config['buttonImageUrl'] = 'https://static.afterpay.com/'.str_replace("_","-",$this->localeResolver->getLocale()).'/integration/button/checkout-with-afterpay/white-on-black.svg';
-
+            $config['buttonImageUrl'] = $this->getImageurl();
         }
+
         return parent::updateJsLayout($jsLayoutJson, $remove, $containerNodeName, $config);
     }
 

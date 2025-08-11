@@ -7,15 +7,18 @@ class CheckoutDataToQuoteHandler implements \Magento\Payment\Gateway\Response\Ha
     private \Magento\Checkout\Api\ShippingInformationManagementInterface $shippingInformationManagement;
     private \Magento\Checkout\Api\Data\ShippingInformationInterfaceFactory $shippingInformationFactory;
     private \Magento\Quote\Api\Data\AddressInterfaceFactory $addressInterfaceFactory;
+    private \Magento\Directory\Model\Region $region;
 
     public function __construct(
         \Magento\Checkout\Api\ShippingInformationManagementInterface $shippingInformationManagement,
         \Magento\Checkout\Api\Data\ShippingInformationInterfaceFactory $shippingInformationFactory,
-        \Magento\Quote\Api\Data\AddressInterfaceFactory $addressInterfaceFactory
+        \Magento\Quote\Api\Data\AddressInterfaceFactory $addressInterfaceFactory,
+        \Magento\Directory\Model\Region $region
     ) {
         $this->shippingInformationManagement = $shippingInformationManagement;
         $this->shippingInformationFactory = $shippingInformationFactory;
         $this->addressInterfaceFactory = $addressInterfaceFactory;
+        $this->region = $region;
     }
 
     public function handle(array $handlingSubject, array $response): void
@@ -60,7 +63,11 @@ class CheckoutDataToQuoteHandler implements \Magento\Payment\Gateway\Response\Ha
             ->setCountryId($response['shipping']['countryCode'])
             ->setStreet([$response['shipping']['line1']])
             ->setPostcode($response['shipping']['postcode'])
-            ->setRegion($response['shipping']['region'] ?? '');
+            ->setRegion($response['shipping']['region'] ?? '')
+            ->setRegionId(
+                $this->region->loadByCode($address->getRegion(), $address->getCountryId())->getId()
+                ?? $this->region->loadByName($address->getRegion(), $address->getCountryId())->getId()
+            );
         if (isset($response['shipping']['line2']) && $streetLine2 = $response['shipping']['line2']) {
             /** @var string[] $street */
             $street = array_merge($address->getStreet(), [$streetLine2]);

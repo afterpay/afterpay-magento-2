@@ -53,8 +53,8 @@ class PaymentErrorProcessor
             }
         }
 
-        if ($e instanceof CommandException && $e->getMessage() === CaptureErrorMessageMapper::STATUS_DECLINED_ERROR_MESSAGE) {
-            throw $e;
+        if ($e->getMessage() === CaptureErrorMessageMapper::STATUS_DECLINED_ERROR_MESSAGE) {
+            throw new LocalizedException(__($e->getMessage()));
         }
 
         $this->cancelOrderProcessor->execute($payment, (int)$quote->getId(), $e);
