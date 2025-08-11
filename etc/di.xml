@@ -398,4 +398,9 @@
     <type name="Magento\Quote\Api\CartManagementInterface">
         <plugin name="afterpay_check_is_redirect" type="Afterpay\Afterpay\Plugin\Quote\CheckoutManagement"/>
     </type>
+    <type name="Afterpay\Afterpay\Observer\AuthCaptureBeforeCompleteOrder">
+        <arguments>
+            <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
+        </arguments>
+    </type>
 </config>

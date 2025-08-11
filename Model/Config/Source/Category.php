@@ -37,6 +37,11 @@ class Category implements \Magento\Framework\Data\OptionSourceInterface
                 $this->renderSubCategory($subCatData, $optionsResult);
             }
         }
+
+        if (!isset($categoryData['level']) || !is_numeric($categoryData['level']) || $categoryData['level'] < 2) {
+            return;
+        }
+
         $optionsResult[] = [
             'label' => str_repeat('―', $categoryData['level'] - 2) . $categoryData['label'],
             'value' => $categoryData['id']
@@ -49,7 +54,7 @@ class Category implements \Magento\Framework\Data\OptionSourceInterface
 
         $this->storeManager->setCurrentStore($this->getStoreIdByRequest() ?? $currentStoreId);
         $this->categorySourceRegistry->setShowAllCategories(true);
-        /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $categories */
+        /** @var \Magento\Framework\Data\Collection $categories */
         $categories = $this->categoryHelper->getStoreCategories(false, true);
         $this->categorySourceRegistry->setShowAllCategories(false);
         $this->storeManager->setCurrentStore($currentStoreId);
@@ -57,7 +62,7 @@ class Category implements \Magento\Framework\Data\OptionSourceInterface
         return $this->convertToTree($categories);
     }
 
-    private function convertToTree(\Magento\Catalog\Model\ResourceModel\Category\Collection $categories): array
+    private function convertToTree(\Magento\Framework\Data\Collection $categories): array
     {
         $categoryById = [];
         foreach ($categories as $category) {

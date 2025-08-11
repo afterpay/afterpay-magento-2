@@ -34,7 +34,7 @@ class CaptureCommand
         \Magento\Sales\Api\Data\OrderPaymentInterface           $payment,
                                                                 $amount,
         \Magento\Sales\Api\Data\OrderInterface                  $order
-    ): \Magento\Framework\Phrase {
+    ) {
         if ($payment->getMethod() === \Afterpay\Afterpay\Gateway\Config\Config::CODE) {
             $state = Order::STATE_PROCESSING;
             $status = null;

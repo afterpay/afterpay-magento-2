@@ -1,0 +1,18 @@
+<!-- ko if: ($data.dataCurrency)-->
+<square-placement
+    data-bind="attr: {
+            'id': id,
+            'data-show-lower-limit': dataShowLowerLimit,
+            'data-currency': dataCurrency,
+            'data-is-eligible': dataIsEligible,
+            'data-amount-selector': dataAmountSelector,
+            'data-mpid':dataMPID,
+            'data-cbt-enabled': dataCbtEnabledString,
+            'data-platform': dataPlatform,
+            'data-page-type': pageType
+        },
+        afterRender: onRendered,
+        visible: isVisible
+"
+></square-placement>
+<!-- /ko -->

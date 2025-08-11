@@ -6,19 +6,18 @@ class CaptureVirtualProductsHandler implements \Magento\Payment\Gateway\Response
 {
     private $authCaptureCommand;
     private $paymentDataObjectFactory;
-    private $orderAmountProcessor;
+    private $virtualProductsAmountProcessor;
     private $voidCommand;
 
     public function __construct(
-        \Magento\Payment\Gateway\CommandInterface                       $authCaptureCommand,
-        \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface $paymentDataObjectFactory,
-        \Afterpay\Afterpay\Model\Payment\AmountProcessor\Order          $orderAmountProcessor,
-        \Magento\Payment\Gateway\CommandInterface                       $voidCommand
-    )
-    {
+        \Magento\Payment\Gateway\CommandInterface                        $authCaptureCommand,
+        \Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface  $paymentDataObjectFactory,
+        \Afterpay\Afterpay\Model\Payment\AmountProcessor\VirtualProducts $virtualProductsAmountProcessor,
+        \Magento\Payment\Gateway\CommandInterface                        $voidCommand
+    ) {
         $this->authCaptureCommand = $authCaptureCommand;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
-        $this->orderAmountProcessor = $orderAmountProcessor;
+        $this->virtualProductsAmountProcessor = $virtualProductsAmountProcessor;
         $this->voidCommand = $voidCommand;
     }
 
@@ -41,7 +40,7 @@ class CaptureVirtualProductsHandler implements \Magento\Payment\Gateway\Response
         );
 
         if (count($itemsToCapture)) {
-            $amountToCapture = $this->orderAmountProcessor->process($itemsToCapture, $payment);
+            $amountToCapture = $this->virtualProductsAmountProcessor->process($itemsToCapture, $payment);
             if ($amountToCapture > 0) {
                 try {
                     $this->authCaptureCommand->execute([
