@@ -21,6 +21,7 @@
                  placement_wrapper
                  placement_after_selector
                  price_selector
+                 placement_id
              }
          }`;
 
@@ -52,12 +53,12 @@
                             squarePlacementId = 'afterpay-cta-mini-cart',
                             minicartBodyWidgetContainer = afterpayConfig.placement_wrapper,
                             widgetContainer = afterpayConfig.placement_after_selector,
-                            priceWrapper = afterpayConfig.price_selector;
+                            priceWrapper = afterpayConfig.price_selector,
+                            placementId = afterpayConfig.placement_id;
 
                         return {
                             dataShowLowerLimit: dataShowLowerLimit,
                             dataCurrency: afterpayCurrency,
-                            dataLocale: afterpayLocale,
                             dataIsEligible: dataIsEligible,
                             dataMPID: dataMPID,
                             dataCbtEnabledString: dataCbtEnabledString,
@@ -66,7 +67,8 @@
                             minicartBodyWidgetContainer: minicartBodyWidgetContainer,
                             widgetContainer: widgetContainer,
                             squarePlacementId: squarePlacementId,
-                            priceWrapper: priceWrapper
+                            priceWrapper: priceWrapper,
+                            placementId: placementId
                         };
                     } else {
                         return null;
@@ -119,7 +121,7 @@
     }
 
     function waitForStorageData() {
-        let interval = setInterval(function () {
+        let interval = setInterval(() => {
             let result = observeLocalStorageEmptyCartChanges();
             if (result) {
                 clearInterval(interval);
@@ -212,16 +214,37 @@
         let wrapperHtml = document.querySelector(configData.widgetContainer),
             dataCurrency = configData?.dataCurrency ? configData.dataCurrency : window.afterpayCurrency;
 
+        if (!wrapperHtml && configData.widgetContainer) {
+            if (typeof window.waitForSelector === 'function') {
+                window.waitForSelector(configData.widgetContainer)
+                    .then((element) => {
+                        updateHtml(element, amount, dataCurrency);
+                    });
+            } else {
+                let interval = setInterval(() => {
+                    wrapperHtml = document.querySelector(configData.widgetContainer);
+                    if (wrapperHtml) {
+                        clearInterval(interval);
+                        updateHtml(wrapperHtml, amount, dataCurrency);
+                    }
+                }, 1000);
+            }
+        } else {
+            updateHtml(wrapperHtml, amount, dataCurrency);
+        }
+    }
+
+    function updateHtml(wrapperHtml, amount, dataCurrency) {
         const blockHtml = '<square-placement id="' + configData.squarePlacementId + '"' +
             'data-show-lower-limit="' + configData.dataShowLowerLimit + '"' +
             'data-currency="' + dataCurrency + '"' +
-            'data-locale="' + configData.dataLocale + '"' +
             'data-is-eligible="' + configData.dataIsEligible + '"' +
             'data-amount="' + amount + '"' +
             'data-mpid="' + configData.dataMPID + '"' +
             'data-cbt-enabled="' + configData.dataCbtEnabledString + '"' +
             'data-platform="' + configData.dataPlatform + '"' +
-            'data-page-type="' + configData.dataPageType + '"></square-placement>';
+            'data-page-type="' + configData.dataPageType + '"' +
+            'data-placement-id="' + configData.placementId + '"></square-placement>';
 
         if (wrapperHtml) {
             wrapperHtml.insertAdjacentHTML('afterend', blockHtml);

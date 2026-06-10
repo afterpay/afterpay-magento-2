@@ -16,6 +16,7 @@
                         placement_after_selector_bundle
                         price_selector
                         price_selector_bundle
+                        placement_id
                     }
                 }`;
 
@@ -48,12 +49,12 @@
                             widgetContainer = afterpayConfig.placement_after_selector,
                             widgetContainerBundle = afterpayConfig.placement_after_selector_bundle,
                             priceWrapper = afterpayConfig.price_selector,
-                            priceWrapperBundle = afterpayConfig.price_selector_bundle;
+                            priceWrapperBundle = afterpayConfig.price_selector_bundle,
+                            placementId = afterpayConfig.placement_id;
 
                         return {
                             dataShowLowerLimit: dataShowLowerLimit,
                             dataCurrency: afterpayCurrency,
-                            dataLocale: afterpayLocale,
                             dataIsEligible: dataIsEligible,
                             dataMPID: dataMPID,
                             dataCbtEnabledString: dataCbtEnabledString,
@@ -64,7 +65,8 @@
                             widgetContainerBundle: widgetContainerBundle,
                             squarePlacementId: squarePlacementId,
                             priceWrapper: priceWrapper,
-                            priceWrapperBundle: priceWrapperBundle
+                            priceWrapperBundle: priceWrapperBundle,
+                            placementId: placementId
                         };
                     } else {
                         return null;
@@ -94,22 +96,45 @@
     function updateAfterpayAmount(configData) {
         let wrapperHtml = document.querySelector(configData.widgetContainer),
             priceWrapper = configData.priceWrapper;
+        let selector = configData.widgetContainer;
 
         if (configData.dataProductType === 'bundle') {
             wrapperHtml = document.querySelector(configData.widgetContainerBundle);
             priceWrapper = configData.priceWrapperBundle;
+            selector = configData.widgetContainerBundle;
         }
 
+        if (!wrapperHtml && selector) {
+            if (typeof window.waitForSelector === 'function') {
+                window.waitForSelector(selector)
+                    .then((element) => {
+                        updateHtml(element, priceWrapper, configData);
+                    });
+            } else {
+                let interval = setInterval(() => {
+                    wrapperHtml = document.querySelector(selector);
+                    if (wrapperHtml) {
+                        clearInterval(interval);
+                        updateHtml(wrapperHtml, priceWrapper, configData);
+                    }
+                }, 1000);
+            }
+        } else {
+            updateHtml(wrapperHtml, priceWrapper, configData);
+        }
+    }
+
+    function updateHtml(wrapperHtml, priceWrapper, configData) {
         const blockHtml = '<square-placement id="' + configData.squarePlacementId + '"' +
             'data-show-lower-limit="' + configData.dataShowLowerLimit + '"' +
             'data-currency="' + configData.dataCurrency + '"' +
-            'data-locale="' + configData.dataLocale + '"' +
             'data-is-eligible="' + configData.dataIsEligible + '"' +
             'data-amount-selector="' + priceWrapper + '"' +
             'data-mpid="'+ configData.dataMPID + '"' +
             'data-cbt-enabled="'+ configData.dataCbtEnabledString + '"' +
             'data-platform="'+ configData.dataPlatform + '"' +
-            'data-page-type="' + configData.dataPageType + '"></square-placement>';
+            'data-page-type="' + configData.dataPageType + '"' +
+            'data-placement-id="' + configData.placementId + '"></square-placement>';
 
         if (wrapperHtml) {
             wrapperHtml.insertAdjacentHTML('afterend', blockHtml);

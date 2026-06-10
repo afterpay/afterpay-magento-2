@@ -4,8 +4,22 @@
 /** @var Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless $viewModel */
 
 $viewModel = $block->getViewModel();
+$utilityJsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/service/utils/wait-for-selector.js');
 $jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/express-checkout/minicart/headless.js');
 $externalJsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/express-checkout/minicart/express-checkout-minicart-widget.js');
+
+$loadingHtml = '';
+// Check if Hyva theme is active
+$isHyva = $viewModel->isHyva();
+if ($isHyva) {
+    $loadingHtml = $block->getChildHtml('loading');
+    if (!$loadingHtml) {
+        $loadingHtml = $block->getLayout()
+            ->createBlock(\Magento\Framework\View\Element\Template::class)
+            ->setTemplate('Afterpay_Afterpay::hyva/ui/loading.phtml')
+            ->toHtml();
+    }
+}
 ?>
 
 <script>
@@ -14,15 +28,39 @@ $externalJsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/ex
     }
 </script>
 
+<script src="<?= $escaper->escapeUrl($utilityJsUrl) ?>"></script>
 <script src="<?= $escaper->escapeUrl($jsUrl) ?>" async></script>
 <script src="<?= $escaper->escapeUrl($externalJsUrl) ?>" async></script>
+<?php if ($isHyva): ?>
+<script>
+    'use strict';
 
-<section id="headless-afterpay-minicart-ec" class="headless-afterpay-ec hidden headless-afterpay-minicart-ec">
-        <div class="afterpay-express-checkout-product-wrapper">
-            <button class="afterpay-express-button-minicart">
-                <img src="<?= $escaper->escapeUrl($viewModel->getImageurl()) ?>"
-                     alt="<?= /* @noEscape */ __('Checkout with Afterpay') ?>"/>
-            </button>
-            <div class="hidden" id="afterpay-button-minicart" data-afterpay-entry-point="mini-cart"></div>
-        </div>
+    function initHyvaMinicartLoaderComponent() {
+        return {
+            isLoading: false,
+            startLoaderMinicart() {
+                this.isLoading = true;
+            },
+            stopLoaderMinicart() {
+                this.isLoading = false;
+            }
+        }
+    }
+</script>
+<?php endif; ?>
+
+<section <?= $isHyva ? 'x-data="initHyvaMinicartLoaderComponent()" @start-loader-minicart.window="startLoaderMinicart()" @processStop.window="stopLoaderMinicart()"' : '' ?> id="headless-afterpay-minicart-ec"
+         class="headless-afterpay-ec hidden headless-afterpay-minicart-ec">
+    <?php if ($isHyva): ?>
+    <div x-show="isLoading">
+        <?= /* @noEscape */ $loadingHtml ?>
+    </div>
+    <?php endif; ?>
+    <div class="afterpay-express-checkout-product-wrapper">
+        <button class="afterpay-express-button-minicart afterpay-minicart-spacer">
+            <img src="<?= $escaper->escapeUrl($viewModel->getImageurl()) ?>"
+                 alt="<?= /* @noEscape */ __('Checkout with Afterpay') ?>"/>
+        </button>
+        <div class="hidden" id="afterpay-button-minicart" data-afterpay-entry-point="mini-cart"></div>
+    </div>
 </section>

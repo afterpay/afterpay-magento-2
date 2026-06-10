@@ -1,9 +1,16 @@
 <?php
 /** @var Magento\Framework\View\Element\Template $block */
 /** @var Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\ExpressCheckout $viewModel */
+
+use Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\ExpressCheckoutPdp;
+
 $viewModel = $block->getViewModel();
+$enabled = $viewModel->isContainerEnable();
+if ($enabled && $viewModel instanceof ExpressCheckoutPdp && $viewModel->isRestrictedProductInCart()) {
+    $enabled = false;
+}
 ?>
-<?php if ($viewModel->isContainerEnable()): ?>
+<?php if ($enabled): ?>
 <div class="afterpay-container-express-checkout" data-bind="scope: 'afterpay.express.checkout'">
     <!-- ko template: getTemplate() --><!-- /ko -->
 </div>

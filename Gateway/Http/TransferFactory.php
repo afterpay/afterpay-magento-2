@@ -49,6 +49,10 @@ class TransferFactory implements \Magento\Payment\Gateway\Http\TransferFactoryIn
         $websiteId = (int)($args['websiteId'] ??
             $this->storeManager->getStore($args['storeId'])->getWebsiteId());
 
+        if (!isset($args['websiteId'])) {
+            $args['websiteId'] = $websiteId;
+        }
+
         return $this->transferBuilder
             ->setAuthUsername($this->config->getMerchantId($websiteId))
             ->setAuthPassword($this->config->getMerchantKey($websiteId))

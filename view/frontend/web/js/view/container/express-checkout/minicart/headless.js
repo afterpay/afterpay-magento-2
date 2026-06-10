@@ -88,7 +88,7 @@
     }
 
     function waitForStorageData() {
-        let interval = setInterval(function () {
+        let interval = setInterval(() => {
             let result = observeLocalStorageEmptyCartChanges();
             if (result) {
                 clearInterval(interval);

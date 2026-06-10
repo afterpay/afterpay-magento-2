@@ -1,0 +1,74 @@
+#!/bin/sh
+
+echo -e "\033[0;34m"================ Git pre-commit hook ================"\033[0m"
+
+MAGENTO=`php -r "echo dirname(dirname(dirname(dirname(dirname(dirname(realpath('$0')))))));"`
+PROJECT=`php -r "echo dirname(dirname(realpath('$0')));"`
+STAGED_FILES_CMD=`git diff --cached --name-only --diff-filter=ACMR HEAD | grep \\\\.php`
+
+echo 'Project root: ' . $PROJECT
+echo 'Magento root: ' . $MAGENTO
+# Determine if a file list is passed
+if [ "$#" -eq 1 ]
+then
+	oIFS=$IFS
+	IFS='
+	'
+	SFILES="$1"
+	IFS=$oIFS
+fi
+
+SFILES=${SFILES:-$STAGED_FILES_CMD}
+
+echo "Checking PHP Lint..."
+for FILE in $SFILES
+do
+	php -l -d display_errors=0 $PROJECT/$FILE
+	if [ $? != 0 ]
+	then
+		echo -e "\033[41m"Fix the error before commit."\033[0m"
+		exit 1
+	fi
+	FILES="$FILES $PROJECT/$FILE"
+done
+
+if [ "$FILES" != "" ]
+then
+
+    echo -e "\033[0;32m"Running Code Sniffer..."\033[0m"
+	$MAGENTO/vendor/bin/phpcs --standard=PSR2,Magento2 --encoding=utf-8 -p $FILES
+
+	if [ $? != 0 ]
+	then
+		echo -e "\033[41m"Fix the error before commit."\033[0m"
+		exit 1
+	fi
+
+
+	echo -e "\033[0;32m"Running PHP Mass Detector..."\033[0m"
+	$MAGENTO/vendor/bin/phpmd $PROJECT ansi $MAGENTO/dev/tests/static/testsuite/Magento/Test/Php/_files/phpmd/ruleset.xml
+
+	if [ $? != 0 ]
+	then
+		echo -e "\033[41m"Fix the error before commit."\033[0m"
+		exit 1
+	fi
+
+
+	echo -e "\033[0;32m"Running PHPStan..."\033[0m"
+
+	$MAGENTO/vendor/bin/phpstan analyse --level=8 -c $PROJECT/phpstan.neon $FILES
+
+	if [ $? != 0 ]
+	then
+		echo -e "\033[41m"Fix the error before commit."\033[0m"
+		exit 1
+	fi
+
+    echo -e "\033[0;32m"Recovering your stashed code..."\033[0m"
+
+fi
+
+echo -e "\033[0;34m"====================================================="\033[0m"
+
+exit $?

@@ -1,0 +1,47 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+
+?>
+<script>
+    window.afterpayTermsTranslations = {
+        USD: '<?= $escaper->escapeJs(__('You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.')) ?>',
+        CAD: '<?= $escaper->escapeJs(__('You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.')) ?>',
+        DEFAULT: '<?= $escaper->escapeJs(__('You will be redirected to the Afterpay website when you proceed to checkout.')) ?>'
+    };
+</script>
+
+<div id="afterpay-hyva-template" class="w-full pl-8 mt-4">
+
+    <div x-data="afterpayComponent()" x-init="checkInitialPaymentMethod()" x-show="isVisible"
+         class="afterpay-custom-content">
+        <template x-if="mpid && currency && orderTotal">
+            <div>
+                <square-placement
+                    :data-mpid="mpid"
+                    :data-amount="orderTotal"
+                    :data-currency="currency"
+                    data-type="payment-schedule"
+                    :data-platform="platform"
+                    :data-page-type="pageType">
+                </square-placement>
+                <div>
+                    <p>
+                        <span x-text="getTermsText()"></span>
+                        <a :href="getTermsLink()" target="_blank">
+                            <?= $escaper->escapeHtml(__('Terms & Conditions')) ?>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </template>
+        <div id="afterpay-hyva-checkout"
+             class="btn btn-primary cursor-pointer"
+             :class="{ 'afterpay-green': getCountryCode() === 'US' }">
+            <?= $escaper->escapeHtml(__('Continue to Afterpay')) ?>
+        </div>
+    </div>
+</div>

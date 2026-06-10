@@ -14,8 +14,6 @@ define([
             let afterpayTermsText = '';
             switch(totals.totals().quote_currency_code){
                 case 'USD':
-                    afterpayTermsText = $t('You will be redirected to the $Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.');
-                    break
                 case 'CAD':
                     afterpayTermsText = $t('You will be redirected to the Afterpay website to fill out your payment information. You will be redirected back to our site to complete your order.');
                     break;

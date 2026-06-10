@@ -15,7 +15,7 @@ class CommandPoolProxyTest extends \PHPUnit\Framework\TestCase
             ->getMock();
 
         $commandPoolFactory = $this->getMockBuilder('Magento\Payment\Gateway\Command\CommandPoolFactory')
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->disableOriginalConstructor()
             ->getMock();
 

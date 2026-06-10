@@ -26,6 +26,7 @@
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless</argument>
                 </arguments>
+                <block name="loading" template="Afterpay_Afterpay::hyva/ui/loading.phtml"/>
             </block>
             <block name="afterpay.product.express.checkout" class="Afterpay\Afterpay\Block\ExpressCheckout\Product" template="Afterpay_Afterpay::express-checkout/button.phtml" after="product.info.price" ifconfig="payment/afterpay/enable_express_checkout_product_page">
                 <arguments>

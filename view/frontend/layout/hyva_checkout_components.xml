@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>
+        <referenceContainer name="checkout.payment.section">
+            <referenceBlock name="checkout.payment.methods"
+                   template="Hyva_Checkout::checkout/payment/method-list.phtml"
+            >
+                <block name="checkout.payment.method.afterpay"
+                       as="afterpay"
+                       template="Afterpay_Afterpay::hyva/checkout/payment/method/afterpay.phtml"/>
+            </referenceBlock>
+        </referenceContainer>
+    </body>
+</page>
+

@@ -12,7 +12,8 @@
             dataCbtEnabledString: "false",
             pageType: "product",
             dataAmountSelector: ".product-info-main .price-final_price .price-wrapper .price",
-            dataAmountSelectorBundle: "#bundleSummary .price-as-configured .price"
+            dataAmountSelectorBundle: "#bundleSummary .price-as-configured .price",
+            dataPlacementId: ""
         },
         initialize: function () {
             const res = this._super();

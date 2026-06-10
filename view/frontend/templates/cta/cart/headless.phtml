@@ -2,6 +2,7 @@
 /** @var Afterpay\Afterpay\Block\Cta\CartHeadless $block */
 /** @var Afterpay\Afterpay\ViewModel\Container\Cta\Headless $viewModel */
 $viewModel = $block->getViewModel();
+$utilityJsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/service/utils/wait-for-selector.js');
 $jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/cta/cart/headless.js');
 ?>
 <script>
@@ -14,8 +15,6 @@ $jsUrl = $block->getViewFileUrl('Afterpay_Afterpay::js/view/container/cta/cart/h
     if (typeof afterpayCurrency === 'undefined') {
         window.afterpayCurrency = "<?= /* @noEscape */ $viewModel->getCurrency() ?>";
     }
-    if (typeof afterpayLocale === 'undefined') {
-        var afterpayLocale = "<?= /* @noEscape */ $viewModel->getLocale() ?>";
-    }
 </script>
+<script src="<?= /** @noEscape */ $utilityJsUrl ?>"></script>
 <script src="<?= /** @noEscape */ $jsUrl ?>" async></script>

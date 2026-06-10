@@ -73,6 +73,7 @@ class AfterpayConfigCart extends AfterpayConfig implements ResolverInterface
         $result['is_cbt_enabled'] = count($this->config->getSpecificCountries($websiteId)) > 1;
         $result['is_product_allowed'] = true;
         $result['is_virtual'] = $cart->isVirtual();
+        $result['placement_id'] = $this->config->getPlacementIdCart($websiteId);  // Dynamic Message ID
         $excludedCategoriesIds = $this->config->getExcludeCategories((int)$storeId);
         if (!empty($excludedCategoriesIds)) {
             foreach ($cart->getAllVisibleItems() as $item) {

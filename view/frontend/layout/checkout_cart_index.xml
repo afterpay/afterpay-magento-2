@@ -28,6 +28,7 @@
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless</argument>
                 </arguments>
+                <block name="loading" template="Afterpay_Afterpay::hyva/ui/loading.phtml"/>
             </block>
             <block name="afterpay.minicart.express.checkout.headless"
                    class="Afterpay\Afterpay\Block\ExpressCheckout\MiniCartHeadless"
@@ -37,6 +38,7 @@
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless</argument>
                 </arguments>
+                <block name="loading" template="Afterpay_Afterpay::hyva/ui/loading.phtml"/>
             </block>
         </referenceBlock>
         <referenceContainer name="checkout.cart.totals.container">

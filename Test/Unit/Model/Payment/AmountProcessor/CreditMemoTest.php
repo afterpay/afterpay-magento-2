@@ -83,7 +83,7 @@ class CreditMemoTest extends \PHPUnit\Framework\TestCase
     {
         $shipmentCollection = $this->getMockBuilder(\Magento\Sales\Model\ResourceModel\Order\Shipment\Collection::class)
             ->disableOriginalConstructor()
-            ->setMethods(['count'])
+            ->onlyMethods(['count'])
             ->getMock();
         $shipmentCollection->expects($this->atLeastOnce())->method('count')->willReturn(0);
 

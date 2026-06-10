@@ -35,7 +35,10 @@ class Sidebar
                 $result,
                 !($this->config->getIsEnableCtaMiniCart()
                     && $this->ctaContainerViewModel->isContainerEnable()
-                    && !$this->config->getIsEnableMiniCartHeadless())
+                    && !$this->config->getIsEnableMiniCartHeadless()),
+                'afterpay.cta',
+                [],
+                'afterpay.cart.cta'
             );
             $result = $this->expressCheckoutViewModel->updateJsLayout(
                 $result,

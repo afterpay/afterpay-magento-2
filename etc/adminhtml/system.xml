@@ -95,6 +95,10 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/afterpay/enable_cta_mini_cart</config_path>
                     </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <config_path>payment/afterpay/sort_order</config_path>
+                    </field>
                     <field id="exclude_categories" translate="label" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Exclude Categories</label>
                         <source_model>Afterpay\Afterpay\Model\Config\Source\Category</source_model>
@@ -155,7 +159,7 @@
                     <field id="pdp_placement_price_selector" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Price selector (Product Page)</label>
                         <config_path>payment/afterpay/pdp_placement_price_selector</config_path>
-                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">.product-info-main .price-final_price .price-wrapper .price</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">.final-price .price-wrapper .price</b>]]></tooltip>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">.product-info-main .price-final_price .price-wrapper .price</b><br> Default for Hyvä theme: <b style="white-space: nowrap;">.final-price .price-wrapper .price</b>]]></tooltip>
                         <depends>
                             <field id="enable_product_page_headless">1</field>
                         </depends>
@@ -163,7 +167,7 @@
                     <field id="pdp_placement_after_selector_bundle" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Placement selector (Bundle Product Page)</label>
                         <config_path>payment/afterpay/pdp_placement_after_selector_bundle</config_path>
-                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#bundleSummary .price-configured_price</b style="white-space: nowrap;"><br/> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#bundleSummary .product-details</b>]]></tooltip>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#bundleSummary .price-configured_price</b style="white-space: nowrap;"><br/> Default for Hyvä theme: <b style="white-space: nowrap;">#bundleSummary .product-details</b>]]></tooltip>
                         <depends>
                             <field id="enable_product_page_headless">1</field>
                         </depends>
@@ -171,7 +175,7 @@
                     <field id="pdp_placement_price_selector_bundle" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Price selector (Bundle Product Page)</label>
                         <config_path>payment/afterpay/pdp_placement_price_selector_bundle</config_path>
-                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#bundleSummary .price-as-configured .price</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#bundleSummary .price-wrapper .price</b>]]></tooltip>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#bundleSummary .price-as-configured .price</b><br> Default for Hyvä theme: <b style="white-space: nowrap;">#bundleSummary .price-wrapper .price</b>]]></tooltip>
                         <depends>
                             <field id="enable_product_page_headless">1</field>
                         </depends>
@@ -185,7 +189,7 @@
                     <field id="cart_page_placement_after_selector" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Placement selector (Cart Page)</label>
                         <config_path>payment/afterpay/cart_page_placement_after_selector</config_path>
-                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#cart-totals</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#cart-totals</b>]]></tooltip>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#cart-totals</b><br> Default for Hyvä theme: <b style="white-space: nowrap;">#cart-totals</b>]]></tooltip>
                         <depends>
                             <field id="enable_cart_page_headless">1</field>
                         </depends>
@@ -193,7 +197,7 @@
                     <field id="cart_page_placement_price_selector" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Price selector (Cart Page)</label>
                         <config_path>payment/afterpay/cart_page_placement_price_selector</config_path>
-                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#cart-totals .grand.totals .price</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#cart-totals > div:last-child [x-text="hyva.formatPrice(segment.value)"]</b>]]></tooltip>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#cart-totals .grand.totals .price</b><br> Default for Hyvä theme: <b style="white-space: nowrap;">#cart-totals > div:last-child [x-text="hyva.formatPrice(segment.value)"]</b>]]></tooltip>
                         <depends>
                             <field id="enable_cart_page_headless">1</field>
                         </depends>
@@ -207,7 +211,7 @@
                     <field id="mini_cart_placement_after_selector" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Placement selector (Mini Cart)</label>
                         <config_path>payment/afterpay/mini_cart_placement_after_selector</config_path>
-                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper .subtotal</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#cart-drawer [x-ref="cartDialogContent"] > div > div:last-child > div > div</b>]]></tooltip>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper .subtotal</b><br> Default for Hyvä theme: <br> version >= 1.4.5 <b style="white-space: nowrap;">#cart-drawer > div:nth-child(6) > div</b><br> version < 1.4.5: <b style="white-space: nowrap;">#cart-drawer > div > div > div > div</b>]]></tooltip>
                         <depends>
                             <field id="enable_mini_cart_headless">1</field>
                         </depends>
@@ -215,7 +219,7 @@
                     <field id="mini_cart_placement_container_selector" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Container selector (Mini Cart)</label>
                         <config_path>payment/afterpay/mini_cart_placement_container_selector</config_path>
-                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">#cart-drawer</b>]]></tooltip>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper</b><br> Default for Hyvä theme: <b style="white-space: nowrap;">#cart-drawer</b>]]></tooltip>
                         <depends>
                             <field id="enable_mini_cart_headless">1</field>
                         </depends>
@@ -223,7 +227,7 @@
                     <field id="mini_cart_placement_price_selector" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Price selector (Mini Cart)</label>
                         <config_path>payment/afterpay/mini_cart_placement_price_selector</config_path>
-                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper .subtotal .price</b><br> Default for Hyvä or similar themes: <b style="white-space: nowrap;">[x-html="cart.subtotal"]</b>]]></tooltip>
+                        <tooltip><![CDATA[Default for Luma or similar themes: <b style="white-space: nowrap;">#minicart-content-wrapper .subtotal .price</b><br> Default for Hyvä theme: <b style="white-space: nowrap;">[x-html="cart.subtotal"]</b>]]></tooltip>
                         <depends>
                             <field id="enable_mini_cart_headless">1</field>
                         </depends>

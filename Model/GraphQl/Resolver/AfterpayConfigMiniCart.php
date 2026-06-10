@@ -37,6 +37,7 @@ class AfterpayConfigMiniCart extends AfterpayConfigCart implements ResolverInter
         $result['placement_wrapper'] = $this->config->getMiniCartPlacementContainerSelector($websiteId);
         $result['placement_after_selector'] = $this->config->getMiniCartPlacementAfterSelector($websiteId);
         $result['price_selector'] = $this->config->getMiniCartPlacementPriceSelector($websiteId);
+        $result['placement_id'] = $this->config->getPlacementIdCart($websiteId);  // Dynamic Message ID
 
         return $result;
     }

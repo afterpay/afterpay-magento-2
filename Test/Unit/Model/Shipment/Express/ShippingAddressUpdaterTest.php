@@ -19,6 +19,7 @@ class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
         $this->region = $this->createMock(\Magento\Directory\Model\Region::class);
         $this->region->expects($this->any())->method("loadByCode")->willReturnSelf();
         $this->region->expects($this->any())->method("loadByName")->willReturnSelf();
+        $this->region->expects($this->any())->method("getId")->willReturn(1);
         $this->cartRepository = $this->createMock(\Magento\Quote\Api\CartRepositoryInterface::class);
         $this->shippingAddressUpdater = new \Afterpay\Afterpay\Model\Shipment\Express\ShippingAddressUpdater(
             $this->region,

@@ -5,7 +5,6 @@ window.addEventListener("load", () => {
         return {
             countryCode: window?.afterpayLocaleCode ? window.afterpayLocaleCode : "US",
             enableForPDP: false,
-            isLoading: true,
             trigger: "afterpay-button-pdp",
             minPrice: 0,
             maxPrice: 1000,
@@ -25,32 +24,53 @@ window.addEventListener("load", () => {
             },
 
             extractSectionData(data) {
-                this.isLoading = false;
-
-                this.ecButtonPlace = data?.placement_after_selector &&
+                const selector = data?.placement_after_selector &&
                 data?.placement_after_selector_bundle &&
                 data?.product_type !== "bundle" ?
-                    document.querySelector(data.placement_after_selector) :
-                    document.querySelector(data.placement_after_selector_bundle);
+                    data.placement_after_selector :
+                    data.placement_after_selector_bundle;
+
+                this.ecButtonPlace = selector ? document.querySelector(selector) : null;
 
                 if (data) {
                     this.setCurrentData(data);
                 }
 
-                if (this.ecButtonPlace) {
-                    if (document.querySelector('#afterpay-cta-pdp')) {
-                        this.ecButtonPlace = document.querySelector('#afterpay-cta-pdp');
+                if (!this.ecButtonPlace && selector) {
+                    if (typeof window.waitForSelector === 'function') {
+                        window.waitForSelector(selector)
+                            .then((element) => {
+                                this.ecButtonPlace = element;
+                                this.updateHtml();
+                            });
+                    } else {
+                        let interval = setInterval(() => {
+                            let wrapperHtml = document.querySelector(selector);
+                            if (wrapperHtml) {
+                                this.ecButtonPlace = wrapperHtml;
+                                clearInterval(interval);
+                                this.updateHtml();
+                            }
+                        }, 1000);
                     }
+                } else {
+                    this.updateHtml();
+                }
+            },
 
-                    this.validateShowButton();
-                    const afterpaySection = document.querySelector('.headless-afterpay-pdp-ec');
-                    this.ecButtonPlace.insertAdjacentElement('afterend', afterpaySection);
+            updateHtml() {
+                if (document.querySelector('#afterpay-cta-pdp')) {
+                    this.ecButtonPlace = document.querySelector('#afterpay-cta-pdp');
+                }
 
-                    // Add click event listener to the button
-                    const afterpayButton = document.querySelector('.afterpay-express-pdp-button');
-                    if (afterpayButton) {
-                        afterpayButton.addEventListener('click', (event) => this.ecValidationAddToCart(event));
-                    }
+                this.validateShowButton();
+                const afterpaySection = document.querySelector('.headless-afterpay-pdp-ec');
+                this.ecButtonPlace.insertAdjacentElement('afterend', afterpaySection);
+
+                // Add click event listener to the button
+                const afterpayButton = document.querySelector('.afterpay-express-pdp-button');
+                if (afterpayButton) {
+                    afterpayButton.addEventListener('click', (event) => this.ecValidationAddToCart(event));
                 }
             },
 
@@ -118,8 +138,6 @@ window.addEventListener("load", () => {
                 const formData = new FormData(form);
                 formData.append('form_key', this.getCookie('form_key'));
 
-                this.isLoading = true;
-
                 window.fetch(postUrl, {
                     body: formData,
                     method: 'POST'
@@ -131,7 +149,7 @@ window.addEventListener("load", () => {
                             document.getElementById(this.trigger).click();
                         }
                     });
-            
+
                     dispatchEvent(new Event('reload-customer-section-data'));
                     this.initAfterpay();
                     document.getElementById(this.trigger).click();
@@ -194,10 +212,10 @@ window.addEventListener("load", () => {
                 };
 
                 const observer = new MutationObserver(callback),
-                    config = { 
-                        characterData: true, 
-                        childList: true, 
-                        subtree: true 
+                    config = {
+                        characterData: true,
+                        childList: true,
+                        subtree: true
                     };
 
                 observer.observe(targetNode, config);
@@ -214,7 +232,6 @@ window.addEventListener("load", () => {
                     this.wrapElement.classList.add("hidden");
                 }
 
-                this.isLoading = false;
                 return false;
             },
 
@@ -238,6 +255,8 @@ window.addEventListener("load", () => {
 
             onComplete(event) {
                 if (event.data.status === 'CANCELLED') {
+                    window.dispatchEvent(new CustomEvent('start-loader'));
+                    document.body.dispatchEvent(new CustomEvent('processStart'));
                     localStorage?.removeItem('mage-cache-storage');
                     window.location.reload();
                 }
@@ -253,8 +272,8 @@ window.addEventListener("load", () => {
 
             placeOrder(event) {
                 const data = this.objectToUrlEncoded(event.data);
-
-                this.isLoading = true;
+                window.dispatchEvent(new CustomEvent('start-loader'));
+                document.body.dispatchEvent(new CustomEvent('processStart'));
 
                 this.fetchData("afterpay/express/placeOrder", data)
                     .then(response => {
@@ -268,6 +287,8 @@ window.addEventListener("load", () => {
                             messagesJson = JSON.stringify(messages);
 
                             cookieStore.set('mage-messages', messagesJson);
+                            window.dispatchEvent(new CustomEvent('stop-loader'));
+                            document.body.dispatchEvent(new CustomEvent('processStop'));
                             window.location.href = response.redirectUrl;
                         }else{
                             if (response?.redirectUrl) {
@@ -275,7 +296,6 @@ window.addEventListener("load", () => {
                                 localStorage?.removeItem('messages');
                                 window.mageMessages = [];
                                 window.location.href = response.redirectUrl;
-                                this.isLoading = false;
                             }
                         }
                     });
@@ -295,8 +315,6 @@ window.addEventListener("load", () => {
 
             fetchData(url = "", data = "") {
                 const postUrl = `${BASE_URL}${url}`;
-
-                this.isLoading = true;
 
                 return window.fetch(postUrl, {
                     headers: {
@@ -331,7 +349,7 @@ window.addEventListener("load", () => {
                         if(item.product_type == "virtual" || item.product_type == "downloadable") {
                             hasVirtual = true;
                         }else {
-                            hasSimple = true; 
+                            hasSimple = true;
                         }
                     });
                 }

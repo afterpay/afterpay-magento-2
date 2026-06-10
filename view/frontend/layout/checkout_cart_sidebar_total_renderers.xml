@@ -30,6 +30,7 @@
                 <arguments>
                     <argument name="view_model" xsi:type="object">Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\Headless</argument>
                 </arguments>
+                <block name="loading" template="Afterpay_Afterpay::hyva/ui/loading.phtml"/>
             </block>
         </referenceBlock>
         <referenceBlock name="minicart">

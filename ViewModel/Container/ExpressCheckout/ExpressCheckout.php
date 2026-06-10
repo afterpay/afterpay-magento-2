@@ -6,6 +6,7 @@ use Afterpay\Afterpay\Model\Config;
 use Afterpay\Afterpay\Model\Config\Source\ApiMode;
 use Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider;
 use Afterpay\Afterpay\ViewModel\Container\Container;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -20,24 +21,27 @@ class ExpressCheckout extends Container
         'GBP' => 'GB'
     ];
 
-    protected $localeResolver;
+    protected Resolver $localeResolver;
+    private Session $checkoutSession;
 
     public function __construct(
-        SerializerInterface        $serializer,
-        Config                     $config,
+        SerializerInterface $serializer,
+        Config $config,
         NotAllowedProductsProvider $notAllowedProductsProvider,
-        StoreManagerInterface      $storeManager,
-        Resolver                   $localeResolver
+        StoreManagerInterface $storeManager,
+        Resolver $localeResolver,
+        Session $checkoutSession
     ) {
         parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager);
         $this->localeResolver = $localeResolver;
+        $this->checkoutSession = $checkoutSession;
     }
 
     public function updateJsLayout(
         string $jsLayoutJson,
-        bool   $remove = false,
+        bool $remove = false,
         string $containerNodeName = 'afterpay.express.checkout',
-        array  $config = []
+        array $config = []
     ): string {
         if (!$remove && $this->isContainerEnable()) {
             $config['minOrderTotal'] = $this->config->getMinOrderTotal();
@@ -62,5 +66,22 @@ class ExpressCheckout extends Container
         $localePart = str_replace('_', '-', $this->localeResolver->getLocale());
 
         return "https://$urlPrefix.afterpay.com/$localePart/integration/button/checkout-with-afterpay/white-on-black.svg";
+    }
+
+    public function isRestrictedProductInCart(): bool
+    {
+        $excludedCategoriesIds = $this->config->getExcludeCategories();
+        if (!empty($excludedCategoriesIds)) {
+            $quoteItems = $this->checkoutSession->getQuote()->getAllVisibleItems();
+            foreach ($quoteItems as $item) {
+                foreach ($item->getProduct()->getCategoryIds() as $categoryId) {
+                    if (in_array($categoryId, $excludedCategoriesIds)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

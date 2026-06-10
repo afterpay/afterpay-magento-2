@@ -3,7 +3,6 @@ window.addEventListener("load", () => {
         return {
             countryCode: window?.afterpayLocaleCode ? window.afterpayLocaleCode : "US",
             enableForCart: false,
-            isLoading: true,
             trigger: "afterpay-button-cart",
             minPrice: 0,
             maxPrice: 1000,
@@ -24,9 +23,13 @@ window.addEventListener("load", () => {
                     }, 1000);
                 });
 
-                document.addEventListener("click", function(e){
-                    if(e.target.classList.contains('update')) {
-                        setTimeout(function() {
+                setInterval(() => {
+                    self.checkPlacementExists();
+                }, 1000);
+
+                document.addEventListener("click", function (e) {
+                    if (e.target.classList.contains('update')) {
+                        setTimeout(function () {
                             document.dispatchEvent(window.reloadCartPage);
                         }, 1000);
                     }
@@ -35,7 +38,7 @@ window.addEventListener("load", () => {
 
                     while (element) {
                         if (element.id === 'discount-coupon-form') {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 self.extractSectionData(self.configData);
                             }, 2000);
                             break;
@@ -47,9 +50,6 @@ window.addEventListener("load", () => {
             },
 
             extractSectionData(data) {
-                let self = this;
-                this.isLoading = false;
-
                 this.ecButtonPlace = data?.placement_after_selector
                     ? document.querySelector(data.placement_after_selector)
                     : this.ecButtonPlace;
@@ -58,30 +58,62 @@ window.addEventListener("load", () => {
                     this.setCurrentData(data);
                 }
 
-                if (this.ecButtonPlace) {
-                    if (document.querySelector('#afterpay-cta-cart')) {
-                        this.ecButtonPlace = document.querySelector('#afterpay-cta-cart');
+                if (!this.ecButtonPlace && data?.placement_after_selector) {
+                    if (typeof window.waitForSelector === 'function') {
+                        window.waitForSelector(data.placement_after_selector)
+                            .then((element) => {
+                                this.ecButtonPlace = element;
+                                this.updateHtml();
+                            });
+                    } else {
+                        let interval = setInterval(() => {
+                            let wrapperHtml = document.querySelector(data?.placement_after_selector);
+                            if (wrapperHtml) {
+                                this.ecButtonPlace = wrapperHtml;
+                                clearInterval(interval);
+                                this.updateHtml();
+                            }
+                        }, 1000);
                     }
-
-                    let afterpaySection = document.querySelector('.headless-afterpay-cart-ec');
-                    if(!afterpaySection) {
-                        afterpaySection = self.wrapElement;
-                    }
-                    this.ecButtonPlace.insertAdjacentElement('afterend', afterpaySection);
-
-                    this.initAfterpay();
-
-                    // Add click event listener to the button
-                    const afterpayButton = document.querySelector('.afterpay-express-button-cart');
-                    if (afterpayButton) {
-                        afterpayButton.addEventListener('click', (event) => this.ecValidationAddToCart(event));
-                    }
-
-                    this.validateShowButton(this.checkPriceLimit());
+                } else {
+                    this.updateHtml();
                 }
             },
 
-            setCurrentData (data) {
+            updateHtml() {
+                if (document.querySelector('#afterpay-cta-cart')) {
+                    this.ecButtonPlace = document.querySelector('#afterpay-cta-cart');
+                }
+
+                let afterpaySection = document.querySelector('.headless-afterpay-cart-ec');
+                if (!afterpaySection) {
+                    afterpaySection = this.wrapElement;
+                }
+                this.ecButtonPlace.insertAdjacentElement('afterend', afterpaySection);
+
+                this.initAfterpay();
+
+                // Add click event listener to the button
+                const afterpayButton = document.querySelector('.afterpay-express-button-cart');
+                if (afterpayButton) {
+                    afterpayButton.addEventListener('click', (event) => this.ecValidationAddToCart(event));
+                }
+
+                this.validateShowButton(this.checkPriceLimit());
+            },
+
+            checkPlacementExists() {
+                if (!this.configData) {
+                    return;
+                }
+
+                const section = document.querySelector('.headless-afterpay-cart-ec');
+                if (!section || !document.body.contains(section)) {
+                    this.extractSectionData(this.configData);
+                }
+            },
+
+            setCurrentData(data) {
                 this.enableForCart = (data.is_enabled && data.is_enabled_ec_cart_page_headless) ?? this.enableForPDP;
                 this.isProductAllowed = data.is_product_allowed ?? this.isProductAllowed;
                 this.afterpayCartSubtotal = this.checkCurrentSubtotal();
@@ -91,10 +123,10 @@ window.addEventListener("load", () => {
                 this.shippingOptionRequired = !this.isVirtual;
             },
 
-            checkCurrentSubtotal () {
+            checkCurrentSubtotal() {
                 let currentCartData = JSON.parse(localStorage.getItem("mage-cache-storage")).cart;
 
-                if(currentCartData && currentCartData?.subtotalAmount) {
+                if (currentCartData && currentCartData?.subtotalAmount) {
                     return +currentCartData?.subtotalAmount;
                 }
 
@@ -114,10 +146,10 @@ window.addEventListener("load", () => {
                 document.getElementById(this.trigger).click();
             },
 
-            getCurrentSubtotal () {
+            getCurrentSubtotal() {
                 let currentCartData = window?.checkoutConfig?.totalsData?.base_grand_total;
 
-                if(currentCartData) {
+                if (currentCartData) {
                     return +currentCartData;
                 }
 
@@ -150,6 +182,8 @@ window.addEventListener("load", () => {
 
             onComplete(event) {
                 if (event.data.status === 'CANCELLED') {
+                    window.dispatchEvent(new CustomEvent('start-loader-cart'));
+                    document.body.dispatchEvent(new CustomEvent('processStart'));
                     localStorage?.removeItem('mage-cache-storage');
                     window.location.reload();
                 }
@@ -165,29 +199,30 @@ window.addEventListener("load", () => {
 
             placeOrder(event) {
                 const data = this.objectToUrlEncoded(event.data);
-
-                this.isLoading = true;
+                window.dispatchEvent(new CustomEvent('start-loader-cart'));
+                document.body.dispatchEvent(new CustomEvent('processStart'));
 
                 this.fetchData("afterpay/express/placeOrder", data)
                     .then(response => {
-                        if(response?.error) {
+                        if (response?.error) {
                             let messages = [
-                                {
-                                    text: response?.error,
-                                    type: 'error'
-                                }
-                            ],
-                            messagesJson = JSON.stringify(messages);
+                                    {
+                                        text: response?.error,
+                                        type: 'error'
+                                    }
+                                ],
+                                messagesJson = JSON.stringify(messages);
 
                             cookieStore.set('mage-messages', messagesJson);
+                            window.dispatchEvent(new CustomEvent('stop-loader-cart'));
+                            document.body.dispatchEvent(new CustomEvent('processStop'));
                             window.location.href = response.redirectUrl;
-                        }else{
+                        } else {
                             if (response?.redirectUrl) {
                                 localStorage?.removeItem('mage-cache-storage');
                                 localStorage?.removeItem('messages');
                                 window.mageMessages = [];
                                 window.location.href = response.redirectUrl;
-                                this.isLoading = false;
                             }
                         }
                     });
@@ -207,8 +242,6 @@ window.addEventListener("load", () => {
 
             fetchData(url = "", data = "") {
                 const postUrl = `${BASE_URL}${url}`;
-
-                this.isLoading = true;
 
                 return window.fetch(postUrl, {
                     headers: {

@@ -10,7 +10,8 @@
         defaults: {
             dataIsEligible: "true",
             dataCbtEnabledString: "false",
-            pageType: "product"
+            pageType: "product",
+            dataPlacementId: ""
         },
         initialize: function () {
             const res = this._super();

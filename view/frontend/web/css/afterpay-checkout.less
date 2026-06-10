@@ -33,10 +33,6 @@
             }
         }
     }
-    .afterpay-green {
-        background: #00d632;
-        border: #00d632;
-    }
 }
 
 @media only screen and (max-width : 1150px) {
@@ -64,4 +60,18 @@
             }
         }
     }
+}
+
+// Support for Hyva checkout
+.afterpay-green {
+    background: #00d632;
+    border-color: #00d632;
+    &:hover {
+        background: #00bd2d;
+        border-color: #00bd2d;
+    }
+}
+
+.afterpay-custom-content {
+    width: 80%;
 }

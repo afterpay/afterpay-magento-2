@@ -50,6 +50,8 @@ class Config
     public const XML_PATH_ENABLE_CART_PAGE_HEADLESS = 'payment/afterpay/enable_cart_page_headless';
     public const XML_PATH_CART_PAGE_PLACEMENT_AFTER_SELECTOR = 'payment/afterpay/cart_page_placement_after_selector';
     public const XML_PATH_CART_PAGE_PLACEMENT_PRICE_SELECTOR = 'payment/afterpay/cart_page_placement_price_selector';
+    public const XML_PLACEMENT_ID_PDP = 'payment/afterpay/placement_id_pdp';
+    public const XML_PLACEMENT_ID_CART = 'payment/afterpay/placement_id_cart';
 
     private ScopeConfigInterface $scopeConfig;
     private WriterInterface $writer;
@@ -753,5 +755,59 @@ class Config
             ScopeInterface::SCOPE_WEBSITE,
             $scopeId
         );
+    }
+
+    public function getPlacementIdPdp(?int $scopeCode = null): ?string
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PLACEMENT_ID_PDP,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+    }
+
+    public function setPlacementIdPdp(string $value, int $scopeId = 0): self
+    {
+        if ($scopeId) {
+            $this->writer->save(
+                self::XML_PLACEMENT_ID_PDP,
+                $value,
+                ScopeInterface::SCOPE_WEBSITES,
+                $scopeId
+            );
+            return $this;
+        }
+        $this->writer->save(
+            self::XML_PLACEMENT_ID_PDP,
+            $value
+        );
+        return $this;
+    }
+
+    public function getPlacementIdCart(?int $scopeCode = null): ?string
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PLACEMENT_ID_CART,
+            ScopeInterface::SCOPE_WEBSITE,
+            $scopeCode
+        );
+    }
+
+    public function setPlacementIdCart(string $value, int $scopeId = 0): self
+    {
+        if ($scopeId) {
+            $this->writer->save(
+                self::XML_PLACEMENT_ID_CART,
+                $value,
+                ScopeInterface::SCOPE_WEBSITES,
+                $scopeId
+            );
+            return $this;
+        }
+        $this->writer->save(
+            self::XML_PLACEMENT_ID_CART,
+            $value
+        );
+        return $this;
     }
 }

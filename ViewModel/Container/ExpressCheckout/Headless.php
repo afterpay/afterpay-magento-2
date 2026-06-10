@@ -4,13 +4,12 @@ declare(strict_types=1);
 namespace Afterpay\Afterpay\ViewModel\Container\ExpressCheckout;
 
 use Afterpay\Afterpay\Model\Config;
-use Afterpay\Afterpay\Model\Config\Source\ApiMode;
 use Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider;
 use Magento\Checkout\Model\Session;
+use Magento\Framework\Locale\Resolver;
 use Magento\Framework\Registry;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Locale\Resolver;
 
 class Headless extends ExpressCheckout
 {
@@ -19,15 +18,22 @@ class Headless extends ExpressCheckout
     private Registry $registry;
 
     public function __construct(
-        SerializerInterface        $serializer,
-        Config                     $config,
+        SerializerInterface $serializer,
+        Config $config,
         NotAllowedProductsProvider $notAllowedProductsProvider,
-        StoreManagerInterface      $storeManager,
-        Resolver                   $localeResolver,
-        Session                    $checkoutSession,
-        Registry                   $registry
+        StoreManagerInterface $storeManager,
+        Resolver $localeResolver,
+        Session $checkoutSession,
+        Registry $registry
     ) {
-        parent::__construct($serializer, $config, $notAllowedProductsProvider, $storeManager,$localeResolver);
+        parent::__construct(
+            $serializer,
+            $config,
+            $notAllowedProductsProvider,
+            $storeManager,
+            $localeResolver,
+            $checkoutSession
+        );
         $this->checkoutSession = $checkoutSession;
         $this->registry = $registry;
     }
@@ -47,11 +53,14 @@ class Headless extends ExpressCheckout
         return (string)$this->checkoutSession->getQuoteId();
     }
 
-    public function getImageurl(): string
+    public function isHyva(): bool
     {
-        $urlPrefix = $this->config->getApiMode() === ApiMode::SANDBOX ? 'static.sandbox' : 'static';
-        $localePart = str_replace('_', '-', $this->localeResolver->getLocale());
-
-        return "https://$urlPrefix.afterpay.com/$localePart/integration/button/checkout-with-afterpay/white-on-black.svg";
+        if (class_exists(\Hyva\Theme\Service\CurrentTheme::class)) {
+            /** @var \Hyva\Theme\Service\CurrentTheme $currentTheme */
+            $currentTheme = \Magento\Framework\App\ObjectManager::getInstance()
+                ->get(\Hyva\Theme\Service\CurrentTheme::class);
+            return $currentTheme->isHyva();
+        }
+        return false;
     }
 }

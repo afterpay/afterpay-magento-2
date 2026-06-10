@@ -74,6 +74,7 @@ type afterpayConfigPdpOutput {
     price_selector: String
     price_selector_bundle: String
     is_in_stock: Boolean
+    placement_id: String
 }
 
 type afterpayConfigCartOutput {
@@ -90,6 +91,7 @@ type afterpayConfigCartOutput {
     max_amount: String
     min_amount: String
     is_virtual: Boolean
+    placement_id: String
 }
 
 type afterpayConfigMiniCartOutput {
@@ -107,4 +109,5 @@ type afterpayConfigMiniCartOutput {
     max_amount: String
     min_amount: String
     is_virtual: Boolean
+    placement_id: String
 }

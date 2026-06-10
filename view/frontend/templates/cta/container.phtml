@@ -11,7 +11,7 @@ $viewModel = $block->getViewModel();
 <script type="text/x-magento-init">
     {
         "*": {
-            "Magento_Ui/js/core/app": <?= /** @noEscape */ $viewModel->updateJsLayout($block->getJsLayout()) ?>
+            "Magento_Ui/js/core/app": <?= /** @noEscape */ $viewModel->updateJsLayout($block->getJsLayout(), false, 'afterpay.cta',[], $block->getNameInLayout()) ?>
         }
     }
 </script>

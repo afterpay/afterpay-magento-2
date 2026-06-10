@@ -23,7 +23,8 @@ class Cta extends \Afterpay\Afterpay\ViewModel\Container\Container
         string $jsLayoutJson,
         bool $remove = false,
         string $containerNodeName = 'afterpay.cta',
-        array $config = []
+        array $config = [],
+        string $pageType = ''
     ): string {
         if (!$remove && $this->isContainerEnable()) {
             $store = $this->storeManager->getStore();
@@ -35,6 +36,12 @@ class Cta extends \Afterpay\Afterpay\ViewModel\Container\Container
             $config['dataPlatform'] = 'Magento';
             $config['dataAmountSelector'] = $this->config->getPdpPlacementPriceSelector();
             $config['dataAmountSelectorBundle'] = $this->config->getPdpPlacementPriceSelectorBundle();
+            if ($pageType === 'afterpay.product.cta') {
+                $config['dataPlacementId'] = $this->config->getPlacementIdPdp();
+            }
+            if ($pageType === 'afterpay.cart.cta') {
+                $config['dataPlacementId'] = $this->config->getPlacementIdCart();
+            }
         }
         return parent::updateJsLayout($jsLayoutJson, $remove, $containerNodeName, $config);
     }

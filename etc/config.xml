@@ -4,6 +4,7 @@
         <payment>
             <afterpay>
                 <active>0</active>
+                <sort_order>0</sort_order>
                 <title>Afterpay</title>
                 <api_mode>sandbox</api_mode>
                 <model>Afterpay\Afterpay\Model\Method\MethodFacade</model>
@@ -34,7 +35,7 @@
                 <mini_cart_placement_after_selector>#minicart-content-wrapper .subtotal</mini_cart_placement_after_selector>
                 <mini_cart_placement_price_selector>#minicart-content-wrapper .subtotal .price</mini_cart_placement_price_selector>
                 <enable_cart_page_headless>0</enable_cart_page_headless>
-                <cart_page_placement_after_selector>.cart-container .cart-summary #cart-totals</cart_page_placement_after_selector>
+                <cart_page_placement_after_selector>#cart-totals</cart_page_placement_after_selector>
                 <cart_page_placement_price_selector>#cart-totals .grand.totals .price</cart_page_placement_price_selector>
             </afterpay>
         </payment>

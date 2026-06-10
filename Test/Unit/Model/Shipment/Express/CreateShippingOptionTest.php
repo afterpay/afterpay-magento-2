@@ -54,7 +54,8 @@ class CreateShippingOptionTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->disableOriginalClone()
             ->disableArgumentCloning()
-            ->setMethods(['getGrandTotal', 'getBaseGrandTotal', 'getShippingAddress'])
+            ->addMethods(['getGrandTotal', 'getBaseGrandTotal'])
+            ->onlyMethods(['getShippingAddress'])
             ->getMock();
         $this->quote->method("getShippingAddress")
             ->willReturn(
