@@ -41,6 +41,20 @@
             <!--/ko-->
             <div class="actions-toolbar">
                 <div class="primary">
+                    <!-- ko if: (isUs())-->
+                    <button class="action primary checkout afterpay-green"
+                            type="submit"
+                            data-bind="
+                        click: continueToAfterpay,
+                        attr: {title: $t('Continue to Afterpay')},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: (getCode() == isChecked())
+                        "
+                            disabled>
+                        <span data-bind="i18n: 'Continue to Afterpay'"></span>
+                    </button>
+                    <!-- /ko -->
+                    <!-- ko if: (!isUs())-->
                     <button class="action primary checkout"
                             type="submit"
                             data-bind="
@@ -52,6 +66,7 @@
                             disabled>
                         <span data-bind="i18n: 'Continue to Afterpay'"></span>
                     </button>
+                    <!-- /ko -->
                 </div>
             </div>
         </div>

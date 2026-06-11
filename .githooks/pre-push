@@ -1,0 +1,25 @@
+#!/bin/sh
+
+echo -e "\033[0;34m"================ Git pre-push hook ================"\033[0m"
+
+MAGENTO=`php -r "echo dirname(dirname(dirname(dirname(dirname(dirname(realpath('$0')))))));"`
+PROJECT=`php -r "echo dirname(dirname(realpath('$0')));"`
+
+echo 'Project root: ' . $PROJECT
+echo 'Magento root: ' . $MAGENTO
+
+if [ -d $PROJECT/Test/Unit/ ]
+then
+    echo -e "\033[0;32m"Running PHP Unit..."\033[0m"
+    $MAGENTO/vendor/bin/phpunit $PROJECT/Test/Unit/
+fi
+
+if [ $? != 0 ]
+then
+    echo -e "\033[41m"Fix the error before push."\033[0m"
+    exit 1
+fi
+
+echo -e "\033[0;34m"====================================================="\033[0m"
+
+exit 0

@@ -343,6 +343,11 @@
             <argument name="getPaymentDataCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetPaymentDataCommand</argument>
         </arguments>
     </type>
+    <type name="Afterpay\Afterpay\Gateway\Response\PaymentDetailsHandler">
+        <arguments>
+            <argument name="paymentUpdater" xsi:type="object">Afterpay\Afterpay\Model\Order\CreditMemo\PaymentUpdater\Proxy</argument>
+        </arguments>
+    </type>
     <type name="Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommandWrapper">
         <arguments>
             <argument name="merchantConfigurationCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\GetMerchantConfigurationCommand</argument>
@@ -403,4 +408,50 @@
             <argument name="authCaptureCommand" xsi:type="object">Afterpay\Afterpay\Gateway\Command\AuthCaptureCommand</argument>
         </arguments>
     </type>
+    <type name="Magento\Checkout\Model\TotalsInformationManagement">
+        <plugin name="AfterpayTotalsInformationManagementFix"
+                type="Afterpay\Afterpay\Plugin\Checkout\Model\TotalsInformationManagementFix"/>
+    </type>
+
+    <virtualType name="Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\PDPLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
+        <arguments>
+            <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\ExpressCheckoutLibUrlProvider</argument>
+            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_PRODUCT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\ViewModel\WidgetCheckout\Lib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
+        <arguments>
+            <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\WidgetCheckoutLibUrlProvider</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\CartLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
+        <arguments>
+            <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\ExpressCheckoutLibUrlProvider</argument>
+            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_CART_PAGE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\ViewModel\Container\ExpressCheckout\MiniCartLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
+        <arguments>
+            <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\ExpressCheckoutLibUrlProvider</argument>
+            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_EXPRESS_CHECKOUT_ACTION_MINI_CART</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\ViewModel\Container\Cta\PDPLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
+        <arguments>
+            <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\CtaLibUrlProvider</argument>
+            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_CTA_PRODUCT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\ViewModel\Container\Cta\CartLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
+        <arguments>
+            <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\CtaLibUrlProvider</argument>
+            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_CTA_CART_PAGE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Afterpay\Afterpay\ViewModel\Container\Cta\MiniCartLib" type="Afterpay\Afterpay\ViewModel\Container\Lib">
+        <arguments>
+            <argument name="libUrlProvider" xsi:type="object">Afterpay\Afterpay\Model\Url\Lib\CtaLibUrlProvider</argument>
+            <argument name="containerConfigPath" xsi:type="const">Afterpay\Afterpay\Model\Config::XML_PATH_ENABLE_CTA_MINI_CART</argument>
+        </arguments>
+    </virtualType>
 </config>

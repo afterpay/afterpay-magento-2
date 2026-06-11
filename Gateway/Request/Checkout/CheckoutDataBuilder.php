@@ -98,10 +98,16 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
         $quoteItems = $quote->getAllVisibleItems();
         $itemsImages = $this->getItemsImages($quoteItems);
         $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
+        $totalDiscountAmount = 0;
 
         foreach ($quoteItems as $item) {
             $productId = $item->getProduct()->getId();
             $amount = $isCBTCurrencyAvailable ? $item->getPriceInclTax() : $item->getBasePriceInclTax();
+            if ($item->getDiscountAmount() !== null) {
+                $discountAmount = $isCBTCurrencyAvailable ? $item->getDiscountAmount(): $item->getBaseDiscountAmount();
+                $amount -= $discountAmount;
+                $totalDiscountAmount += $discountAmount;
+            }
             $currencyCode = $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode();
             $qty = $item->getQty();
             $isIntQty = floor($qty) == $qty;
@@ -132,6 +138,8 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
 
             $formattedItems[] = $formattedItem;
         }
+        $quote->setDiscountAmount($totalDiscountAmount);
+
         return $formattedItems;
     }
 
@@ -210,21 +218,33 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
 
     protected function getDiscounts(\Magento\Quote\Model\Quote $quote): ?array
     {
-        if (!$quote->getBaseDiscountAmount()) {
+        if (!$quote->getDiscountAmount() && !$quote->getGiftCardsAmount()) {
             return null;
         }
+        $result = [];
         $isCBTCurrencyAvailable = $this->checkCBTCurrencyAvailability->checkByQuote($quote);
-        $amount = $isCBTCurrencyAvailable
-            ? $quote->getDiscountAmount()
-            : $quote->getBaseDiscountAmount();
         $currencyCode = $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode();
 
-        return [
-            'displayName' => __('Discount'),
-            'amount' => [
-                'amount' => $this->formatPrice($amount),
-                'currency' => $currencyCode
-            ]
-        ];
+        if ($quote->getDiscountAmount()) {
+            $result[] =   [
+                'displayName' => (string)__('Discount'),
+                'amount' => [
+                    'amount' => $this->formatPrice($quote->getDiscountAmount()),
+                    'currency' => $currencyCode
+                ]
+            ];
+        }
+        if ($quote->getGiftCardsAmount()) {
+            $amount = $isCBTCurrencyAvailable ? $quote->getGiftCardsAmount() : $quote->getBaseGiftCardsAmount();
+            $result[] =   [
+                'displayName' => (string)__('Gift Card'),
+                'amount' => [
+                    'amount' => $this->formatPrice($amount),
+                    'currency' => $currencyCode
+                ]
+            ];
+        }
+
+        return $result;
     }
 }

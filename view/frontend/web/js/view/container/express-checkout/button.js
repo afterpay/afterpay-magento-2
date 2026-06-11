@@ -43,6 +43,9 @@ define([
         },
         initAfterpay: function () {
             expressCheckoutPopup.initAfterpayPopup(this.countryCode);
+            if (this.countryCode === 'US') {
+                $('.afterpay-express-button').css('background', '#101010')
+            }
         },
         _getOnCommenceCheckoutAfterpayMethod: function () {
             return (actions) => {
@@ -109,7 +112,7 @@ define([
             const floatMaxOrderTotal = parseFloat(this.maxOrderTotal);
             const floatMinOrderTotal = parseFloat(this.minOrderTotal);
 
-            return (this.countryCode && window.AfterPay !== undefined && this.isProductAllowed() &&
+            return (this.countryCode && window.Square !== undefined && this.isProductAllowed() &&
                 !(this.currentPrice() > floatMaxOrderTotal || this.currentPrice() < floatMinOrderTotal) &&
                 !this._getIsVirtual()) && this._super();
         },
