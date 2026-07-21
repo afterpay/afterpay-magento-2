@@ -16,6 +16,7 @@
                 <value id="afterpay-cdn-connect" type="host">*.afterpaycdn.com</value>
                 <value id="square-jslib-connect" type="host">*.squarecdn.com</value>
                 <value id="cash-cdn-connect" type="host">*.cash.app</value>
+                <value id="zoid-jsdelivr-connect" type="host">cdn.jsdelivr.net</value>
             </values>
         </policy>
         <policy id="frame-src">

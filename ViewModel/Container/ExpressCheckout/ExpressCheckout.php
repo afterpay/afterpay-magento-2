@@ -70,18 +70,11 @@ class ExpressCheckout extends Container
 
     public function isRestrictedProductInCart(): bool
     {
-        $excludedCategoriesIds = $this->config->getExcludeCategories();
-        if (!empty($excludedCategoriesIds)) {
-            $quoteItems = $this->checkoutSession->getQuote()->getAllVisibleItems();
-            foreach ($quoteItems as $item) {
-                foreach ($item->getProduct()->getCategoryIds() as $categoryId) {
-                    if (in_array($categoryId, $excludedCategoriesIds)) {
-                        return true;
-                    }
-                }
-            }
+        $quote = $this->checkoutSession->getQuote();
+        if (!$quote || !$quote->getId()) {
+            return false;
         }
 
-        return false;
+        return $this->notAllowedProductsProvider->hasRestrictedProductsInQuote($quote);
     }
 }

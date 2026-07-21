@@ -1,271 +1,230 @@
 /**
- * Afterpay - Hyva Checkout Title Replacer
- * Replaces the Afterpay payment method title with Square Placement logo
+ * Afterpay - Hyva Checkout Integration
+ *
+ * Fetches Afterpay config via GraphQL, then imperatively builds the UI:
+ *  - Replaces the payment method title label with a Square logo placement.
+ *  - Injects the payment-schedule widget and terms copy into afterpay.phtml's
+ *    plain-HTML placeholders (no Alpine directives — avoids CSP unsafe-eval).
+ *  - Hides the default "Place Order" button while Afterpay is selected.
+ *  - Initialises Square.Marketplace for the redirect checkout flow.
+ *
+ * Global state used for cross-instance persistence (Magewire re-inits):
+ *   window._afterpayCache    – fetched data, survives component re-creation.
+ *   window._afterpayFetching – prevents duplicate in-flight GraphQL requests.
+ *   window._afterpayDataHandler – single live listener for afterpay:data-ready.
+ *
+ * Order total is re-fetched when shipping changes or the payment step loads so
+ * Square placement widgets stay in sync with the updated grand total.
  */
 (function () {
     'use strict';
 
-    /**
-     * Main Afterpay component
-     */
+    // ─── Component factory ────────────────────────────────────────────────────
+    // Used only for data-fetching and the Square redirect checkout flow.
+    // NOT registered with Alpine.data — afterpay.phtml has no Alpine directives.
+
     window.afterpayComponent = function () {
         return {
-            isVisible: true,
-            currentMethod: '',
-            currency: '',
-            trigger: 'afterpay-hyva-checkout',
             mpid: '',
-            countryCode: '',
+            currency: '',
             orderTotal: '0.00',
-            shippingAddress: '',
+            countryCode: '',
             termsConditionsUrl: '',
-            platform: 'Magento',
-            pageType: 'checkout',
-            placeOrderBtn: '.btn-place-order',
-            afterpayLink: 'https://www.afterpay.com',
-            redirectCheckoutUrl: '',
             dataReady: false,
+            afterpayLink: 'https://www.afterpay.com',
+            trigger: 'afterpay-hyva-checkout',
 
-            /**
-             * Initialize the component (called by Alpine.js)
-             */
             init() {
-                this.fetchMpid();
-                this.fetchOrderTotal();
-                this.initAfterpay();
-                this.setTermsConditionsUrl();
+                const applyData = (data) => {
+                    this.mpid               = data.mpid;
+                    this.currency           = data.currency;
+                    this.orderTotal         = data.orderTotal;
+                    this.countryCode        = data.countryCode || '';
+                    this.termsConditionsUrl = data.termsConditionsUrl || '';
+                    this.dataReady          = true;
+                    this.initAfterpay();
+                };
+
+                // Data already loaded by a previous instance — restore immediately.
+                // Also re-dispatch the event so the bootstrap listeners rebuild
+                // the title logo and payment content (e.g. after switching methods).
+                if (window._afterpayCache?.mpid) {
+                    applyData(window._afterpayCache);
+                    window.dispatchEvent(new CustomEvent('afterpay:data-ready', {detail: window._afterpayCache}));
+                    return;
+                }
+
+                // Replace any stale listener from a dead previous instance so we
+                // never accumulate handlers and always notify the CURRENT instance.
+                if (window._afterpayDataHandler) {
+                    window.removeEventListener('afterpay:data-ready', window._afterpayDataHandler);
+                }
+                window._afterpayDataHandler = (e) => applyData(e.detail);
+                window.addEventListener('afterpay:data-ready', window._afterpayDataHandler, {once: true});
+
+                // Only one global fetch in flight at a time.
+                if (!window._afterpayFetching) {
+                    window._afterpayFetching = true;
+                    this.fetchMpid();
+                    this.fetchOrderTotal();
+                    this.setTermsConditionsUrl();
+                }
             },
 
-            /**
-             * Check if all required data is loaded and dispatch event
-             */
             checkDataReady() {
                 if (this.mpid && this.currency && this.orderTotal && !this.dataReady) {
                     this.dataReady = true;
-
-                    // Inject the Square placement directly
-                    this.injectSquarePlacement();
-
-                    // Also dispatch event for compatibility
-                    window.dispatchEvent(new CustomEvent('afterpay:data-ready', {
-                        detail: {
-                            mpid: this.mpid,
-                            currency: this.currency,
-                            orderTotal: this.orderTotal
-                        }
-                    }));
+                    const data = {
+                        mpid:               this.mpid,
+                        currency:           this.currency,
+                        orderTotal:         this.orderTotal,
+                        countryCode:        this.countryCode,
+                        termsConditionsUrl: this.termsConditionsUrl,
+                    };
+                    window._afterpayCache    = data;
+                    window._afterpayFetching = false;
+                    window.dispatchEvent(new CustomEvent('afterpay:data-ready', {detail: data}));
                 }
             },
 
-            /**
-             * Inject Square placement logo
-             */
-            injectSquarePlacement() {
-                const placementWrapper = document.querySelector('.afterpay-logo-placement');
-                if (!placementWrapper) {
-                    return;
-                }
-
-                // Check if already injected
-                if (placementWrapper.querySelector('square-placement')) {
-                    return;
-                }
-
-                // Remove loading text
-                const loadingDiv = document.getElementById('afterpay-logo-loading');
-                if (loadingDiv) {
-                    loadingDiv.remove();
-                }
-
-                // Create square placement element
-                const squarePlacement = document.createElement('square-placement');
-                squarePlacement.setAttribute('data-mpid', this.mpid);
-                squarePlacement.setAttribute('data-amount', this.orderTotal);
-                squarePlacement.setAttribute('data-currency', this.currency);
-                squarePlacement.setAttribute('data-platform', 'Magento');
-                squarePlacement.setAttribute('data-type', 'logo');
-                squarePlacement.setAttribute('data-page-type', 'checkout');
-
-                placementWrapper.appendChild(squarePlacement);
-            },
-
-            /**
-             * Handles payment method selection. Stores the selected method and toggles the place order button visibility.
-             */
-            onPaymentMethodSelect(methodCode) {
-                this.currentMethod = methodCode;
-                const orderBtn = document.querySelector(this.placeOrderBtn);
-
-                if (orderBtn) {
-                    if (methodCode === 'afterpay') {
-                        orderBtn.classList.add('hidden');
-                    } else {
-                        orderBtn.classList.remove('hidden');
-                    }
-                }
-            },
-
-            /**
-             * Checks and handles the currently selected payment method on component init.
-             */
-            checkInitialPaymentMethod() {
-                setTimeout(() => {
-                    const checked = document.querySelector('input[name=\"payment-method-option\"]:checked');
-                    if (checked && checked.value) {
-                        this.onPaymentMethodSelect(checked.value);
-                    }
-                }, 0);
-            },
-
-            /**
-             * Returns the parsed mage-cache-storage object from localStorage.
-             */
             getMageCacheStorage() {
                 try {
                     return JSON.parse(localStorage.getItem('mage-cache-storage'));
-                } catch (error) {
+                } catch (e) {
                     return {};
                 }
             },
 
-            /**
-             * Sets the Terms & Conditions URL based on the currency.
-             */
             setTermsConditionsUrl() {
                 this.termsConditionsUrl = this.getTermsLink();
             },
 
-            /**
-             * Fetches Afterpay MPID via GraphQL query.
-             */
             async fetchMpid() {
-                const query = `
-                        query {
-                            afterpayConfig {
-                                mpid
-                            }
-                        }
-                    `;
-
+                const query = `query { afterpayConfig { mpid } }`;
                 try {
                     const response = await this.executeGraphqlQuery(query);
                     if (response?.data?.afterpayConfig?.mpid) {
                         this.mpid = response.data.afterpayConfig.mpid;
                         this.checkDataReady();
                     }
-                } catch (error) {
+                } catch (e) {
                     // Silently fail
                 }
             },
 
-            /**
-             * Retrieves the cart ID from mage-cache-storage in localStorage.
-             */
             getCartId() {
                 try {
                     const storageData = this.getMageCacheStorage();
-                    const cartId = storageData?.cart?.cartId;
-
-                    if (!cartId) {
-                        throw new Error('Cart ID not found in mage-cache-storage.');
-                    }
-                    return cartId;
-                } catch (error) {
+                    // Hyva stores the masked guest cart id as cartId or guestMaskId
+                    // depending on the version; try both.
+                    return storageData?.cart?.cartId
+                        || storageData?.cart?.guestMaskId
+                        || null;
+                } catch (e) {
                     return null;
                 }
             },
 
-            /**
-             * Fetches the order total and currency via GraphQL query.
-             */
-            fetchOrderTotal() {
-                const cartId = this.getCartId();
-                if (!cartId) {
-                    return;
-                }
+            async fetchOrderTotal() {
+                try {
+                    const cartId = this.getCartId();
 
-                const query = `
-                        query getCart($cartId: String!) {
-                            cart(cart_id: $cartId) {
-                                prices {
-                                    grand_total {
-                                        value
-                                        currency
-                                    }
+                    if (cartId) {
+                        const query = `
+                            query getCart($cartId: String!) {
+                                cart(cart_id: $cartId) {
+                                    prices { grand_total { value currency } }
                                 }
                             }
-                        }
-                    `;
-
-                this.executeGraphqlQuery(query, {cartId})
-                    .then(response => {
+                        `;
+                        const response = await this.executeGraphqlQuery(query, {cartId});
                         if (response?.data?.cart?.prices?.grand_total) {
-                            const grandTotal = response.data.cart.prices.grand_total;
-                            this.orderTotal = grandTotal.value;
-                            this.currency = grandTotal.currency;
+                            const gt = response.data.cart.prices.grand_total;
+                            this.orderTotal = gt.value;
+                            this.currency = gt.currency;
                             this.checkDataReady();
+                            return;
                         }
-                    })
-                    .catch(error => {
-                    });
+                    }
+
+                    // Fallback: customerCart works for logged-in users without
+                    // needing a cart_id (guests without cartId in localStorage
+                    // will get a GraphQL error and we silently skip it).
+                    const fallback = await this.executeGraphqlQuery(
+                        `{ customerCart { prices { grand_total { value currency } } } }`
+                    );
+                    if (fallback?.data?.customerCart?.prices?.grand_total) {
+                        const gt = fallback.data.customerCart.prices.grand_total;
+                        this.orderTotal = gt.value;
+                        this.currency = gt.currency;
+                        this.checkDataReady();
+                    }
+                } catch (e) {}
             },
 
-            /**
-             * Initializes the AfterPay widget with the required parameters.
-             */
             initAfterpay() {
-                if (!this.mpid) {
-                    return;
-                }
-
+                if (!this.mpid) return;
                 Square.Marketplace.initializeForRedirect({
                     countryCode: this.getCountryCode().toUpperCase(),
                     buyNow: true,
                     pickup: false,
-                    target: "#" + this.trigger,
+                    target: '#' + this.trigger,
                     onCommenceCheckout: actions => this.getAfterpayToken(actions),
                 });
             },
 
-            /**
-             * Fetches the Afterpay token for payment (via API).
-             */
-            getAfterpayToken(actions) {
+            async getAfterpayToken(actions) {
                 const cartId = this.getCartId(),
                     confirmPath = 'afterpay/payment/capture',
-                    cancelPath = 'afterpay/payment/capture';
+                    cancelPath  = 'afterpay/payment/capture';
 
-                const mutation = `
+                try {
+                    if (!cartId || typeof hyvaCheckout === 'undefined') {
+                        throw new Error('Unable to initialize the Afterpay checkout.');
+                    }
+
+                    // The Square button bypasses Hyvä's regular place-order button.
+                    // Flush pending Magewire form changes and run the same client-side
+                    // validation preflight before creating the redirect checkout.
+                    await hyvaCheckout.navigation.executeTasks();
+                    const isValid = await hyvaCheckout.validation.validate();
+                    await hyvaCheckout.isIdle();
+
+                    if (isValid === false) {
+                        Square.Marketplace.close();
+                        actions.reject(Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                        return;
+                    }
+
+                    const mutation = `
                         mutation CreateAfterpayCheckout($cartId: String!, $cancelPath: String!, $confirmPath: String!) {
                             createAfterpayCheckout(input: {
                                 cart_id: $cartId
-                                redirect_path: {
-                                    cancel_path: $cancelPath
-                                    confirm_path: $confirmPath
-                                }
+                                redirect_path: { cancel_path: $cancelPath confirm_path: $confirmPath }
                             }) {
                                 afterpay_token
                                 afterpay_redirectCheckoutUrl
                             }
                         }
                     `;
+                    const response = await this.executeGraphqlQuery(
+                        mutation,
+                        {cartId, cancelPath, confirmPath}
+                    );
+                    const checkout = response?.data?.createAfterpayCheckout;
 
-                this.executeGraphqlQuery(mutation, {cartId, cancelPath, confirmPath})
-                    .then(response => {
-                        if (response?.data.createAfterpayCheckout.afterpay_token && response?.data.createAfterpayCheckout.afterpay_redirectCheckoutUrl) {
-                            window.location.href = response.data.createAfterpayCheckout.afterpay_redirectCheckoutUrl;
-                        } else {
-                            Square.Marketplace.close();
-                            actions.reject(Square.Marketplace.constants.SERVICE_UNAVAILABLE);
-                        }
-                    })
-                    .catch(error => {
-                    });
+                    if (checkout?.afterpay_token && checkout?.afterpay_redirectCheckoutUrl) {
+                        window.location.href = checkout.afterpay_redirectCheckoutUrl;
+                        return;
+                    }
+
+                    throw new Error('Afterpay did not return a checkout token.');
+                } catch (error) {
+                    Square.Marketplace.close();
+                    actions.reject(Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                }
             },
 
-            /**
-             * Executes a GraphQL query to the Magento server.
-             */
             async executeGraphqlQuery(query, variables = {}) {
                 const graphqlEndpoint = `${window.location.origin}/graphql`;
                 const body = JSON.stringify({query, variables});
@@ -278,237 +237,344 @@
                     headers['Authorization'] = `Bearer ${customerToken}`;
                 }
 
-                const response = await fetch(graphqlEndpoint, {
-                    method: 'POST',
-                    headers,
-                    body,
-                });
-
-                if (!response.ok) {
-                    throw new Error(`GraphQL query failed: ${response.statusText}`);
-                }
+                const response = await fetch(graphqlEndpoint, {method: 'POST', headers, body});
+                if (!response.ok) throw new Error(`GraphQL query failed: ${response.statusText}`);
                 return response.json();
             },
 
-            /**
-             * Converts an object to a URL-encoded string (application/x-www-form-urlencoded).
-             */
-            objectToUrlEncoded(obj) {
-                return Object.keys(obj)
-                    .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]))
-                    .join('&');
-            },
-
-            /**
-             * Returns the terms text depending on the currency.
-             */
             getTermsText() {
-                switch (this.currency) {
-                    case 'USD':
-                        return window.afterpayTermsTranslations.USD;
-                    case 'CAD':
-                        return window.afterpayTermsTranslations.CAD;
-                    default:
-                        return window.afterpayTermsTranslations.DEFAULT;
-                }
+                const template = document.getElementById('afterpay-hyva-template');
+                const ds = template?.dataset || {};
+                return {USD: ds.termsUsd, CAD: ds.termsCad}[this.currency] || ds.termsDefault || '';
             },
 
-            /**
-             * Returns the Afterpay terms link depending on the currency.
-             */
             getTermsLink() {
                 switch (this.currency) {
-                    case 'USD':
-                        return this.afterpayLink + '/en-US/installment-agreement';
-                    case 'CAD':
-                        return this.afterpayLink + '/en-CA/instalment-agreement';
-                    case 'NZD':
-                        return this.afterpayLink + '/en-NZ/terms-of-service';
-                    case 'AUD':
-                        return this.afterpayLink + '/en-AU/terms-of-service';
-                    default:
-                        return this.afterpayLink + '/terms/';
+                    case 'USD': return this.afterpayLink + '/en-US/installment-agreement';
+                    case 'CAD': return this.afterpayLink + '/en-CA/instalment-agreement';
+                    case 'NZD': return this.afterpayLink + '/en-NZ/terms-of-service';
+                    case 'AUD': return this.afterpayLink + '/en-AU/terms-of-service';
+                    default:    return this.afterpayLink + '/terms/';
                 }
             },
 
-            /**
-             * Returns the Afterpay terms link depending on the currency.
-             */
             getCountryCode() {
                 switch (this.currency) {
-                    case 'USD':
-                        return 'US';
-                    case 'CAD':
-                        return 'CA';
-                    case 'NZD':
-                        return 'NZ';
-                    case 'AUD':
-                        return 'AU';
-                    default:
-                        return this.countryCode;
+                    case 'USD': return 'US';
+                    case 'CAD': return 'CA';
+                    case 'NZD': return 'NZ';
+                    case 'AUD': return 'AU';
+                    default:    return this.countryCode;
                 }
             },
         };
     };
 
-    // Store component instance globally so we can access it
+    // ─── Payment method selection ─────────────────────────────────────────────
+    // Hides the default "Place Order" button while Afterpay is the active method.
+    // currentPaymentMethod persists across Magewire re-renders so we can re-apply
+    // after the button is replaced in the DOM.
+
+    let currentPaymentMethod = '';
+
+    function applyOrderButtonVisibility() {
+        const orderBtn = document.querySelector('.btn-place-order');
+        if (orderBtn) {
+            orderBtn.classList.toggle('hidden', currentPaymentMethod === 'afterpay');
+        }
+    }
+
+    function onPaymentMethodSelect(methodCode) {
+        currentPaymentMethod = methodCode;
+        applyOrderButtonVisibility();
+    }
+
+    // ─── Payment content injection ────────────────────────────────────────────
+    // Builds the payment-schedule widget and terms text into afterpay.phtml's
+    // plain-HTML placeholder elements. Re-creates square-placement on each call
+    // so amount updates after shipping/total changes are reflected.
+
+    function upsertSquarePlacement(container, data, type) {
+        if (!container || !data?.mpid || !data?.currency || data.orderTotal == null || data.orderTotal === '') {
+            return;
+        }
+
+        container.querySelectorAll('square-placement').forEach((el) => el.remove());
+
+        const sp = document.createElement('square-placement');
+        sp.setAttribute('data-mpid', data.mpid);
+        sp.setAttribute('data-amount', data.orderTotal);
+        sp.setAttribute('data-currency', data.currency);
+        sp.setAttribute('data-type', type);
+        sp.setAttribute('data-platform', 'Magento');
+        sp.setAttribute('data-page-type', 'checkout');
+        container.appendChild(sp);
+    }
+
+    function injectPaymentContent(data) {
+        if (!data.mpid || !data.currency || data.orderTotal == null || data.orderTotal === '') return;
+
+        upsertSquarePlacement(
+            document.getElementById('afterpay-payment-schedule-container'),
+            data,
+            'payment-schedule'
+        );
+
+        const termsTextEl = document.getElementById('afterpay-terms-text');
+        if (termsTextEl && !termsTextEl.textContent.trim()) {
+            const template = document.getElementById('afterpay-hyva-template');
+            const ds = template?.dataset || {};
+            const termsMap = {
+                USD: ds.termsUsd,
+                CAD: ds.termsCad,
+            };
+            termsTextEl.textContent = termsMap[data.currency] || ds.termsDefault || '';
+        }
+
+        const termsLinkEl = document.getElementById('afterpay-terms-link');
+        if (termsLinkEl && data.termsConditionsUrl) {
+            termsLinkEl.href = data.termsConditionsUrl;
+        }
+
+        const termsContainerEl = document.getElementById('afterpay-terms-container');
+        if (termsContainerEl) termsContainerEl.style.display = '';
+
+        const btnEl = document.getElementById('afterpay-hyva-checkout');
+        if (btnEl) {
+            const countryCode = data.countryCode || (data.currency === 'USD' ? 'US' : '');
+            btnEl.classList.toggle('afterpay-green', countryCode === 'US');
+        }
+    }
+
+    // ─── Title replacer ───────────────────────────────────────────────────────
+
     let afterpayComponentInstance = null;
 
-    /**
-     * Replace the Afterpay payment method title with Square logo placement
-     */
     function replaceAfterpayTitle() {
-        // Find the Afterpay payment method option
         const afterpayLabel = document.querySelector('label[for="payment-method-afterpay"]');
+        let afterpaySpan = null;
 
         if (!afterpayLabel) {
-            return;
+            afterpaySpan = document.querySelector('#payment-method-option-afterpay > label > span');
+            if (!afterpaySpan) return;
         }
 
-        // Find the title div within the label
-        const titleDiv = afterpayLabel.querySelector('.text-gray-700.font-bold');
-
-        if (!titleDiv) {
-            return;
+        let titleDiv = null;
+        if (!afterpayLabel && afterpaySpan) {
+            titleDiv = afterpaySpan;
+        } else {
+            titleDiv = afterpayLabel.querySelector('.text-gray-700.font-bold');
         }
 
-        // Check if we already replaced the title
-        if (titleDiv.querySelector('.afterpay-logo-placement')) {
-            return;
-        }
+        if (!titleDiv) return;
+        if (titleDiv.querySelector('.afterpay-logo-placement')) return;
 
-        // Create a wrapper with Alpine component
         const placementWrapper = document.createElement('div');
         placementWrapper.className = 'afterpay-logo-placement';
-        placementWrapper.setAttribute('x-data', 'afterpayComponentInstance = afterpayComponent()');
 
-        // Initially show loading text
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'text-sm text-gray-500';
         loadingDiv.textContent = 'Loading...';
         loadingDiv.id = 'afterpay-logo-loading';
         placementWrapper.appendChild(loadingDiv);
 
-        // Replace the original title text with our wrapper
         titleDiv.textContent = '';
         titleDiv.appendChild(placementWrapper);
 
-        // Initialize Alpine.js on the wrapper
-        if (window.Alpine) {
-            window.Alpine.initTree(placementWrapper);
-        }
+        afterpayComponentInstance = window.afterpayComponent();
+        afterpayComponentInstance.init();
     }
 
-    /**
-     * Inject Square placement logo once data is ready
-     */
     function injectSquarePlacement(data) {
         const placementWrapper = document.querySelector('.afterpay-logo-placement');
-        if (!placementWrapper) {
-            return;
-        }
+        if (!placementWrapper) return;
 
-        // Check if already injected
-        if (placementWrapper.querySelector('square-placement')) {
-            return;
-        }
-
-        // Remove loading text
         const loadingDiv = document.getElementById('afterpay-logo-loading');
-        if (loadingDiv) {
-            loadingDiv.remove();
-        }
+        if (loadingDiv) loadingDiv.remove();
 
-        // Validate data
-        if (!data.mpid || !data.currency || !data.orderTotal) {
-            return;
-        }
-
-        // Create square placement element
-        const squarePlacement = document.createElement('square-placement');
-        squarePlacement.setAttribute('data-mpid', data.mpid);
-        squarePlacement.setAttribute('data-amount', data.orderTotal);
-        squarePlacement.setAttribute('data-currency', data.currency);
-        squarePlacement.setAttribute('data-platform', 'Magento');
-        squarePlacement.setAttribute('data-type', 'logo');
-        squarePlacement.setAttribute('data-page-type', 'checkout');
-
-        placementWrapper.appendChild(squarePlacement);
+        upsertSquarePlacement(placementWrapper, data, 'logo');
     }
 
-    /**
-     * Initialize the title replacement
-     */
-    function init() {
-        // Listen for data ready event
-        window.addEventListener('afterpay:data-ready', (event) => {
-            if (event.detail) {
-                injectSquarePlacement(event.detail);
+    // ─── Order total refresh ──────────────────────────────────────────────────
+    // Re-fetches grand total after shipping changes and re-renders widgets.
+
+    let refreshOrderTotalTimeout = null;
+    let refreshOrderTotalInFlight = null;
+
+    function scheduleOrderTotalRefresh(delayMs = 350) {
+        clearTimeout(refreshOrderTotalTimeout);
+        refreshOrderTotalTimeout = setTimeout(() => {
+            if (!refreshOrderTotalInFlight) {
+                refreshOrderTotalInFlight = refreshCachedOrderTotal().finally(() => {
+                    refreshOrderTotalInFlight = null;
+                });
             }
+        }, delayMs);
+    }
+
+    async function refreshCachedOrderTotal() {
+        if (!window._afterpayCache?.mpid) return;
+
+        const component = afterpayComponentInstance || window.afterpayComponent();
+        component.mpid = window._afterpayCache.mpid;
+        component.currency = window._afterpayCache.currency;
+        component.countryCode = window._afterpayCache.countryCode || '';
+        component.termsConditionsUrl = window._afterpayCache.termsConditionsUrl || component.getTermsLink();
+
+        await component.fetchOrderTotal();
+
+        if (!component.orderTotal || !component.currency) return;
+
+        window._afterpayCache = Object.assign({}, window._afterpayCache, {
+            orderTotal: component.orderTotal,
+            currency: component.currency,
         });
 
-        // Polling fallback: check if component data is ready
+        if (afterpayComponentInstance) {
+            afterpayComponentInstance.orderTotal = component.orderTotal;
+            afterpayComponentInstance.currency = component.currency;
+        }
+
+        window.dispatchEvent(new CustomEvent('afterpay:data-ready', {detail: window._afterpayCache}));
+    }
+
+    // ─── Bootstrap ────────────────────────────────────────────────────────────
+
+    function init() {
+        // When Afterpay data arrives (first fetch or cached re-init), build both
+        // the title logo and the payment-schedule / terms content.
+        window.addEventListener('afterpay:data-ready', (event) => {
+            if (!event.detail) return;
+            injectSquarePlacement(event.detail);
+            injectPaymentContent(event.detail);
+        });
+
+        // Polling fallback: catches the case where the title replacer creates its
+        // own instance that fetches data without going through the event bus.
         let checkCount = 0;
         const checkDataInterval = setInterval(() => {
             checkCount++;
-
             if (afterpayComponentInstance && afterpayComponentInstance.dataReady) {
                 clearInterval(checkDataInterval);
-                injectSquarePlacement({
-                    mpid: afterpayComponentInstance.mpid,
-                    currency: afterpayComponentInstance.currency,
-                    orderTotal: afterpayComponentInstance.orderTotal
-                });
+                const data = {
+                    mpid:               afterpayComponentInstance.mpid,
+                    currency:           afterpayComponentInstance.currency,
+                    orderTotal:         afterpayComponentInstance.orderTotal,
+                    countryCode:        afterpayComponentInstance.countryCode,
+                    termsConditionsUrl: afterpayComponentInstance.termsConditionsUrl,
+                };
+                injectSquarePlacement(data);
+                injectPaymentContent(data);
             } else if (checkCount > 50) {
-                // Stop checking after 10 seconds (50 * 200ms)
                 clearInterval(checkDataInterval);
             }
         }, 200);
 
-        // Try to replace immediately
         replaceAfterpayTitle();
 
-        // Also listen for checkout step loaded event
-        window.addEventListener('checkout:step:loaded', function () {
+        // Detect the initially-selected payment method. Afterpay being pre-selected
+        // is most reliably detected by its template div being in the DOM. We retry
+        // several times because Magewire may render the Place Order button after
+        // DOMContentLoaded, and subsequent Magewire updates may un-hide it.
+        function detectInitialMethod() {
+            if (document.getElementById('afterpay-hyva-template')) {
+                onPaymentMethodSelect('afterpay');
+            } else {
+                const checked = document.querySelector('input[name="payment-method-option"]:checked');
+                if (checked?.value) onPaymentMethodSelect(checked.value);
+            }
+        }
+        [0, 300, 700, 1500].forEach(ms => setTimeout(detectInitialMethod, ms));
+
+        // Re-apply button visibility after every Magewire server round-trip —
+        // Magewire morphs the DOM and can restore the button without our class.
+        const reapplyAfterMagewire = () => applyOrderButtonVisibility();
+        window.addEventListener('livewire:message.processed', reapplyAfterMagewire);
+        window.addEventListener('message.processed', reapplyAfterMagewire);
+
+        window.addEventListener('checkout:step:loaded', (event) => {
+            if (event.detail?.route === 'payment') {
+                scheduleOrderTotalRefresh();
+            }
             replaceAfterpayTitle();
+            detectInitialMethod();
         });
 
-        // Listen for payment method activation
+        window.addEventListener('checkout:shipping:method-activate', scheduleOrderTotalRefresh);
+        window.addEventListener('shipping:method:update', scheduleOrderTotalRefresh);
+
         window.addEventListener('checkout:payment:method-activate', (event) => {
-            if (event.detail && event.detail.method) {
-                setTimeout(replaceAfterpayTitle, 100);
+            if (!event.detail?.method) return;
+            onPaymentMethodSelect(event.detail.method);
+            setTimeout(replaceAfterpayTitle, 100);
+            if (event.detail.method === 'afterpay') {
+                scheduleOrderTotalRefresh();
             }
         });
 
-        // Listen for payment method list updates
-        window.addEventListener('checkout:payment:method-list-updated', function () {
+        window.addEventListener('checkout:payment:method-list-updated', () => {
             setTimeout(replaceAfterpayTitle, 100);
         });
 
-        // Use MutationObserver to catch dynamic changes
-        const observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                if (mutation.addedNodes.length) {
-                    replaceAfterpayTitle();
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (!mutation.addedNodes.length) continue;
+                replaceAfterpayTitle();
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeType !== Node.ELEMENT_NODE) continue;
+                    const afterpayTemplate = node.id === 'afterpay-hyva-template'
+                        ? node
+                        : node.querySelector?.('#afterpay-hyva-template');
+                    if (afterpayTemplate) {
+                        // Afterpay template just appeared — it is now the selected method.
+                        onPaymentMethodSelect('afterpay');
+                        scheduleOrderTotalRefresh();
+                        break;
+                    }
                 }
-            });
+            }
         });
 
-        // Observe the payment methods container
         const paymentMethodsList = document.getElementById('payment-method-list');
         if (paymentMethodsList) {
-            observer.observe(paymentMethodsList, {
-                childList: true,
-                subtree: true
-            });
+            observer.observe(paymentMethodsList, {childList: true, subtree: true});
         }
+
+        // Broader observer: watches the whole document for .btn-place-order being
+        // added or having its class reset by Magewire, and immediately re-hides it
+        // when Afterpay is the active method.
+        const btnObserver = new MutationObserver((mutations) => {
+            if (currentPaymentMethod !== 'afterpay') return;
+            for (const mutation of mutations) {
+                // Node added — check if it is or contains the button.
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeType !== Node.ELEMENT_NODE) continue;
+                    const btn = node.classList?.contains('btn-place-order')
+                        ? node
+                        : node.querySelector?.('.btn-place-order');
+                    if (btn) { btn.classList.add('hidden'); }
+                }
+                // Attribute change — button's class was reset externally.
+                if (
+                    mutation.type === 'attributes' &&
+                    mutation.target.classList?.contains('btn-place-order') &&
+                    !mutation.target.classList.contains('hidden')
+                ) {
+                    mutation.target.classList.add('hidden');
+                }
+            }
+        });
+        btnObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class'],
+        });
     }
 
-    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
 })();
-

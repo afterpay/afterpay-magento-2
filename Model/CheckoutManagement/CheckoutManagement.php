@@ -52,10 +52,10 @@ class CheckoutManagement implements \Afterpay\Afterpay\Api\CheckoutManagementInt
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->getActiveQuoteByCartOrQuoteId($cartId);
 
-        $this->cartRepository->save($quote->reserveOrderId());
         if ($this->expressCheckoutValidator !== null) {
             $this->expressCheckoutValidator->validate($quote);
         }
+        $this->cartRepository->save($quote->reserveOrderId());
         $this->expressCheckoutCommand->execute(['quote' => $quote, 'popup_origin_url' => $popupOriginUrl]);
 
         return $this->createCheckout($quote->getPayment());

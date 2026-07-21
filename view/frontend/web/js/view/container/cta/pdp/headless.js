@@ -25,6 +25,7 @@
     function fetchConfigData() {
         const requestOptions = {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -34,6 +35,10 @@
         return fetch(graphqlEndpoint, requestOptions)
             .then(response => response.json())
             .then(data => {
+                if (data?.errors) {
+                    console.error("Error:", data.errors[0].message);
+                    return null;
+                }
                 if (data) {
                     const afterpayConfig = data.data.getAfterpayConfigPdp;
 
@@ -42,7 +47,7 @@
                             dataShowLowerLimit = afterpayConfig.show_lover_limit,
                             dataPlatform = 'Magento',
                             dataPageType = 'product',
-                            dataIsEligible = afterpayConfig.is_product_allowed,
+                            dataIsEligible = afterpayConfig.is_product_allowed ? 'true' : 'false',
                             dataCbtEnabledString = Boolean(afterpayConfig.is_cbt_enabled).toString(),
                             dataProductType = afterpayConfig.product_type,
                             squarePlacementId = 'afterpay-cta-pdp',
@@ -141,5 +146,7 @@
         }
     }
 
-    processAfterpay();
+    window.addEventListener("load", () => {
+        processAfterpay();
+    });
 })(document, window, 'script');

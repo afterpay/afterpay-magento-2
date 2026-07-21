@@ -15,11 +15,15 @@ window.addEventListener("load", () => {
             ecButtonPlace: document.querySelector("#product_addtocart_form"),
             wrapElement: document.querySelector("#headless-afterpay-pdp-ec"),
             configData: '',
+            activeExpressAttempt: '',
 
             init() {
                 document.addEventListener('showHeadlessEC', (event) => {
                     this.extractSectionData(event.detail.afterpayConfig);
                     this.configData = event.detail.afterpayConfig;
+                });
+                window.addEventListener('private-content-loaded', (event) => {
+                    this.onCartSectionUpdated(event.detail?.data?.cart);
                 });
             },
 
@@ -99,12 +103,29 @@ window.addEventListener("load", () => {
 
             validateShowButton() {
                 let currentPrice = this.getCurrentPrice();
+                let cartTotal = +this.afterpayCartSubtotal || 0;
 
-                if (this.enableForPDP && this.isProductAllowed && +currentPrice >= +this.minPrice && +currentPrice <= +this.maxPrice) {
+                if (this.enableForPDP
+                    && this.isProductAllowed
+                    && +currentPrice >= +this.minPrice
+                    && +currentPrice <= +this.maxPrice
+                    && cartTotal <= this.maxPrice) {
                     this.wrapElement.classList.remove("hidden");
                 } else {
                     this.wrapElement.classList.add("hidden");
                 }
+            },
+
+            onCartSectionUpdated(cart) {
+                if (!this.wrapElement) {
+                    return;
+                }
+
+                if (cart?.subtotalAmount !== undefined) {
+                    this.afterpayCartSubtotal = +cart.subtotalAmount;
+                }
+
+                this.validateShowButton();
             },
 
             getCurrentPrice() {
@@ -137,26 +158,42 @@ window.addEventListener("load", () => {
 
                 const formData = new FormData(form);
                 formData.append('form_key', this.getCookie('form_key'));
+                this.activeExpressAttempt = 'ap-' + Date.now() + '-' +
+                    Math.random().toString(36).slice(2);
+                formData.set('afterpay_express_attempt', this.activeExpressAttempt);
+                formData.set('afterpay_express_headless', '1');
 
                 window.fetch(postUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: formData,
-                    method: 'POST'
+                    method: 'POST',
+                    credentials: 'same-origin'
                 })
-                .catch(console.error)
-                .finally(() => {
-                    addEventListener('private-content-loaded', event => {
-                        if (this.checkPriceLimit(event.detail.data.cart)) {
-                            document.getElementById(this.trigger).click();
-                        }
-                    });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to add the product to the cart.');
+                    }
 
-                    dispatchEvent(new Event('reload-customer-section-data'));
+                    window.addEventListener('private-content-loaded', event => {
+                        if (this.checkPriceLimit(event.detail.data.cart)) {
+                            this.afterpayCartSubtotal = event.detail.data.cart.subtotalAmount;
+                        }
+                    }, {once: true});
+
+                    window.dispatchEvent(new Event('reload-customer-section-data'));
                     this.initAfterpay();
                     document.getElementById(this.trigger).click();
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.revertPdpAttempt();
                 });
             },
 
             ecValidationAddToCart(event) {
+                event.preventDefault();
                 event.stopImmediatePropagation();
 
                 const form = document.forms.product_addtocart_form;
@@ -222,17 +259,11 @@ window.addEventListener("load", () => {
             },
 
             checkPriceLimit(cartSubtotal) {
-                let total = cartSubtotal?.subtotalAmount ? cartSubtotal?.subtotalAmount : cartSubtotal,
-                    currentPrice = this.getCurrentPrice();
+                let total = cartSubtotal?.subtotalAmount ? cartSubtotal?.subtotalAmount : cartSubtotal;
+                this.afterpayCartSubtotal = +total;
+                this.validateShowButton();
 
-                if (+currentPrice >= +this.minPrice && +total <= this.maxPrice) {
-                    this.wrapElement.classList.remove("hidden");
-                    return true;
-                } else {
-                    this.wrapElement.classList.add("hidden");
-                }
-
-                return false;
+                return this.wrapElement && !this.wrapElement.classList.contains('hidden');
             },
 
             objectToUrlEncoded(obj) {
@@ -250,6 +281,12 @@ window.addEventListener("load", () => {
                             AfterPay.close();
                             return actions.reject(Square.Marketplace.constants.SHIPPING_ADDRESS_UNSUPPORTED);
                         }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        this.revertPdpAttempt();
+                        AfterPay.close();
+                        return actions.reject(Square.Marketplace.constants.SHIPPING_ADDRESS_UNRECOGNIZED);
                     });
             },
 
@@ -257,21 +294,47 @@ window.addEventListener("load", () => {
                 if (event.data.status === 'CANCELLED') {
                     window.dispatchEvent(new CustomEvent('start-loader'));
                     document.body.dispatchEvent(new CustomEvent('processStart'));
-                    localStorage?.removeItem('mage-cache-storage');
-                    window.location.reload();
+                    return this.revertPdpAttempt();
                 }
 
-                this.placeOrder(event);
+                return this.placeOrder(event);
             },
 
-            handleMessage(type, text) {
-                if (typeof (dispatchMessages) != "undefined") {
-                    dispatchMessages([{type, text}], 5000);
+            showPersistentMessage(type, text) {
+                const bannerId = 'afterpay-express-error-banner';
+                const escapeHtml = (value) => String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+
+                let banner = document.getElementById(bannerId);
+                if (!banner) {
+                    banner = document.createElement('div');
+                    banner.id = bannerId;
+                    banner.className = 'messages';
+                    banner.setAttribute('role', 'alert');
+                    const anchor = document.getElementById('messages')
+                        || document.querySelector('main')
+                        || document.body;
+                    anchor.prepend(banner);
+                }
+
+                banner.innerHTML = '<div class="message-' + type + ' ' + type + ' message"><div>'
+                    + escapeHtml(text)
+                    + '</div></div>';
+
+                try {
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                } catch (error) {
+                    window.scrollTo(0, 0);
                 }
             },
 
             placeOrder(event) {
-                const data = this.objectToUrlEncoded(event.data);
+                const data = this.objectToUrlEncoded(Object.assign({}, event.data, {
+                    express_attempt: this.activeExpressAttempt
+                }));
                 window.dispatchEvent(new CustomEvent('start-loader'));
                 document.body.dispatchEvent(new CustomEvent('processStart'));
 
@@ -288,7 +351,8 @@ window.addEventListener("load", () => {
 
                             cookieStore.set('mage-messages', messagesJson);
                             window.dispatchEvent(new CustomEvent('stop-loader'));
-                            document.body.dispatchEvent(new CustomEvent('processStop'));
+                            document.body.dispatchEvent(new CustomEvent('processStop', {bubbles: true}));
+                            window.dispatchEvent(new Event('reload-customer-section-data'));
                             window.location.href = response.redirectUrl;
                         }else{
                             if (response?.redirectUrl) {
@@ -298,18 +362,63 @@ window.addEventListener("load", () => {
                                 window.location.href = response.redirectUrl;
                             }
                         }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        window.dispatchEvent(new CustomEvent('stop-loader'));
+                        document.body.dispatchEvent(new CustomEvent('processStop', {bubbles: true}));
+                        this.revertPdpAttempt();
                     });
             },
 
             getAfterpayToken(actions) {
-                this.fetchData("afterpay/express/createCheckout")
+                const data = this.objectToUrlEncoded({
+                    express_attempt: this.activeExpressAttempt
+                });
+                this.fetchData("afterpay/express/createCheckout", data)
                     .then(response => {
                         if (response?.afterpay_token) {
                             return actions.resolve(response.afterpay_token);
                         } else {
-                            AfterPay.close();
-                            return actions.reject(Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                            const pendingMessage = response?.message || null;
+                            return this.revertPdpAttempt().finally(() => {
+                                AfterPay.close();
+                                actions.reject(Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                            }).then(() => {
+                                if (pendingMessage) {
+                                    this.showPersistentMessage('error', pendingMessage);
+                                }
+                            });
                         }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        return this.revertPdpAttempt().finally(() => {
+                            AfterPay.close();
+                            actions.reject(Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                        });
+                    });
+            },
+
+            revertPdpAttempt() {
+                if (!this.activeExpressAttempt) {
+                    window.dispatchEvent(new CustomEvent('stop-loader'));
+                    document.body.dispatchEvent(new CustomEvent('processStop', {bubbles: true}));
+                    return Promise.resolve();
+                }
+
+                const data = this.objectToUrlEncoded({
+                    express_attempt: this.activeExpressAttempt
+                });
+                return this.fetchData("afterpay/express/revertPdp", data)
+                    .catch(error => {
+                        console.error(error);
+                    })
+                    .finally(() => {
+                        this.activeExpressAttempt = '';
+                        window.dispatchEvent(new Event('reload-customer-section-data'));
+                        window.dispatchEvent(new CustomEvent('stop-loader'));
+                        document.body.dispatchEvent(new CustomEvent('processStop', {bubbles: true}));
                     });
             },
 
@@ -333,9 +442,6 @@ window.addEventListener("load", () => {
                     })
                     .then(data => {
                         return data;
-                    })
-                    .catch(error => {
-                        console.error('There was a problem with the fetch operation:', error);
                     });
             },
 

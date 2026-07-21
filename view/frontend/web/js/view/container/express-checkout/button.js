@@ -51,20 +51,29 @@ define([
             return (actions) => {
                 AfterPay.shippingOptionRequired = !this._getIsVirtual();
                 $.post(
-                    url.build('afterpay/express/createCheckout')
+                    url.build('afterpay/express/createCheckout'),
+                    {express_attempt: this.activeExpressAttempt}
                 ).done((response) => {
                     if (response && response.afterpay_token) {
                         actions.resolve(response.afterpay_token);
                     } else {
-                        this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                        const pendingMessage = response && response.message ? response.message : null;
+                        this._revertPdpAttempt().always(() => {
+                            if (pendingMessage) {
+                                this._displayErrorMessage(pendingMessage);
+                            }
+                            this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                        });
                     }
                 }).fail(
-                    () => this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE)
+                    () => this._revertPdpAttempt().always(() => {
+                        this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                    })
                 );
             }
         },
         _getOnShippingAddressChange: function () {
-            return function (shippingAddress, actions) {
+            return (shippingAddress, actions) => {
                 $.post(
                     url.build('afterpay/express/getShippingOptions'),
                     shippingAddress
@@ -72,23 +81,30 @@ define([
                     if (response.success && Array.isArray(response.shippingOptions)) {
                         actions.resolve(response.shippingOptions);
                     } else {
-                        this._fail(actions, Square.Marketplace.constants.SHIPPING_ADDRESS_UNSUPPORTED);
+                        this._revertPdpAttempt().always(() => {
+                            this._fail(actions, Square.Marketplace.constants.SHIPPING_ADDRESS_UNSUPPORTED);
+                        });
                     }
                 }).fail(
-                    () => this._fail(actions, Square.Marketplace.constants.SHIPPING_ADDRESS_UNRECOGNIZED)
+                    () => this._revertPdpAttempt().always(() => {
+                        this._fail(actions, Square.Marketplace.constants.SHIPPING_ADDRESS_UNRECOGNIZED);
+                    })
                 );
-            }
+            };
         },
         _getOnComplete: function () {
-            return function (event) {
+            return (event) => {
                 if (event.data.status === 'CANCELLED') {
                     return;
                 }
 
                 $(document.body).trigger('processStart');
+                const data = Object.assign({}, event.data, {
+                    express_attempt: this.activeExpressAttempt
+                });
                 $.post(
                     url.build('afterpay/express/placeOrder'),
-                    event.data
+                    data
                 ).done(function (response) {
                     if (response && response.redirectUrl) {
                         if (response.error) {
@@ -98,8 +114,24 @@ define([
                     } else {
                         $(document.body).trigger('processStop');
                     }
+                }).fail(() => {
+                    $(document.body).trigger('processStop');
+                    this._revertPdpAttempt();
                 });
+            };
+        },
+        _revertPdpAttempt: function () {
+            if (!this.activeExpressAttempt) {
+                return $.Deferred().resolve().promise();
             }
+
+            return $.post(
+                url.build('afterpay/express/revertPdp'),
+                {express_attempt: this.activeExpressAttempt}
+            ).always(() => {
+                this.activeExpressAttempt = null;
+                customerData.reload(['cart'], true);
+            });
         },
         _fail: function (actions, afterpayConst) {
             actions.reject(afterpayConst);
@@ -115,6 +147,34 @@ define([
             return (this.countryCode && window.Square !== undefined && this.isProductAllowed() &&
                 !(this.currentPrice() > floatMaxOrderTotal || this.currentPrice() < floatMinOrderTotal) &&
                 !this._getIsVirtual()) && this._super();
+        },
+        _displayErrorMessage: function (errorMessage) {
+            var bannerId = 'afterpay-express-error-banner';
+            var escapeHtml = function (value) {
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            };
+            var banner = document.getElementById(bannerId);
+
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = bannerId;
+                banner.className = 'messages';
+                banner.setAttribute('role', 'alert');
+                var anchor = document.getElementById('messages')
+                    || document.querySelector('.page.messages')
+                    || document.querySelector('main')
+                    || document.body;
+                anchor.insertBefore(banner, anchor.firstChild);
+            }
+
+            banner.innerHTML = '<div class="message-error error message"><div>'
+                + escapeHtml(errorMessage)
+                + '</div></div>';
+            window.scrollTo(0, 0);
         },
         _handleError: function (errorMessage) {
             $(document).ready(function () {

@@ -30,4 +30,8 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Checkout\Model\Cart">
+        <plugin name="afterpay_track_pdp_express_attempt"
+                type="Afterpay\Afterpay\Plugin\Checkout\Cart"/>
+    </type>
 </config>

@@ -41,23 +41,38 @@ define([
             let isBundle = $('#product_addtocart_form').find('#bundleSummary').length;
             const parentOnCommenceCheckoutAfterpayMethod = this._super();
             return (actions) => {
-                if (!isBundle) {
-                    const productSubmitForm = $('#product_addtocart_form');
-                    productSubmitForm.submit();
-                }
                 this.onCartUpdated = $.Deferred();
+                if (!isBundle) {
+                    const addTimeout = setTimeout(() => {
+                        this.onCartUpdated.reject();
+                    }, 15000);
+                    this.onCartUpdated.always(() => clearTimeout(addTimeout));
+                    const productSubmitForm = $('#product_addtocart_form');
+                    this.activeExpressAttempt = 'ap-' + Date.now() + '-' +
+                        Math.random().toString(36).slice(2);
+                    productSubmitForm.find('[name="afterpay_express_attempt"]').remove();
+                    const attemptInput = $('<input>', {
+                        type: 'hidden',
+                        name: 'afterpay_express_attempt',
+                        value: this.activeExpressAttempt
+                    }).appendTo(productSubmitForm);
+                    productSubmitForm.submit();
+                    setTimeout(() => attemptInput.remove(), 0);
+                }
                 this.onCartUpdated.done(() => parentOnCommenceCheckoutAfterpayMethod(actions))
-                    .fail(() => this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE));
+                    .fail(() => this._revertPdpAttempt().always(() => {
+                        this._fail(actions, Square.Marketplace.constants.SERVICE_UNAVAILABLE);
+                    }));
             }
         },
         _getOnComplete: function () {
             const parentOnComplete = this._super();
-            return function (event) {
+            return (event) => {
                 if (event.data.status === 'CANCELLED') {
-                    window.location.href = window.checkout.shoppingCartUrl;
+                    return this._revertPdpAttempt();
                 }
                 return parentOnComplete(event);
-            }
+            };
         },
         _getIsVirtual: function () {
             if (this.cartContainerModel) {
@@ -78,14 +93,7 @@ define([
             return $('#product-addtocart-button').length > 0 && this._super();
         },
         _getIsAllProductsAllowed: function () {
-            let isProductsInCartAllowed = true;
-            if (this.cartContainerModel) {
-                isProductsInCartAllowed = this._getIsAllProductsInArrayAllowed(this.cartContainerModel.getCurrentProductsIds())
-            }
-            if (!isProductsInCartAllowed) {
-                return false;
-            }
-            return this._super()
+            return this._super();
         }
     });
 });

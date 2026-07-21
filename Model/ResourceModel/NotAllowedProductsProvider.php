@@ -30,4 +30,50 @@ class NotAllowedProductsProvider
 
         return $connection->fetchCol($select);
     }
+
+    public function isProductAllowed(\Magento\Catalog\Api\Data\ProductInterface $product, ?int $storeId = null): bool
+    {
+        $notAllowedProductIds = array_map('intval', $this->provideIds($storeId));
+        if (in_array((int)$product->getId(), $notAllowedProductIds, true)) {
+            return false;
+        }
+
+        $excludedCategoriesIds = $this->config->getExcludeCategories($storeId);
+        if (empty($excludedCategoriesIds)) {
+            return true;
+        }
+
+        foreach ($product->getCategoryIds() as $categoryId) {
+            if (in_array((int)$categoryId, $excludedCategoriesIds, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRestrictedSkusFromQuote(\Magento\Quote\Model\Quote $quote): array
+    {
+        $notAllowedProductIds = array_flip($this->provideIds((int)$quote->getStoreId()));
+        if (!$notAllowedProductIds) {
+            return [];
+        }
+
+        $restrictedSkus = [];
+        foreach ($quote->getAllItems() as $item) {
+            if (isset($notAllowedProductIds[(int)$item->getProductId()])) {
+                $restrictedSkus[] = (string)$item->getSku();
+            }
+        }
+
+        return array_values(array_unique($restrictedSkus));
+    }
+
+    public function hasRestrictedProductsInQuote(\Magento\Quote\Model\Quote $quote): bool
+    {
+        return $this->getRestrictedSkusFromQuote($quote) !== [];
+    }
 }

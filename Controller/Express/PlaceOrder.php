@@ -23,6 +23,8 @@ class PlaceOrder implements HttpPostActionInterface
     private CommandInterface $syncCheckoutDataCommand;
     private StoreManagerInterface $storeManager;
     private ManagerInterface $messageManager;
+    private \Afterpay\Afterpay\Model\CheckoutManagement\ExpressCheckoutValidator $expressCheckoutValidator;
+    private \Afterpay\Afterpay\Model\ExpressCheckout\PdpAttemptManager $attemptManager;
 
     public function __construct(
         RequestInterface      $request,
@@ -31,7 +33,9 @@ class PlaceOrder implements HttpPostActionInterface
         PlaceOrderProcessor   $placeOrderProcessor,
         CommandInterface      $syncCheckoutDataCommand,
         StoreManagerInterface $storeManager,
-        ManagerInterface      $messageManager
+        ManagerInterface      $messageManager,
+        \Afterpay\Afterpay\Model\CheckoutManagement\ExpressCheckoutValidator $expressCheckoutValidator,
+        \Afterpay\Afterpay\Model\ExpressCheckout\PdpAttemptManager $attemptManager
     ) {
         $this->request = $request;
         $this->checkoutSession = $checkoutSession;
@@ -40,6 +44,8 @@ class PlaceOrder implements HttpPostActionInterface
         $this->syncCheckoutDataCommand = $syncCheckoutDataCommand;
         $this->storeManager = $storeManager;
         $this->messageManager = $messageManager;
+        $this->expressCheckoutValidator = $expressCheckoutValidator;
+        $this->attemptManager = $attemptManager;
     }
 
     public function execute()
@@ -49,11 +55,14 @@ class PlaceOrder implements HttpPostActionInterface
 
         $afterpayOrderToken = $this->request->getParam('orderToken');
         $status = $this->request->getParam('status');
+        $attemptId = (string)$this->request->getParam('express_attempt');
         if ($status === Capture::CHECKOUT_STATUS_CANCELLED) {
+            $this->attemptManager->revert($attemptId);
             return $jsonResult;
         }
 
         if ($status !== Capture::CHECKOUT_STATUS_SUCCESS) {
+            $this->attemptManager->revert($attemptId);
             $errorMessage = (string)__('Afterpay payment is declined. Please select an alternative payment method.');
 
             return $jsonResult->setData([
@@ -63,23 +72,34 @@ class PlaceOrder implements HttpPostActionInterface
         }
 
         try {
+            $this->expressCheckoutValidator->validate($quote);
             $quote->getPayment()
                 ->setMethod(Config::CODE)
                 ->setAdditionalInformation('afterpay_express', true);
             $this->placeOrderProcessor->execute($quote, $this->syncCheckoutDataCommand, $afterpayOrderToken);
         } catch (\Throwable $e) {
+            $this->attemptManager->revert($attemptId);
             $errorMessage = $e instanceof LocalizedException
                 ? $e->getMessage()
                 : (string)__('Afterpay payment is declined. Please select an alternative payment method.');
 
-            return $jsonResult->setData([
+            $data = [
                 'error'       => $errorMessage,
                 'redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/cart')
-            ]);
+            ];
+            if ($e instanceof \Afterpay\Afterpay\Model\CheckoutManagement\RestrictedProductsException) {
+                $data['error_code'] = 'restricted_products';
+                $data['restricted_skus'] = $e->getRestrictedSkus();
+            }
+
+            return $jsonResult->setData($data);
         }
 
+        $this->attemptManager->discard($attemptId);
         $this->messageManager->addSuccessMessage((string)__('Afterpay Transaction Completed.'));
 
-        return $jsonResult->setData(['redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/onepage/success')]);
+        return $jsonResult->setData([
+            'redirectUrl' => $this->storeManager->getStore()->getUrl('checkout/onepage/success')
+        ]);
     }
 }

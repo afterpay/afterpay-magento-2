@@ -75,6 +75,8 @@ type afterpayConfigPdpOutput {
     price_selector_bundle: String
     is_in_stock: Boolean
     placement_id: String
+    has_restricted_products_in_cart: Boolean
+    not_allowed_product_ids: [String]
 }
 
 type afterpayConfigCartOutput {

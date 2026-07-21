@@ -3,8 +3,10 @@
 namespace Afterpay\Afterpay\Model\GraphQl\Resolver;
 
 use Afterpay\Afterpay\Model\Config;
+use Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
@@ -16,16 +18,22 @@ class AfterpayConfigPdp extends AfterpayConfig implements ResolverInterface
 {
     private ProductRepositoryInterface $productRepository;
     private StockRegistryInterface $stockRegistry;
+    private Session $checkoutSession;
+    private NotAllowedProductsProvider $notAllowedProductsProvider;
 
     public function __construct(
         Config $config,
         StoreManagerInterface           $storeManager,
         ProductRepositoryInterface      $productRepository,
-        StockRegistryInterface          $stockRegistry
+        StockRegistryInterface          $stockRegistry,
+        Session                         $checkoutSession,
+        NotAllowedProductsProvider      $notAllowedProductsProvider
     ) {
         parent::__construct($config, $storeManager);
         $this->productRepository = $productRepository;
         $this->stockRegistry = $stockRegistry;
+        $this->checkoutSession = $checkoutSession;
+        $this->notAllowedProductsProvider = $notAllowedProductsProvider;
     }
 
     /**
@@ -69,16 +77,16 @@ class AfterpayConfigPdp extends AfterpayConfig implements ResolverInterface
         $result['price_selector_bundle'] = $this->config->getPdpPlacementPriceSelectorBundle($websiteId);
         $result['show_lover_limit'] = $this->config->getMinOrderTotal($websiteId) >= 1;
         $result['is_cbt_enabled'] = count($this->config->getSpecificCountries($websiteId)) > 1;
-        $result['is_product_allowed'] = true;
-        $excludedCategoriesIds = $this->config->getExcludeCategories((int)$storeId);
-        if (!empty($excludedCategoriesIds)) {
-            foreach ($product->getCategoryIds() as $categoryId) {
-                if (in_array($categoryId, $excludedCategoriesIds)) {
-                    $result['is_product_allowed'] = false;
-                    break;
-                }
-            }
-        }
+        $result['not_allowed_product_ids'] = array_map(
+            'strval',
+            $this->notAllowedProductsProvider->provideIds((int)$storeId)
+        );
+        $result['is_product_allowed'] = $this->notAllowedProductsProvider->isProductAllowed($product, (int)$storeId);
+
+        $quote = $this->checkoutSession->getQuote();
+        $result['has_restricted_products_in_cart'] = $quote && $quote->getId()
+            ? $this->notAllowedProductsProvider->hasRestrictedProductsInQuote($quote)
+            : false;
 
         // Add stock status
         $stockItem = $this->stockRegistry->getStockItemBySku($productSku);

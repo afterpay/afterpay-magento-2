@@ -8,6 +8,8 @@
         <script src="Afterpay_Afterpay::js/hyva-checkout-title-replacer.js" defer="defer"/>
     </head>
     <body>
+        <referenceBlock name="afterpay.cta.mini.cart.headless" remove="true"/>
+        <referenceBlock name="afterpay.minicart.express.checkout.headless" remove="true"/>
         <referenceBlock name="head.components">
             <block name="afterpay.widget.checkout.cart.lib" template="Afterpay_Afterpay::express-checkout/lib.phtml" before="-" >
                 <arguments>

@@ -7,6 +7,8 @@
     <body>
         <referenceBlock name="afterpay.express.checkout.mini.cart.lib" remove="true"/>
         <referenceBlock name="afterpay.cta.mini.cart.lib" remove="true"/>
+        <referenceBlock name="afterpay.cta.mini.cart.headless" remove="true"/>
+        <referenceBlock name="afterpay.minicart.express.checkout.headless" remove="true"/>
         <referenceBlock name="head.components">
             <block name="afterpay.widget.checkout.cart.lib" template="Afterpay_Afterpay::express-checkout/lib.phtml" before="-" >
                 <arguments>

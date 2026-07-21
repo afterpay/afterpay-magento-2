@@ -20,7 +20,6 @@ if ($isHyva) {
     }
 }
 ?>
-<?php if (!$viewModel->isRestrictedProductInCart()) : ?>
 <script>
     if (typeof afterpayLocaleCode === 'undefined') {
         var afterpayLocaleCode = "<?= /* @noEscape */ (string)$viewModel->getCountryCode() ?>";
@@ -53,18 +52,17 @@ if ($isHyva) {
 </script>
 <?php endif; ?>
 
-<section <?= $isHyva ? 'x-data="initHyvaLoaderComponent()" @start-loader.window="startLoader()" @processStop.window="stopLoader()"' : '' ?> id="headless-afterpay-pdp-ec" class="headless-afterpay-ec hidden headless-afterpay-pdp-ec">
+<section <?= $isHyva ? 'x-data="initHyvaLoaderComponent()" @start-loader.window="startLoader()" @stop-loader.window="stopLoader()"' : '' ?> id="headless-afterpay-pdp-ec" class="headless-afterpay-ec hidden headless-afterpay-pdp-ec">
     <?php if ($isHyva): ?>
     <div x-show="isLoading">
         <?= /* @noEscape */ $loadingHtml ?>
     </div>
     <?php endif; ?>
     <div class="afterpay-express-checkout-product-wrapper">
-        <button class="afterpay-express-button afterpay-express-pdp-button">
+        <button type="button" class="afterpay-express-button afterpay-express-pdp-button">
             <img src="<?= $escaper->escapeUrl($viewModel->getImageurl()) ?>"
                  alt="<?= /* @noEscape */ __('Checkout with Afterpay') ?>"/>
         </button>
         <div class="hidden" id="afterpay-button-pdp" data-afterpay-entry-point="product-page"></div>
     </div>
 </section>
-<?php endif; ?>
