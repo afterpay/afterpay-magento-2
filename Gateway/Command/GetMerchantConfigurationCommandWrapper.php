@@ -60,12 +60,10 @@ class GetMerchantConfigurationCommandWrapper implements \Magento\Payment\Gateway
 
             return null;
         } catch (\Magento\Payment\Gateway\Command\CommandException $e) {
-            $this->eraseMerchantConfiguration($websiteId, $websiteHasOwnConfig);
             $this->logger->notice($e->getMessage());
             throw $e;
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
-            $this->eraseMerchantConfiguration($websiteId, $websiteHasOwnConfig);
             throw $e;
         } finally {
             $this->appConfig->reinit();

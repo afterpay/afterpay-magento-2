@@ -2,28 +2,33 @@
 
 namespace Afterpay\Afterpay\Controller\Adminhtml\MerchantConfiguration;
 
-class Update implements \Magento\Framework\App\Action\HttpPostActionInterface
+class Update extends \Magento\Backend\App\Action implements \Magento\Framework\App\Action\HttpPostActionInterface
 {
+    public const ADMIN_RESOURCE = 'Magento_Payment::payment';
     private $resultJsonFactory;
-    private $messageManager;
-    private $request;
     private $merchantConfigurationCommand;
+    private $storeManager;
 
     public function __construct(
+        \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\App\RequestInterface $request,
-        \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand
+        \Magento\Payment\Gateway\CommandInterface $merchantConfigurationCommand,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
+        parent::__construct($context);
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->messageManager = $messageManager;
-        $this->request = $request;
         $this->merchantConfigurationCommand = $merchantConfigurationCommand;
+        $this->storeManager = $storeManager;
     }
 
     public function execute()
     {
-        $websiteId = $this->request->getParam('websiteId');
+        $websiteId = $this->getRequest()->getParam('websiteId');
+        if (!$this->isValidWebsiteId($websiteId)) {
+            return $this->resultJsonFactory->create()->setHttpResponseCode(400)->setData([
+                'done' => false
+            ]);
+        }
         try {
             $this->merchantConfigurationCommand->execute(
                 [
@@ -43,5 +48,26 @@ class Update implements \Magento\Framework\App\Action\HttpPostActionInterface
         return $this->resultJsonFactory->create()->setData([
             'done' => true
         ]);
+    }
+
+    private function isValidWebsiteId($websiteId): bool
+    {
+        if (!is_int($websiteId) && !is_string($websiteId)) {
+            return false;
+        }
+        if (!preg_match('/^(0|[1-9][0-9]*)$/D', (string)$websiteId)
+            || filter_var($websiteId, FILTER_VALIDATE_INT) === false
+        ) {
+            return false;
+        }
+        if ((int)$websiteId === 0) {
+            return true;
+        }
+        try {
+            $this->storeManager->getWebsite((int)$websiteId);
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            return false;
+        }
+        return true;
     }
 }

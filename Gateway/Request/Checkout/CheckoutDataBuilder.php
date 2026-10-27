@@ -10,17 +10,20 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
     private $productRepository;
     private $searchCriteriaBuilder;
     protected $checkCBTCurrencyAvailability;
+    private $itemAmountCalculator;
 
     public function __construct(
         \Magento\Framework\UrlInterface $url,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface $checkCBTCurrencyAvailability
+        \Afterpay\Afterpay\Model\CBT\CheckCBTCurrencyAvailabilityInterface  $checkCBTCurrencyAvailability,
+        \Afterpay\Afterpay\Gateway\Helper\ItemAmountCalculator $itemAmountCalculator
     ) {
         $this->url = $url;
         $this->productRepository = $productRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->checkCBTCurrencyAvailability = $checkCBTCurrencyAvailability;
+        $this->itemAmountCalculator = $itemAmountCalculator;
     }
 
     public function build(array $buildSubject): array
@@ -102,30 +105,18 @@ class CheckoutDataBuilder implements \Magento\Payment\Gateway\Request\BuilderInt
 
         foreach ($quoteItems as $item) {
             $productId = $item->getProduct()->getId();
-            $amount = $isCBTCurrencyAvailable ? $item->getPriceInclTax() : $item->getBasePriceInclTax();
-            if ($item->getDiscountAmount() !== null) {
-                $discountAmount = $isCBTCurrencyAvailable ? $item->getDiscountAmount(): $item->getBaseDiscountAmount();
-                $amount -= $discountAmount;
-                $totalDiscountAmount += $discountAmount;
-            }
+            $itemAmount = $this->itemAmountCalculator->calculate($item, (bool)$isCBTCurrencyAvailable);
+            $totalDiscountAmount += $itemAmount['discount'];
             $currencyCode = $isCBTCurrencyAvailable ? $quote->getQuoteCurrencyCode() : $quote->getBaseCurrencyCode();
-            $qty = $item->getQty();
-            $isIntQty = floor($qty) == $qty;
-            if ($isIntQty) {
-                $qty = (int)$item->getQty();
-            } else {
-                $amount *= $item->getQty();
-                $qty = 1;
-            }
 
             $formattedItem = [
                 'name' => $item->getName(),
                 'sku' => $item->getSku(),
-                'quantity' => $qty,
+                'quantity' => $itemAmount['qty'],
                 'pageUrl' => $item->getProduct()->getProductUrl(),
                 'categories' => [array_values($this->getQuoteItemCategoriesNames($item))],
                 'price' => [
-                    'amount' => $this->formatPrice($amount),
+                    'amount' => $this->formatPrice($itemAmount['amount']),
                     'currency' => $currencyCode
                 ]
             ];
