@@ -38,7 +38,21 @@ class CreateAfterpayCheckoutTest extends \Magento\TestFramework\TestCase\GraphQl
         $emptyMaskedCartId = '';
         $mutation = $this->createAfterpayCheckoutMutation($emptyMaskedCartId);
 
-        self::expectExceptionMessageMatches('/No such entity.*/');
+        self::expectExceptionMessageMatches('/Could not find a cart with ID.*/');
+        $this->graphQlMutation($mutation);
+    }
+
+    /**
+     * A numeric quote id is not a masked cart id and must not be accepted as one.
+     *
+     * @magentoApiDataFixture Magento/Checkout/_files/active_quote.php
+     * @magentoConfigFixture default/payment/afterpay/active 1
+     */
+    public function testNumericQuoteIdIsNotAcceptedAsCartId()
+    {
+        $mutation = $this->createAfterpayCheckoutMutation('1');
+
+        self::expectExceptionMessageMatches('/Could not find a cart with ID.*/');
         $this->graphQlMutation($mutation);
     }
 

@@ -12,21 +12,25 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\QuoteGraphQl\Model\Cart\GetCartForUser;
 
 class CreateAfterpayCheckout implements ResolverInterface
 {
     private Config $config;
     private CheckoutManagementInterface $afterpayCheckoutManagement;
     private RedirectPathInterfaceFactory $redirectPathFactory;
+    private GetCartForUser $getCartForUser;
 
     public function __construct(
         Config                       $config,
         CheckoutManagementInterface  $afterpayCheckoutManagement,
-        RedirectPathInterfaceFactory $redirectPathFactory
+        RedirectPathInterfaceFactory $redirectPathFactory,
+        GetCartForUser               $getCartForUser
     ) {
         $this->config = $config;
         $this->afterpayCheckoutManagement = $afterpayCheckoutManagement;
         $this->redirectPathFactory = $redirectPathFactory;
+        $this->getCartForUser = $getCartForUser;
     }
 
     /**
@@ -41,7 +45,8 @@ class CreateAfterpayCheckout implements ResolverInterface
     ): array {
         try {
             /** @phpstan-ignore-next-line */
-            $websiteId = $context->getExtensionAttributes()->getStore()->getWebsiteId();
+            $store = $context->getExtensionAttributes()->getStore();
+            $websiteId = $store->getWebsiteId();
 
             if (!$this->config->getIsPaymentActive((int)$websiteId)) {
                 throw new GraphQlInputException(__('Afterpay payment method is not active'));
@@ -53,6 +58,11 @@ class CreateAfterpayCheckout implements ResolverInterface
 
             $maskedCartId = $args['input']['cart_id'];
             $afterpayRedirectPath = $args['input']['redirect_path'];
+
+            // Authorise the caller for this cart before any checkout state is written. This also
+            // rejects a numeric quote id, which is not a valid masked cart id.
+            /** @phpstan-ignore-next-line */
+            $this->getCartForUser->execute((string)$maskedCartId, $context->getUserId(), (int)$store->getId());
 
             $redirectUrls = $this->redirectPathFactory->create()
                 ->setConfirmPath($afterpayRedirectPath['confirm_path'])

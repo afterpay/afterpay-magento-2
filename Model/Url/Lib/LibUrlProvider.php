@@ -5,7 +5,7 @@ namespace Afterpay\Afterpay\Model\Url\Lib;
 abstract class LibUrlProvider
 {
     protected \Afterpay\Afterpay\Model\Url\UrlBuilder $urlBuilder;
-    protected bool $isLibGotten = false;
+    protected static bool $isLibGotten = false;
 
     public function __construct(
         \Afterpay\Afterpay\Model\Url\UrlBuilder $urlBuilder
@@ -15,8 +15,8 @@ abstract class LibUrlProvider
 
     public function getAfterpayLib(): ?string
     {
-        if (!$this->isLibGotten) {
-            $this->isLibGotten = true;
+        if (!self::$isLibGotten) {
+            self::$isLibGotten = true;
             return $this->buildUrl();
         }
         return null;
@@ -24,7 +24,7 @@ abstract class LibUrlProvider
 
     public function getIsLibGotten(): bool
     {
-        return $this->isLibGotten;
+        return self::$isLibGotten;
     }
 
     abstract protected function buildUrl(): string;

@@ -200,6 +200,13 @@ window.addEventListener("load", () => {
                 let isValid = form?.reportValidity();
 
                 if (form && typeof (require) != "undefined") {
+                    // Registered once per click, before validation runs, so repeated clicks don't add the product again
+                    document.addEventListener('ecFormValid', (event) => {
+                        if (event?.detail?.isValid) {
+                            this.addToCart(event.detail.isValid);
+                        }
+                    }, {once: true});
+
                     require([
                         'jquery',
                         'mage/mage'
@@ -215,19 +222,6 @@ window.addEventListener("load", () => {
                         const event = new CustomEvent('ecFormValid', {detail: {isValid: isValid}});
                         document.dispatchEvent(event);
 
-                    });
-
-                    document.addEventListener('ecFormValid', (event) => {
-                        if (event?.detail?.isValid) {
-                            if (this.configData?.product_type == "bundle") {
-                                this.initAfterpay();
-                                setTimeout(() => {
-                                    document.getElementById(this.trigger).click();
-                                  }, 1000);
-                            }else{
-                                this.addToCart(event.detail.isValid);
-                            }
-                        }
                     });
                 } else {
                     if (form || form?.reportValidity()) {

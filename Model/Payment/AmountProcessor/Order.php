@@ -46,13 +46,40 @@ class Order
             return 0;
         }
         $isFirstShipping = $shipmentCollection->count() == 0;
-        if ($isFirstShipping && $shippingAmount = 1 * $order->getShippingInclTax()) {
-            if ($order->getShippingRefunded()) {
-                return $shippingAmount - ($order->getShippingRefunded() + $order->getShippingTaxRefunded());
-            }
-            return $shippingAmount * 1;
+        if (!$isFirstShipping) {
+            return 0;
         }
-        return 0;
+
+        $isCBTCurrency = $order->getPayment()->getAdditionalInformation(\Afterpay\Afterpay\Api\Data\CheckoutInterface::AFTERPAY_IS_CBT_CURRENCY);
+        if ($isCBTCurrency) {
+            $shippingAmount = (float)$order->getShippingAmount();
+            $shippingDiscount = (float)$order->getShippingDiscountAmount();
+            $shippingTax = (float)$order->getShippingTaxAmount();
+            $shippingDiscountTaxCompensation = (float)$order->getShippingDiscountTaxCompensationAmount();
+            $shippingRefunded = (float)$order->getShippingRefunded();
+            $shippingTaxRefunded = (float)$order->getShippingTaxRefunded();
+        } else {
+            $shippingAmount = (float)$order->getBaseShippingAmount();
+            $shippingDiscount = (float)$order->getBaseShippingDiscountAmount();
+            $shippingTax = (float)$order->getBaseShippingTaxAmount();
+            $shippingDiscountTaxCompensation = (float)$order->getBaseShippingDiscountTaxCompensationAmnt();
+            $shippingRefunded = (float)$order->getBaseShippingRefunded();
+            $shippingTaxRefunded = (float)$order->getBaseShippingTaxRefunded();
+        }
+        if ($shippingAmount <= 0) {
+            return 0;
+        }
+
+        // Same formula as item totals (row - discount + tax + discount tax compensation), so the capture matches
+        // what was authorized. shipping_incl_tax can't be used: it is the gross amount before the shipping discount.
+        // A credit memo refunds the shipping discount pro rata to the shipping refunded, so only the
+        // non-refunded share of the discount is still deducted here.
+        $notRefundedShare = max(0.0, ($shippingAmount - $shippingRefunded) / $shippingAmount);
+        $amount = ($shippingAmount - $shippingRefunded)
+            - ($shippingDiscount - $shippingDiscountTaxCompensation) * $notRefundedShare
+            + ($shippingTax - $shippingTaxRefunded);
+
+        return max(0.0, $amount);
     }
 
     protected function processDiscount(float $amount, \Magento\Payment\Model\InfoInterface $payment): float

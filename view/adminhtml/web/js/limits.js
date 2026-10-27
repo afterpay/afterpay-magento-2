@@ -10,7 +10,7 @@ define([
             $.post(
                 options.actionUrl,
                 {
-                    websiteId: $('#website_switcher').val()
+                    websiteId: $('#website_switcher').val() || 0
                 }
             ).done(() => location.reload())
             .always(function () {

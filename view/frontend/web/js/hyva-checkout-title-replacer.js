@@ -308,7 +308,20 @@
         sp.setAttribute('data-type', type);
         sp.setAttribute('data-platform', 'Magento');
         sp.setAttribute('data-page-type', 'checkout');
+        keepLatestWidgetOnly(sp);
         container.appendChild(sp);
+    }
+
+    // square-placement mounts a new zoid widget on every connectedCallback
+    // without removing the previous one, so when Magewire morphs detach and
+    // re-attach the element the widgets stack up. Keep only the newest.
+    function keepLatestWidgetOnly(placement) {
+        new MutationObserver(() => {
+            const widgets = placement.querySelectorAll(':scope > [id^="zoid-"]');
+            for (let i = 0; i < widgets.length - 1; i++) {
+                widgets[i].remove();
+            }
+        }).observe(placement, {childList: true});
     }
 
     function injectPaymentContent(data) {
