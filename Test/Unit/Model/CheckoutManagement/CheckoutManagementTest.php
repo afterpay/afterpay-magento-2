@@ -64,10 +64,9 @@ class CheckoutManagementTest extends \PHPUnit\Framework\TestCase
 
         $this->redirectPathStub = $this->createMock(\Afterpay\Afterpay\Api\Data\RedirectPathInterface::class);
 
-        $this->quoteStub = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
+        $this->quoteStub = $this->getMockBuilder(\Afterpay\Afterpay\Test\Unit\QuoteStub::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getCustomerId'])
-            ->onlyMethods(['reserveOrderId', 'getPayment'])
+            ->onlyMethods(['getCustomerId', 'reserveOrderId', 'getPayment'])
             ->getMock();
 
         $this->quoteStub->method('reserveOrderId')
@@ -81,7 +80,7 @@ class CheckoutManagementTest extends \PHPUnit\Framework\TestCase
         $this->quoteStub->method('getPayment')
             ->willReturn($this->paymentMock);
 
-        $this->cartRepositoryMock->expects($this->any())
+        $this->cartRepositoryMock
             ->method('save')
             ->willReturn($this->quoteStub);
 
@@ -252,13 +251,11 @@ class CheckoutManagementTest extends \PHPUnit\Framework\TestCase
         $afterpayRedirectCheckoutUrl = 'https://test-afterpay.com/redirect?token=123';
 
         $this->paymentMock->method('getAdditionalInformation')
-            ->will(
-                $this->returnValueMap([
+            ->willReturnMap([
                     [CheckoutInterface::AFTERPAY_TOKEN, $afterpayToken],
                     [CheckoutInterface::AFTERPAY_AUTH_TOKEN_EXPIRES, $afterpayAuthTokenExpires],
                     [CheckoutInterface::AFTERPAY_REDIRECT_CHECKOUT_URL, $afterpayRedirectCheckoutUrl],
-                ])
-            );
+                ]);
 
         $checkout = $this->checkoutManagement->create($quoteId, $this->redirectPathStub);
 
@@ -277,13 +274,11 @@ class CheckoutManagementTest extends \PHPUnit\Framework\TestCase
         $testPopupOriginUrl = 'https://test-afterpay.com/checkout/cart';
 
         $this->paymentMock->method('getAdditionalInformation')
-            ->will(
-                $this->returnValueMap([
+            ->willReturnMap([
                     [CheckoutInterface::AFTERPAY_TOKEN, $afterpayToken],
                     [CheckoutInterface::AFTERPAY_AUTH_TOKEN_EXPIRES, $afterpayAuthTokenExpires],
                     [CheckoutInterface::AFTERPAY_REDIRECT_CHECKOUT_URL, $afterpayRedirectCheckoutUrl],
-                ])
-            );
+                ]);
 
         $checkout = $this->checkoutManagement->createExpress($quoteId, $testPopupOriginUrl);
 

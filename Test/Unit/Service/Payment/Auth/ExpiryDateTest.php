@@ -22,6 +22,7 @@ class ExpiryDateTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider datesProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('datesProvider')]
     public function testIsExpired(string $expireDate, ?string $dateToCheck, bool $result)
     {
         if (!$dateToCheck) {
@@ -30,7 +31,7 @@ class ExpiryDateTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($this->expiryDate->isExpired($expireDate, $dateToCheck), $result);
     }
 
-    public function datesProvider(): array
+    public static function datesProvider(): array
     {
         return [
             ["2021-08-10 09:31 CDT", "2021-08-10 09:31 CDT", false],

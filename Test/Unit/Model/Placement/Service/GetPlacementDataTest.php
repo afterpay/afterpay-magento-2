@@ -185,6 +185,7 @@ class GetPlacementDataTest extends TestCase
     /**
      * @dataProvider placementsDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('placementsDataProvider')]
     public function testExecuteWithVariousPlacements(array $placements): void
     {
         $mpid = 'test-mpid-123';
@@ -215,7 +216,7 @@ class GetPlacementDataTest extends TestCase
         $this->assertSame($placements, $result);
     }
 
-    public function placementsDataProvider(): array
+    public static function placementsDataProvider(): array
     {
         return [
             'single product placement' => [

@@ -32,9 +32,9 @@ class ClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->httpClientMock = $this->getMockForAbstractClass(ClientInterface::class);
-        $this->serializerMock = $this->getMockForAbstractClass(SerializerInterface::class);
-        $this->loggerMock = $this->getMockForAbstractClass(LoggerInterface::class);
+        $this->httpClientMock = $this->createMock(ClientInterface::class);
+        $this->serializerMock = $this->createMock(SerializerInterface::class);
+        $this->loggerMock = $this->createMock(LoggerInterface::class);
         $this->debugLoggerMock = $this->createMock(Logger::class);
         $this->urlBuilderMock = $this->createMock(UrlBuilder::class);
 

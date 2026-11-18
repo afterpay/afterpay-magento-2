@@ -42,6 +42,7 @@ class StockItemsValidator implements \Afterpay\Afterpay\Model\Spi\StockItemsVali
             return;
         }
 
+        $sourceCode = null;
         if (!empty($shipment->getExtensionAttributes())
             && !empty($shipment->getExtensionAttributes()->getSourceCode())) {
             $sourceCode = $shipment->getExtensionAttributes()->getSourceCode();
@@ -51,7 +52,7 @@ class StockItemsValidator implements \Afterpay\Afterpay\Model\Spi\StockItemsVali
 
         $shipmentItems = $this->getItemsToDeductFromShipment->execute($shipment);
 
-        if (!empty($shipmentItems)) {
+        if (!empty($shipmentItems) && $sourceCode !== null) {
             $sourceDeductionRequest = $this->shipmentFactory->execute(
                 $shipment,
                 $sourceCode,

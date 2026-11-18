@@ -51,6 +51,7 @@ class UrlFactoryTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider createDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('createDataProvider')]
     public function testCreate(string $apiMode, string $urlType, string $expectedCreatedUrl, ?string $currency = null)
     {
         $this->configMock->expects($this->once())
@@ -65,7 +66,7 @@ class UrlFactoryTest extends \PHPUnit\Framework\TestCase
         static::assertSame($expectedCreatedUrl, $url);
     }
 
-    public function createDataProvider(): array
+    public static function createDataProvider(): array
     {
         return [
             ['production', 'api_url', 'https://api.us.afterpay.com/', 'USD'],

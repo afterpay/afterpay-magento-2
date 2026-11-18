@@ -10,21 +10,17 @@ class LimitUpdate extends \Magento\Config\Block\System\Config\Form\Field
 
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        /** @phpstan-ignore-next-line */
-        $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
+        $element->unsetData('scope')->unsetData('can_use_website_value')->unsetData('can_use_default_value');
         return parent::render($element);
     }
 
-    /** @inheritDoc  */
-    protected function _prepareLayout()
-    {
-        parent::_prepareLayout();
-
-        if (!$this->getTemplate()) {
-            $this->setTemplate(static::TEMPLATE);
-        }
-
-        return $this;
+    public function __construct(
+        \Magento\Backend\Block\Template\Context $context,
+        array $data = [],
+        ?\Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer = null
+    ) {
+        $data['template'] = ($data['template'] ?? null) ?: static::TEMPLATE;
+        parent::__construct($context, $data, $secureRenderer);
     }
 
     /** @inheritDoc  */

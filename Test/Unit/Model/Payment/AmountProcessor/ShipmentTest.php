@@ -27,6 +27,7 @@ class ShipmentTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider shippingDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('shippingDataProvider')]
     public function testCaptureAmountMatchesAuthorizedShipping(
         array $orderData,
         bool $isCBTCurrency,
