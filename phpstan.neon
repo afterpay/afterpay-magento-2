@@ -14,3 +14,6 @@ parameters:
         -
             message: '#^Attribute class PHPUnit\\Framework\\Attributes\\\w+ does not exist\.$#'
             path: Test/*
+        -
+            message: '#^Variable \$sourceCode might not be defined\.$#'
+            path: Gateway/Validator/StockItemsValidator.php
