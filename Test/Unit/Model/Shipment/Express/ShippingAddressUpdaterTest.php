@@ -17,9 +17,9 @@ class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
     protected function setUp(): void
     {
         $this->region = $this->createMock(\Magento\Directory\Model\Region::class);
-        $this->region->expects($this->any())->method("loadByCode")->willReturnSelf();
-        $this->region->expects($this->any())->method("loadByName")->willReturnSelf();
-        $this->region->expects($this->any())->method("getId")->willReturn(1);
+        $this->region->method("loadByCode")->willReturnSelf();
+        $this->region->method("loadByName")->willReturnSelf();
+        $this->region->method("getId")->willReturn(1);
         $this->cartRepository = $this->createMock(\Magento\Quote\Api\CartRepositoryInterface::class);
         $this->shippingAddressUpdater = new \Afterpay\Afterpay\Model\Shipment\Express\ShippingAddressUpdater(
             $this->region,
@@ -30,16 +30,17 @@ class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider dataToExceptionProvider
      * @param array $shippingAddress
-     * @param \Magento\Quote\Model\Quote|\PHPUnit\Framework\MockObject\MockObject $quote
      */
-    public function testExceptionFillQuoteWithShippingAddress(array $shippingAddress, $quote)
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataToExceptionProvider')]
+    public function testExceptionFillQuoteWithShippingAddress(array $shippingAddress)
     {
+        $quote = $this->createMock(\Magento\Quote\Model\Quote::class);
         $this->cartRepository->expects($this->never())->method("save");
         $this->expectException(\InvalidArgumentException::class);
         $this->shippingAddressUpdater->fillQuoteWithShippingAddress($shippingAddress, $quote);
     }
 
-    public function dataToExceptionProvider():array
+    public static function dataToExceptionProvider():array
     {
         $exceptionData = [];
         $fullShippingAddress = [
@@ -55,7 +56,7 @@ class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
         foreach (array_keys($fullShippingAddress) as $shippingKey) {
             $cutFullShipping = $fullShippingAddress;
             unset($cutFullShipping[$shippingKey]);
-            $exceptionData[] = [$cutFullShipping, $this->createMock(\Magento\Quote\Model\Quote::class)];
+            $exceptionData[] = [$cutFullShipping];
         }
         return $exceptionData;
     }
@@ -63,18 +64,18 @@ class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider dataToVirtualQuote
      * @param array $shippingAddress
-     * @param \Magento\Quote\Model\Quote|\PHPUnit\Framework\MockObject\MockObject $quote
      */
-    public function testVirtualQuote(array $shippingAddress, $quote)
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataToVirtualQuote')]
+    public function testVirtualQuote(array $shippingAddress)
     {
+        $quote = $this->createMock(\Magento\Quote\Model\Quote::class);
         $this->cartRepository->expects($this->never())->method("save");
+        $quote->method("isVirtual")->willReturn(true);
         $this->shippingAddressUpdater->fillQuoteWithShippingAddress($shippingAddress, $quote);
     }
 
-    public function dataToVirtualQuote(): array
+    public static function dataToVirtualQuote(): array
     {
-        $quote = $this->createMock(\Magento\Quote\Model\Quote::class);
-        $quote->expects($this->any())->method("isVirtual")->willReturn(true);
         return [
             [
             [
@@ -87,7 +88,6 @@ class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
                 'state'=> 'some date',
                 'phoneNumber' => 'some date'
             ],
-                $quote
             ]
         ];
     }
@@ -95,22 +95,22 @@ class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider dataToTrival
      * @param array $shippingAddress
-     * @param \Magento\Quote\Model\Quote|\PHPUnit\Framework\MockObject\MockObject $quote
      */
-    public function testTrivalFillQuoteWithShippingAddress(array $shippingAddress, $quote)
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataToTrival')]
+    public function testTrivalFillQuoteWithShippingAddress(array $shippingAddress)
     {
+        $quoteShippingAddress = $this->createMock(\Magento\Quote\Model\Quote\Address::class);
+        $quote = $this->createMock(\Magento\Quote\Model\Quote::class);
+        $quote
+            ->method("getShippingAddress")
+            ->willReturn($quoteShippingAddress);
         $this->cartRepository->expects($this->once())->method("save");
         $this->cartRepository->expects($this->once())->method("getActive")->willReturn($quote);
         $this->shippingAddressUpdater->fillQuoteWithShippingAddress($shippingAddress, $quote);
     }
 
-    public function dataToTrival(): array
+    public static function dataToTrival(): array
     {
-        $shippingAddress = $this->createMock(\Magento\Quote\Model\Quote\Address::class);
-        $quote = $this->createMock(\Magento\Quote\Model\Quote::class);
-        $quote->expects($this->any())
-            ->method("getShippingAddress")
-            ->willReturn($shippingAddress);
         return [
             [
                 [
@@ -123,7 +123,6 @@ class ShippingAddressUpdaterTest extends \PHPUnit\Framework\TestCase
                     'state'=> 'some date',
                     'phoneNumber' => 'some date'
                 ],
-                $quote
             ]
         ];
     }

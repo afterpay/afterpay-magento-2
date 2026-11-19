@@ -11,9 +11,9 @@ class ClientTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        $this->httpClientMock = $this->getMockForAbstractClass(\Magento\Framework\HTTP\ClientInterface::class);
+        $this->httpClientMock = $this->createMock(\Magento\Framework\HTTP\ClientInterface::class);
         $serializer = new \Magento\Framework\Serialize\Serializer\Json();
-        $loggerMock = $this->getMockForAbstractClass(\Psr\Log\LoggerInterface::class);
+        $loggerMock = $this->createMock(\Psr\Log\LoggerInterface::class);
         $debugLoggerMock = $this->createMock(\Magento\Payment\Model\Method\Logger::class);
         $requestMock = $this->createMock(\Magento\Framework\App\RequestInterface::class);
 
@@ -25,7 +25,7 @@ class ClientTest extends \PHPUnit\Framework\TestCase
             $requestMock
         );
 
-        $this->httpClientMock->expects($this->any())
+        $this->httpClientMock
             ->method('getBody')
             ->willReturn($serializer->serialize(['test_result' => true]));
     }
@@ -36,11 +36,12 @@ class ClientTest extends \PHPUnit\Framework\TestCase
      *
      * @dataProvider bodyProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('bodyProvider')]
     public function testHttpClientBody($bodyFromTransfer, $expectedBodyForHttpClient): void
     {
         $testUri = 'https://test.test';
 
-        $transferMock = $this->getMockForAbstractClass(\Magento\Payment\Gateway\Http\TransferInterface::class);
+        $transferMock = $this->createMock(\Magento\Payment\Gateway\Http\TransferInterface::class);
         $transferMock->method('getMethod')
             ->willReturn(\Afterpay\Afterpay\Gateway\Http\TransferFactory::METHOD_POST);
         $transferMock->method('getUri')
@@ -59,9 +60,10 @@ class ClientTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider uriProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('uriProvider')]
     public function testHttpClientUri(string $uri): void
     {
-        $transferMock = $this->getMockForAbstractClass(\Magento\Payment\Gateway\Http\TransferInterface::class);
+        $transferMock = $this->createMock(\Magento\Payment\Gateway\Http\TransferInterface::class);
 
         $transferMock->method('getUri')
             ->willReturn($uri);
@@ -75,7 +77,7 @@ class ClientTest extends \PHPUnit\Framework\TestCase
 
     public function testHttpClientPostMethod(): void
     {
-        $transferMock = $this->getMockForAbstractClass(\Magento\Payment\Gateway\Http\TransferInterface::class);
+        $transferMock = $this->createMock(\Magento\Payment\Gateway\Http\TransferInterface::class);
 
         $transferMock->method('getMethod')
             ->willReturn(\Afterpay\Afterpay\Gateway\Http\TransferFactory::METHOD_POST);
@@ -87,7 +89,7 @@ class ClientTest extends \PHPUnit\Framework\TestCase
 
     public function testHttpClientGetMethod(): void
     {
-        $transferMock = $this->getMockForAbstractClass(\Magento\Payment\Gateway\Http\TransferInterface::class);
+        $transferMock = $this->createMock(\Magento\Payment\Gateway\Http\TransferInterface::class);
 
         $transferMock->method('getMethod')
             ->willReturn(\Afterpay\Afterpay\Gateway\Http\TransferFactory::METHOD_GET);
@@ -97,7 +99,7 @@ class ClientTest extends \PHPUnit\Framework\TestCase
         $this->client->placeRequest($transferMock);
     }
 
-    public function bodyProvider(): array
+    public static function bodyProvider(): array
     {
         return [
             [[],[]],
@@ -109,7 +111,7 @@ class ClientTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function uriProvider(): array
+    public static function uriProvider(): array
     {
         return [
             ['https://test.test'],

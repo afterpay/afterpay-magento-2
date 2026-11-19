@@ -86,6 +86,7 @@ class StatusChangerTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider dataForProcessOrder
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataForProcessOrder')]
     public function testExecute(bool $isExpired, array $expectedData, array $updatedAdditionalInfo)
     {
         $this->order
@@ -103,56 +104,56 @@ class StatusChangerTest extends \PHPUnit\Framework\TestCase
             ->method("isExpired")
             ->willReturn($isExpired);
         $this->order
-            ->expects($expectedData["orderInvocation"])
+            ->expects($this->exactly($expectedData["orderInvocation"]))
             ->method("getPayment")
             ->willReturn(
                 $this->paymentInfoInterface
             );
         $this->payment
-            ->expects($expectedData["paymentInvocation"])
+            ->expects($this->exactly($expectedData["paymentInvocation"]))
             ->method("getAdditionalInformation")
             ->willReturn($updatedAdditionalInfo);
         $this->paymentUpdater
-            ->expects($expectedData["paymentUpdaterInvocation"])
+            ->expects($this->exactly($expectedData["paymentUpdaterInvocation"]))
             ->method("updatePayment")
             ->willReturn($this->payment);
         $this->creditmemoInitiator
-            ->expects($expectedData["creditmemoInitiatorInvocation"])
+            ->expects($this->exactly($expectedData["creditmemoInitiatorInvocation"]))
             ->method("init")
             ->willReturn($this->creditmemo);
         $this->creditmemoManager
-            ->expects($expectedData["creditmemoManagerInvocation"])
+            ->expects($this->exactly($expectedData["creditmemoManagerInvocation"]))
             ->method("refund");
         $this->orderUpdater
-            ->expects($expectedData["orderUpdaterInvocation"])
+            ->expects($this->exactly($expectedData["orderUpdaterInvocation"]))
             ->method("updateOrder");
         $this->creditMemoProcessor->processOrder($this->order);
     }
 
-    public function dataForProcessOrder():array
+    public static function dataForProcessOrder():array
     {
         return [
             [
                 false,
                 [
-                    "orderInvocation" => $this->never(),
-                    "paymentInvocation" => $this->never(),
-                    "paymentUpdaterInvocation" => $this->never(),
-                    "creditmemoInitiatorInvocation" => $this->never(),
-                    "creditmemoManagerInvocation" => $this->never(),
-                    "orderUpdaterInvocation" => $this->never()
+                    "orderInvocation" => 0,
+                    "paymentInvocation" => 0,
+                    "paymentUpdaterInvocation" => 0,
+                    "creditmemoInitiatorInvocation" => 0,
+                    "creditmemoManagerInvocation" => 0,
+                    "orderUpdaterInvocation" => 0
                 ],
                 []
             ],
             [
                 true,
                 [
-                    "orderInvocation" => $this->once(),
-                    "paymentInvocation" => $this->once(),
-                    "paymentUpdaterInvocation" => $this->once(),
-                    "creditmemoInitiatorInvocation" => $this->never(),
-                    "creditmemoManagerInvocation" => $this->never(),
-                    "orderUpdaterInvocation" => $this->never()
+                    "orderInvocation" => 1,
+                    "paymentInvocation" => 1,
+                    "paymentUpdaterInvocation" => 1,
+                    "creditmemoInitiatorInvocation" => 0,
+                    "creditmemoManagerInvocation" => 0,
+                    "orderUpdaterInvocation" => 0
                 ],
                 [
                     AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE => 'NOT RIGHT'
@@ -161,12 +162,12 @@ class StatusChangerTest extends \PHPUnit\Framework\TestCase
             [
                 true,
                 [
-                    "orderInvocation" => $this->once(),
-                    "paymentInvocation" => $this->once(),
-                    "paymentUpdaterInvocation" => $this->once(),
-                    "creditmemoInitiatorInvocation" => $this->once(),
-                    "creditmemoManagerInvocation" => $this->once(),
-                    "orderUpdaterInvocation" => $this->once()
+                    "orderInvocation" => 1,
+                    "paymentInvocation" => 1,
+                    "paymentUpdaterInvocation" => 1,
+                    "creditmemoInitiatorInvocation" => 1,
+                    "creditmemoManagerInvocation" => 1,
+                    "orderUpdaterInvocation" => 1
                 ],
                 [
                     AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE => PaymentStateInterface::CAPTURED
@@ -175,12 +176,12 @@ class StatusChangerTest extends \PHPUnit\Framework\TestCase
             [
                 true,
                 [
-                    "orderInvocation" => $this->once(),
-                    "paymentInvocation" => $this->once(),
-                    "paymentUpdaterInvocation" => $this->once(),
-                    "creditmemoInitiatorInvocation" => $this->once(),
-                    "creditmemoManagerInvocation" => $this->once(),
-                    "orderUpdaterInvocation" => $this->once()
+                    "orderInvocation" => 1,
+                    "paymentInvocation" => 1,
+                    "paymentUpdaterInvocation" => 1,
+                    "creditmemoInitiatorInvocation" => 1,
+                    "creditmemoManagerInvocation" => 1,
+                    "orderUpdaterInvocation" => 1
                 ],
                 [
                     AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE => PaymentStateInterface::VOIDED

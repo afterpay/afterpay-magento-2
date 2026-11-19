@@ -7,13 +7,14 @@ class DisallowedProductsValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider validateDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('validateDataProvider')]
     public function testValidate(array $quoteProductIds, array $notAllowedProductIds, bool $isValidExpected)
     {
         $resultInterfaceFactoryStub =
             $this->getMockBuilder(\Magento\Payment\Gateway\Validator\ResultInterfaceFactory::class)
                 ->onlyMethods(['create'])
                 ->disableOriginalConstructor()
-                ->getMockForAbstractClass();
+                ->getMock();
         $quoteStub = $this->createMock(\Magento\Quote\Api\Data\CartInterface::class);
         $notAllowedProductsProviderStub = $this->createMock(
             \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider::class
@@ -34,8 +35,8 @@ class DisallowedProductsValidatorTest extends \PHPUnit\Framework\TestCase
 
         $quoteItemsStubs = [];
         foreach ($quoteProductIds as $quoteProductId) {
-            $itemStub = $this->getMockBuilder(\Magento\Quote\Model\Quote\Item::class)
-                ->addMethods(['getProductId'])
+            $itemStub = $this->getMockBuilder(\Afterpay\Afterpay\Test\Unit\QuoteItemStub::class)
+                ->onlyMethods(['getProductId'])
                 ->disableOriginalConstructor()
                 ->getMock();
             $itemStub->method('getProductId')
@@ -58,7 +59,7 @@ class DisallowedProductsValidatorTest extends \PHPUnit\Framework\TestCase
         $disallowedProductsValidator->validate(['quote' => $quoteStub]);
     }
 
-    public function validateDataProvider(): array
+    public static function validateDataProvider(): array
     {
         return [
             [[1,2,3], [4,5,6], true],

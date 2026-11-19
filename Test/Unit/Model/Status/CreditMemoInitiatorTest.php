@@ -31,9 +31,11 @@ class CreditMemoInitiatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider dataForInit
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataForInit')]
     public function testExecute(array $inputItems, array $qtysToRefund)
     {
-        $this->order->method('getItemsCollection')->willReturn($inputItems);
+        $items = array_map([$this, 'itemFactory'], $inputItems);
+        $this->order->method('getItemsCollection')->willReturn($items);
         $this->creditMemoFactory->expects($this->once())->method("createByOrder")->with(
             $this->order,
             ["qtys" => $qtysToRefund]
@@ -41,83 +43,83 @@ class CreditMemoInitiatorTest extends \PHPUnit\Framework\TestCase
         $this->creditMemoInitiator->init($this->order);
     }
 
-    public function dataForInit():array
+    public static function dataForInit():array
     {
-        return [$this->getNotOperableItemsTest(), $this->getItemsMainTest()];
+        return [self::getNotOperableItemsTest(), self::getItemsMainTest()];
     }
 
-    private function getNotOperableItemsTest()
+    private static function getNotOperableItemsTest()
     {
         return [
             [
-                $this->itemFactory([
+                [
                 "getParentItem" => true,
                 "getIsVirtual" => false,
-                ]),
-                $this->itemFactory([
+                ],
+                [
                     "getParentItem" => false,
                     "getIsVirtual" => true
-                ]),
-                $this->itemFactory([
+                ],
+                [
                     "getParentItem" => true,
                     "getIsVirtual" => true
-                ])],
+                ]],
             []
         ];
     }
 
-    private function getItemsMainTest()
+    private static function getItemsMainTest()
     {
         return [
             [
-                $this->itemFactory([
+                [
                     "getId" => 1,
                     "getParentItem" => false,
                     "getIsVirtual" => false,
                     "getQtyOrdered" => 5,
                     "getQtyShipped" => 3,
                     "getQtyRefunded" => 2,
-                ]),
-                $this->itemFactory([
+                ],
+                [
                     "getId" => 2,
                     "getParentItem" => false,
                     "getIsVirtual" => false,
                     "getQtyOrdered" => 5,
                     "getQtyShipped" => 3,
                     "getQtyRefunded" => 1,
-                ]),
-                $this->itemFactory([
+                ],
+                [
                     "getId" => 3,
                     "getParentItem" => false,
                     "getIsVirtual" => false,
                     "getQtyOrdered" => 0,
                     "getQtyShipped" => 3,
                     "getQtyRefunded" => 1,
-                ]),
-                $this->itemFactory([
+                ],
+                [
                     "getId" => 4,
                     "getParentItem" => false,
                     "getIsVirtual" => false,
                     "getQtyOrdered" => 5,
                     "getQtyShipped" => 2,
                     "getQtyRefunded" => 1,
-                ]),
-                $this->itemFactory([
+                ],
+                [
                     "getId" => 5,
                     "getParentItem" => false,
                     "getIsVirtual" => false,
                     "getQtyOrdered" => 0,
                     "getQtyShipped" => 0,
                     "getQtyRefunded" => 0,
-                ]),
-                $this->itemFactory([
+                ],
+                [
                     "getId" => 6,
                     "getParentItem" => false,
                     "getIsVirtual" => false,
                     "getQtyOrdered" => 1000,
                     "getQtyShipped" => 300,
                     "getQtyRefunded" => 400,
-                ])
+                ]
             ],
             [
                 2 => 1,

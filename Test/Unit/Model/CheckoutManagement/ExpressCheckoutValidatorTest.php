@@ -11,9 +11,8 @@ class ExpressCheckoutValidatorTest extends \PHPUnit\Framework\TestCase
             \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider::class
         );
         $quote = $this->createMock(\Magento\Quote\Model\Quote::class);
-        $item = $this->getMockBuilder(\Magento\Quote\Model\Quote\Item::class)
-            ->addMethods(['getProductId'])
-            ->onlyMethods(['getSku'])
+        $item = $this->getMockBuilder(\Afterpay\Afterpay\Test\Unit\QuoteItemStub::class)
+            ->onlyMethods(['getProductId', 'getSku'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -46,9 +45,8 @@ class ExpressCheckoutValidatorTest extends \PHPUnit\Framework\TestCase
         $provider = $this->createMock(
             \Afterpay\Afterpay\Model\ResourceModel\NotAllowedProductsProvider::class
         );
-        $quote = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
-            ->addMethods(['getBaseGrandTotal'])
-            ->onlyMethods(['getStoreId', 'getAllItems'])
+        $quote = $this->getMockBuilder(\Afterpay\Afterpay\Test\Unit\QuoteStub::class)
+            ->onlyMethods(['getBaseGrandTotal', 'getStoreId', 'getAllItems'])
             ->disableOriginalConstructor()
             ->getMock();
 

@@ -7,23 +7,12 @@ use Afterpay\Afterpay\Api\Data\CheckoutInterface;
 class CreateAfterpayCheckoutTest extends \Magento\TestFramework\TestCase\GraphQlAbstract
 {
     /**
-     * @var \Magento\GraphQl\Quote\GetMaskedQuoteIdByReservedOrderId|mixed
-     */
-    private $getMaskedQuoteIdByReservedOrderId;
-
-    protected function setUp(): void
-    {
-        $this->getMaskedQuoteIdByReservedOrderId = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()
-            ->get(\Magento\GraphQl\Quote\GetMaskedQuoteIdByReservedOrderId::class);
-    }
-
-    /**
      * @magentoApiDataFixture Magento/Sales/_files/guest_quote_with_addresses.php
      * @magentoConfigFixture default/payment/afterpay/active 1
      */
     public function testCreateAfterpayCheckoutReturnData()
     {
-        $maskedQuoteId = $this->getMaskedQuoteIdByReservedOrderId->execute('guest_quote');
+        $maskedQuoteId = $this->getMaskedQuoteId('guest_quote');
 
         $mutation = $this->createAfterpayCheckoutMutation($maskedQuoteId);
         $response = $this->graphQlMutation($mutation);
@@ -62,11 +51,23 @@ class CreateAfterpayCheckoutTest extends \Magento\TestFramework\TestCase\GraphQl
      */
     public function testPaymentIsNotActiveException()
     {
-        $maskedQuoteId = $this->getMaskedQuoteIdByReservedOrderId->execute('test_order_1');
+        $maskedQuoteId = $this->getMaskedQuoteId('test_order_1');
         $mutation = $this->createAfterpayCheckoutMutation($maskedQuoteId);
 
         self::expectExceptionMessage('Afterpay payment method is not active');
         $this->graphQlMutation($mutation);
+    }
+
+    private function getMaskedQuoteId(string $reservedOrderId): string
+    {
+        $objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
+        $quote = $objectManager->get(\Magento\Quote\Model\QuoteFactory::class)->create();
+        $quote->setSharedStoreIds(['*']);
+        $objectManager->get(\Magento\Quote\Model\ResourceModel\Quote::class)
+            ->load($quote, $reservedOrderId, 'reserved_order_id');
+
+        return $objectManager->get(\Magento\Quote\Model\QuoteIdToMaskedQuoteIdInterface::class)
+            ->execute((int)$quote->getId());
     }
 
     private function createAfterpayCheckoutMutation(string $maskedCartId): string

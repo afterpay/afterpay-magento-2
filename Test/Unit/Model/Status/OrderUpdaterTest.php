@@ -21,6 +21,7 @@ class OrderUpdaterTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider dataToStatusChanger
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataToStatusChanger')]
     public function testExecute(array $additionalPaymentInformation, ?string $expectedOrderState)
     {
         $order = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
@@ -41,7 +42,7 @@ class OrderUpdaterTest extends \PHPUnit\Framework\TestCase
         $this->orderUpdater->updateOrder($order);
     }
 
-    public function dataToStatusChanger()
+    public static function dataToStatusChanger()
     {
         return [
             [

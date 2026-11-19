@@ -38,7 +38,7 @@ class ShippingAddressUpdater
         }
 
         $quoteShippingAddress = $quote->getShippingAddress();
-        if (!empty($shippingAddress) && !$quote->isVirtual()) {
+        if (!$quote->isVirtual()) {
             $fullName = explode(' ', $shippingAddress['name']);
             $quoteShippingAddress->setFirstname($fullName[0]);
             if (isset($fullName[1])) {

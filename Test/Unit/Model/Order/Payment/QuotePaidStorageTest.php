@@ -10,7 +10,7 @@ class QuotePaidStorageTest extends \PHPUnit\Framework\TestCase
         $testPaymentId = 333;
         $testAfterpayOrderPaymentMock = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
 
-        $testAfterpayOrderPaymentMock->expects($this->any())
+        $testAfterpayOrderPaymentMock
             ->method('getId')
             ->willReturn($testPaymentId);
 

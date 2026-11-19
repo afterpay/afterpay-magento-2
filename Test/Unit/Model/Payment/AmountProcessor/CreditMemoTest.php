@@ -52,13 +52,13 @@ class CreditMemoTest extends \PHPUnit\Framework\TestCase
         $this->prepareCreditMemoObject();
         $this->prepareOrderObject();
 
-        $this->payment->expects($this->any())->method("getCreditmemo")
+        $this->payment->method("getCreditmemo")
             ->with()
             ->willReturn($this->creditMemo);
-        $this->payment->expects($this->any())->method("getOrder")
+        $this->payment->method("getOrder")
             ->with()
             ->willReturn($this->order);
-        $this->payment->expects($this->any())->method("getAdditionalInformation")
+        $this->payment->method("getAdditionalInformation")
             ->with()
             ->willReturn([
                 \Afterpay\Afterpay\Model\Payment\AdditionalInformationInterface::AFTERPAY_PAYMENT_STATE
@@ -68,13 +68,13 @@ class CreditMemoTest extends \PHPUnit\Framework\TestCase
 
     private function prepareCreditMemoObject(): void
     {
-        $this->creditMemo->expects($this->any())->method("getAllItems")
+        $this->creditMemo->method("getAllItems")
             ->with()
             ->willReturn($this->getCreditMemoItems());
-        $this->creditMemo->expects($this->any())->method("getAdjustmentPositive")
+        $this->creditMemo->method("getAdjustmentPositive")
             ->with()
             ->willReturn(0.25);
-        $this->creditMemo->expects($this->any())->method("getAdjustmentNegative")
+        $this->creditMemo->method("getAdjustmentNegative")
             ->with()
             ->willReturn(0.15);
     }
@@ -88,15 +88,15 @@ class CreditMemoTest extends \PHPUnit\Framework\TestCase
         $shipmentCollection->expects($this->atLeastOnce())->method('count')->willReturn(0);
 
         $store = $this->createMock(\Magento\Store\Model\Store::class);
-        $store->expects($this->any())->method("getWebsiteId")->willReturn(1);
+        $store->method("getWebsiteId")->willReturn(1);
 
-        $this->order->expects($this->any())->method("getStore")
+        $this->order->method("getStore")
             ->with()
             ->willReturn($store);
-        $this->order->expects($this->any())->method("getPayment")
+        $this->order->method("getPayment")
             ->with()
             ->willReturn($this->payment);
-        $this->order->expects($this->any())->method("getShipmentsCollection")
+        $this->order->method("getShipmentsCollection")
             ->with()
             ->willReturn($shipmentCollection);
     }

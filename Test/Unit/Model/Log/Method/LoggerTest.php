@@ -22,24 +22,25 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider dataToLogProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataToLogProvider')]
     public function testDebug(array $keys, array $data, string $expectedMessage)
     {
         $this->monolog->expects($this->once())->method("debug")->with($expectedMessage);
         $this->logger->debug($data, $keys, true);
     }
 
-    public function dataToLogProvider(): array
+    public static function dataToLogProvider(): array
     {
         return [
-            $this->provideSingleNestingData(),
-            $this->provideNoObfuscationData(),
-            $this->provideReadData(),
-            $this->provideDoubleNestingData(),
-            $this->provideAnotherKeysData()
+            self::provideSingleNestingData(),
+            self::provideNoObfuscationData(),
+            self::provideReadData(),
+            self::provideDoubleNestingData(),
+            self::provideAnotherKeysData()
         ];
     }
 
-    private function provideSingleNestingData(): array
+    private static function provideSingleNestingData(): array
     {
         $keys = ["shipping","billing","consumer"];
         $data = [
@@ -56,7 +57,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
         return [$keys, $data, $expectedMessage];
     }
 
-    private function provideNoObfuscationData(): array
+    private static function provideNoObfuscationData(): array
     {
         $keys = ["shipping","billing","consumer"];
         $data = [
@@ -69,7 +70,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
         return [$keys, $data, $expectedMessage];
     }
 
-    private function provideDoubleNestingData(): array
+    private static function provideDoubleNestingData(): array
     {
         $keys = ["shipping","billing","consumer"];
         $data = [
@@ -98,7 +99,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
         return [$keys, $data, $expectedMessage];
     }
 
-    private function provideAnotherKeysData(): array
+    private static function provideAnotherKeysData(): array
     {
         $keys = ["name", "surname", "address"];
         $data = [
@@ -137,7 +138,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
      * @return array
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    private function provideReadData(): array
+    private static function provideReadData(): array
     {
         $keys = ["shipping","billing","consumer"];
         $data = [

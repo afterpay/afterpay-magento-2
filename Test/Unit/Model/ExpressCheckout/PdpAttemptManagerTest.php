@@ -6,9 +6,8 @@ class PdpAttemptManagerTest extends \PHPUnit\Framework\TestCase
 {
     public function testRevertRestoresQuantityThatExistedBeforeExpressCheckout(): void
     {
-        $session = $this->getMockBuilder(\Magento\Checkout\Model\Session::class)
-            ->addMethods(['setData'])
-            ->onlyMethods(['getData', 'getQuote', 'replaceQuote'])
+        $session = $this->getMockBuilder(\Afterpay\Afterpay\Test\Unit\SessionStub::class)
+            ->onlyMethods(['setData', 'getData', 'getQuote', 'replaceQuote'])
             ->disableOriginalConstructor()
             ->getMock();
         $repositoryFactory = $this->createMock(
@@ -69,9 +68,8 @@ class PdpAttemptManagerTest extends \PHPUnit\Framework\TestCase
 
     public function testRevertRemovesNewItemFromInitiallyEmptyCart(): void
     {
-        $session = $this->getMockBuilder(\Magento\Checkout\Model\Session::class)
-            ->addMethods(['setData'])
-            ->onlyMethods(['getData', 'getQuote', 'replaceQuote'])
+        $session = $this->getMockBuilder(\Afterpay\Afterpay\Test\Unit\SessionStub::class)
+            ->onlyMethods(['setData', 'getData', 'getQuote', 'replaceQuote'])
             ->disableOriginalConstructor()
             ->getMock();
         $repositoryFactory = $this->createMock(

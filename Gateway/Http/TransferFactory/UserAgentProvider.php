@@ -34,7 +34,7 @@ class UserAgentProvider
         $phpVersion = $this->util->getTrimmedPhpVersion();
         $afterpayMerchantId = $this->config->getMerchantId($websiteId);
         $publicId = $this->config->getPublicId($websiteId);
-        $afterpayMPId=$publicId??"null";
+        $afterpayMPId = $publicId;
         $websiteDomain = $this->store->getBaseUrl();
         $CashAppPayAvailable=(int)$this->config->getCashAppPayAvailable($websiteId);
         $CashAppPayEnabled=(int)$this->config->getCashAppPayEnabled($websiteId);

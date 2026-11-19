@@ -7,6 +7,7 @@ class CommandPoolProxyTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider paymentFlowCommandDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('paymentFlowCommandDataProvider')]
     public function testCaptureCommand(string $paymentFlow, string $expectedCommand): void
     {
         $afterpayConfigMock = $this->getMockBuilder(\Afterpay\Afterpay\Model\Config::class)
@@ -32,7 +33,7 @@ class CommandPoolProxyTest extends \PHPUnit\Framework\TestCase
             ->method('getPaymentFlow')
             ->willReturn($paymentFlow);
 
-        $commandPoolInterfaceStub = $this->getMockForAbstractClass(
+        $commandPoolInterfaceStub = $this->createMock(
             \Magento\Payment\Gateway\Command\CommandPoolInterface::class
         );
         $commandPoolInterfaceStub->method('get')
@@ -49,7 +50,7 @@ class CommandPoolProxyTest extends \PHPUnit\Framework\TestCase
         $commandPoolProxy->get('capture');
     }
 
-    public function paymentFlowCommandDataProvider(): array
+    public static function paymentFlowCommandDataProvider(): array
     {
         return [
             [

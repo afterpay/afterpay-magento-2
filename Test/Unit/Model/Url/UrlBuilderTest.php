@@ -7,6 +7,7 @@ class UrlBuilderTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider argumentsReplacementDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('argumentsReplacementDataProvider')]
     public function testPathArgumentsReplacement(string $path, array $args, string $expectedPath)
     {
         $testUrl = 'https://test.test/';
@@ -23,7 +24,7 @@ class UrlBuilderTest extends \PHPUnit\Framework\TestCase
         static::assertSame($testUrl . $expectedPath, $url);
     }
 
-    public function argumentsReplacementDataProvider(): array
+    public static function argumentsReplacementDataProvider(): array
     {
         return [
             ['v2/payments/{orderId}/capture', ['orderId' => 12345], 'v2/payments/12345/capture'],
